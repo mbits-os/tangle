@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include <uri/uri.h>
+#include <net/uri.h>
 #include <cctype>
 
 namespace net {

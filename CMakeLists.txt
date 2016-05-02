@@ -19,8 +19,8 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MT")
 endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-add_library(url SHARED src/uri.cpp include/uri/uri.h)
-add_library(url_s STATIC src/uri.cpp include/uri/uri.h)
+add_library(url SHARED src/uri.cpp include/net/uri.h)
+add_library(url_s STATIC src/uri.cpp include/net/uri.h)
 set_target_properties(url PROPERTIES
 	CXX_STANDARD 14
 	VERSION ${PROJECT_VERSION}
@@ -34,4 +34,4 @@ install(TARGETS url url_s
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
-install(DIRECTORY include/uri/ DESTINATION include/uri)
+install(DIRECTORY include/net/ DESTINATION include/net)

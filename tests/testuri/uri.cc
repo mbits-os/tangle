@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <uri/uri.h>
+#include <net/uri.h>
 
 using namespace std::literals;
 
