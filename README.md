@@ -1,0 +1,39 @@
+# Cookie handling library
+
+HTTP cookies manipulation classes, `net::cookie::item` and `net::cookie::jar`.
+Contains support for parsing, encoding and persistence.
+
+## Dependencies
+
+This repo has a submodule pointing towards the Guidelines Support Library on Microsoft's GitHub account. To have the code compiling, you should first init the submodule:
+
+    git submodule init
+    cd gsl
+    git pull
+
+When using `libcookie`, the GSL's `include` directory should be available to your compiler.
+
+## Client code
+
+For a hypothetical "browsing session", the session should use the `cookie::jar` to keep track of all cookies that have been seen. When a HTTP response would come with `Set-Cookie` header(s), the jar should be updated with `net::cookie::jar::from_server()` method,
+which will parse the cookie and decide whether or not add the cookie to the jar, based on the criteria from the [RFC2665](https://tools.ietf.org/html/rfc6265).
+
+When sending back the request, the session should consult the `cookie::jar`, which cookies to send back. For `http://example.com/path` URLs, the `net::cookie::jar::str()` should be called with
+
+    cookies = m_jar.str({"example.com", "/path"}, match::http);
+
+and for the `https://example.com/path` URLs, the `net::cookie::jar::str()` should be called with
+
+    cookies = m_jar.str({"example.com", "/path"}, match::http | match::secure);
+
+If the code using this library allows for a non-network cookie manipulation, it should use a direct calls to `net::cookie::jar::add()` when adding a cookie created off-line, with `for_http` parameter set to false and it should never add `net::cookie::match::http`, when creating cookie list to read by an off-line, external code.
+
+### Persistence
+
+For persistent cookies the session should have a policy of pruning and storing the file, either periodically or after each request/response. The `net::cookie::jar::prune()` will remove the already-expired cookies, so other operations, like `jar::str()`, `jar::add()` and `jar::store()` should be faster. The persistent cookies should generally live longer, than browsing session, so the `net::cookie::jar::store()` (or `net::cookie::jar::store_raw()`) should be called from time to time. this, in turn, requires that at the beginning of the session either `net::cookie::jar::load()` or `net::cookie::jar::load_raw()` be called to retrieve persistent cookies from the storage.
+
+## Server
+
+While there is no server version of `cookie::jar`, the `cookie::item` has tools for server-side code as well.
+
+The server wanting to send a cookie to the client can populate an `cookie::item` with the data and call `net::cookie::item::server_string()` to create a `Set-Cookie` header. On getting a request with a `Cookie` header, it may want to parse it with `net::cookie::from_client()` to get the list of cookies sent by the client.

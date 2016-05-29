@@ -1,0 +1,33 @@
+find_package(Threads)
+
+file(GLOB SRCS *.cc)
+list(APPEND SRCS testing_io.h)
+
+set(LIBS $<TARGET_FILE:cookie_s> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+
+if (MSVC)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MT")
+set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MT")
+endif()
+
+add_executable(testcookie ../main.cpp ${SRCS})
+set_target_properties(testcookie PROPERTIES CXX_STANDARD 14)
+add_dependencies(testcookie cookie_s gtest gmock)
+target_link_libraries(testcookie ${LIBS})
+
+enable_testing()
+add_test(NAME domains.scope COMMAND testcookie --gtest_filter=domains/scope.*)
+add_test(NAME paths.scope COMMAND testcookie --gtest_filter=paths/scope.*)
+add_test(NAME client.cookies COMMAND testcookie --gtest_filter=client/cookies.*)
+add_test(NAME flags.cookies COMMAND testcookie --gtest_filter=flags/server_cookies.*)
+add_test(NAME scope.cookies COMMAND testcookie --gtest_filter=scope/server_cookies.*)
+add_test(NAME expires.cookies COMMAND testcookie --gtest_filter=expires/server_cookies.*)
+add_test(NAME max_age.cookies COMMAND testcookie --gtest_filter=max_age/server_cookies.*)
+add_test(NAME client.header COMMAND testcookie --gtest_filter=client/cookie_header.*)
+add_test(NAME flags.header COMMAND testcookie --gtest_filter=flags/SetCookie_header.*)
+add_test(NAME scope.header COMMAND testcookie --gtest_filter=scope/SetCookie_header.*)
+add_test(NAME expires.header COMMAND testcookie --gtest_filter=expires/SetCookie_header.*)
+add_test(NAME max_age.header COMMAND testcookie --gtest_filter=max_age/SetCookie_header.*)
+add_test(NAME cookie.jar COMMAND testcookie --gtest_filter=*/cookie_jar_*)
