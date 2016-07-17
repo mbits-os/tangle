@@ -3,16 +3,6 @@
 HTTP cookies manipulation classes, `net::cookie::item` and `net::cookie::jar`.
 Contains support for parsing, encoding and persistence.
 
-## Dependencies
-
-This repo has a submodule pointing towards the Guidelines Support Library on Microsoft's GitHub account. To have the code compiling, you should first init the submodule:
-
-    git submodule init
-    cd gsl
-    git pull
-
-When using `libcookie`, the GSL's `include` directory should be available to your compiler.
-
 ## Client code
 
 For a hypothetical "browsing session", the session should use the `cookie::jar` to keep track of all cookies that have been seen. When a HTTP response would come with `Set-Cookie` header(s), the jar should be updated with `net::cookie::jar::from_server()` method,
