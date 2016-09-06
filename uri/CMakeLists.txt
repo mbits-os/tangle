@@ -17,17 +17,23 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MT")
 set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MT")
 endif()
 
+set(SOURCES src/uri.cpp include/tangle/uri.h)
+
+WRAP_SOURCELIST(${SOURCES})
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-add_library(url SHARED src/uri.cpp include/tangle/uri.h)
-add_library(url_s STATIC src/uri.cpp include/tangle/uri.h)
+add_library(url SHARED ${SOURCES})
+add_library(url_s STATIC ${SOURCES})
 set_target_properties(url PROPERTIES
 	CXX_STANDARD 14
 	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR})
+	SOVERSION ${PROJECT_VERSION_MAJOR}
+	FOLDER libs/dynamic)
 set_target_properties(url_s PROPERTIES
 	CXX_STANDARD 14
 	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR})
+	SOVERSION ${PROJECT_VERSION_MAJOR}
+	FOLDER libs/static)
 
 install(TARGETS url url_s
 	ARCHIVE DESTINATION lib

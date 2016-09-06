@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MT")
 endif()
 
 add_executable(testurl ../main.cpp ${SRCS})
-set_target_properties(testurl PROPERTIES CXX_STANDARD 14)
+set_target_properties(testurl PROPERTIES CXX_STANDARD 14 FOLDER tests)
 add_dependencies(testurl url_s gtest gmock)
 target_link_libraries(testurl ${LIBS})
 

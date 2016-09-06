@@ -13,7 +13,7 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MT")
 endif()
 
 add_executable(testcookie ../main.cpp ${SRCS})
-set_target_properties(testcookie PROPERTIES CXX_STANDARD 14)
+set_target_properties(testcookie PROPERTIES CXX_STANDARD 14 FOLDER tests)
 add_dependencies(testcookie cookie_s gtest gmock)
 target_link_libraries(testcookie ${LIBS})
 

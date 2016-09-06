@@ -6,6 +6,17 @@ set(TANGLE_VERSION_MINOR 1)
 set(TANGLE_VERSION_PATCH 0)
 set(TANGLE_VERSION "${TANGLE_VERSION_MAJOR}.${TANGLE_VERSION_MINOR}.${TANGLE_VERSION_PATCH}" )
 
+macro(WRAP_SOURCELIST)
+	foreach (_file ${ARGN})
+		get_filename_component(_basename ${_file} NAME_WE)
+		get_filename_component(_path ${_file} PATH)
+
+		string(REGEX REPLACE "/" "\\\\\\\\" _sourcegroup "${_path}")
+		source_group("${_sourcegroup}" FILES ${_file})
+	endforeach ()
+endmacro()
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 enable_testing()
 include( ${CMAKE_CURRENT_SOURCE_DIR}/googletest.cmake )
 add_subdirectory( cookie )

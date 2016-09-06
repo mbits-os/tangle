@@ -32,32 +32,24 @@ set(SOURCES
 	include/tangle/cookie/chrono.h
 	)
 
-macro(WRAP_SOURCELIST)
-	foreach (_file ${ARGN})
-		get_filename_component(_basename ${_file} NAME_WE)
-		get_filename_component(_path ${_file} PATH)
-
-		string(REGEX REPLACE "/" "\\\\\\\\" _sourcegroup "${_path}")
-		source_group("${_sourcegroup}" FILES ${_file})
-	endforeach ()
-endmacro()
-
 WRAP_SOURCELIST(${SOURCES})
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_library(cookie SHARED ${SOURCES})
 add_library(cookie_s STATIC ${SOURCES})
 set_target_properties(cookie PROPERTIES
-        CXX_STANDARD 14
-        VERSION ${PROJECT_VERSION}
-        SOVERSION ${PROJECT_VERSION_MAJOR})
+	CXX_STANDARD 14
+	VERSION ${PROJECT_VERSION}
+	SOVERSION ${PROJECT_VERSION_MAJOR}
+	FOLDER libs/dynamic)
 set_target_properties(cookie_s PROPERTIES
-        CXX_STANDARD 14
-        VERSION ${PROJECT_VERSION}
-        SOVERSION ${PROJECT_VERSION_MAJOR})
+	CXX_STANDARD 14
+	VERSION ${PROJECT_VERSION}
+	SOVERSION ${PROJECT_VERSION_MAJOR}
+	FOLDER libs/static)
 
 install(TARGETS cookie cookie_s
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin)
+	ARCHIVE DESTINATION lib
+	LIBRARY DESTINATION lib
+	RUNTIME DESTINATION bin)
 install(DIRECTORY include/tangle/ DESTINATION include/tangle)
