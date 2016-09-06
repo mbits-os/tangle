@@ -22,8 +22,9 @@
  * SOFTWARE.
  */
 
-#include <net/uri.h>
+#include <tangle/uri.h>
 #include <cctype>
+#include <experimental/filesystem>
 
 namespace net {
 	namespace {
