@@ -26,7 +26,7 @@
 #include <cctype>
 #include <ctime>
 
-namespace net { namespace cookie {
+namespace tangle { namespace cookie {
 	scope_type::scope_type() = default;
 	scope_type::scope_type(const scope_type&) = default;
 	scope_type::scope_type(scope_type&&) = default;

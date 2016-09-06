@@ -30,8 +30,8 @@ Cookie jar I/O code.
 \version 1.0
 
 This file contains code for I/O for cookie jars.
-Top level functions, net::cookie::io::store_raw and
-net::cookie::io::store_raw, allow to write binary
+Top level functions, tangle::cookie::io::store_raw and
+tangle::cookie::io::store_raw, allow to write binary
 files for long-term persistent cookies for any given
 I/O.
 */
@@ -44,7 +44,7 @@ I/O.
 #include <cstring>
 #include <memory>
 
-namespace net { namespace cookie {
+namespace tangle { namespace cookie {
 
 	/**
 	Cookie jar I/O code.

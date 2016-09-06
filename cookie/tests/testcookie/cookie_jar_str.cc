@@ -27,10 +27,10 @@
 
 namespace {
 	using namespace std::literals;
-	using namespace net::cookie;
+	using namespace tangle::cookie;
 
 	struct jar_info {
-		const net::cookie::jar cookies;
+		const jar cookies;
 		const scope_type scope;
 		match options;
 		const char* header;
@@ -100,7 +100,7 @@ namespace {
 		},
 	};
 
-	static const net::cookie::jar jar {
+	static const jar jar_contents {
 		{ "password", "123456", { "example.com", "/" }, flags::http_only },
 		{ "settings", "some", { "example.com", "/" }, flags::none },
 		{ "password", "password", { "example.net", "/" }, flags::http_only },
@@ -113,17 +113,17 @@ namespace {
 	};
 
 	static jar_info browser[] = {
-		{ jar, { "example.com", "/" }, match::none, "settings=some" },
-		{ jar, { "example.com", "/" }, match::http, "password=123456; settings=some" },
-		{ jar, { "example.net", "/" }, match::http, "password=password; main=value" },
-		{ jar, { "example.net", "/" }, match::http | match::secure, "password=password; weak=value; main=value" },
-		{ jar, { "example.net", "/" }, match::secure, "" },
-		{ jar, { "www.example.net", "/" }, match::http, "password=password; www=value; wwwSubDom=value" },
-		{ jar, { "www.example.net", "/" }, match::http | match::secure, "password=password; weak=value; www=value; wwwSubDom=value" },
-		{ jar, { "www.example.net", "/" }, match::secure, "" },
-		{ jar, { "www.example.net", "/sub/path" }, match::http | match::secure, "password=password; weak=value; weakNone=value; www=value; wwwSubDom=value; wwwSubPath=value" },
-		{ jar, { "ns.www.example.net", "/" }, match::secure, "" },
-		{ jar, { "ns.www.example.net", "/sub/path" }, match::http | match::secure, "password=password; weak=value; weakNone=value; wwwSubDom=value; wwwSubPath=value" },
+		{ jar_contents, { "example.com", "/" }, match::none, "settings=some" },
+		{ jar_contents, { "example.com", "/" }, match::http, "password=123456; settings=some" },
+		{ jar_contents, { "example.net", "/" }, match::http, "password=password; main=value" },
+		{ jar_contents, { "example.net", "/" }, match::http | match::secure, "password=password; weak=value; main=value" },
+		{ jar_contents, { "example.net", "/" }, match::secure, "" },
+		{ jar_contents, { "www.example.net", "/" }, match::http, "password=password; www=value; wwwSubDom=value" },
+		{ jar_contents, { "www.example.net", "/" }, match::http | match::secure, "password=password; weak=value; www=value; wwwSubDom=value" },
+		{ jar_contents, { "www.example.net", "/" }, match::secure, "" },
+		{ jar_contents, { "www.example.net", "/sub/path" }, match::http | match::secure, "password=password; weak=value; weakNone=value; www=value; wwwSubDom=value; wwwSubPath=value" },
+		{ jar_contents, { "ns.www.example.net", "/" }, match::secure, "" },
+		{ jar_contents, { "ns.www.example.net", "/sub/path" }, match::http | match::secure, "password=password; weak=value; weakNone=value; wwwSubDom=value; wwwSubPath=value" },
 	};
 
 	INSTANTIATE_TEST_CASE_P(empty, cookie_jar_str, ::testing::ValuesIn(empty));

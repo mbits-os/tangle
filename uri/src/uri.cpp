@@ -26,7 +26,7 @@
 #include <cctype>
 #include <experimental/filesystem>
 
-namespace net {
+namespace tangle {
 	namespace {
 		int default_port(const std::string& scheme)
 		{
@@ -649,8 +649,4 @@ namespace net {
 
 		return tmp;
 	}
-}
-
-
-namespace std {
 }

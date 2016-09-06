@@ -41,7 +41,7 @@ namespace {
 
 	auto make_span(const char* s)
 	{
-		return net::cookie::cstring(s, strlen(s));
+		return tangle::cookie::cstring(s, strlen(s));
 	}
 
 	TEST_P(cookies, parse)
@@ -50,7 +50,7 @@ namespace {
 		auto header = par.header;
 		auto& expected = par.cookies;
 
-		auto actual = net::cookie::from_client("example.com", make_span(header));
+		auto actual = tangle::cookie::from_client("example.com", make_span(header));
 		ASSERT_EQ(expected.size(), actual.size());
 		auto cur = std::begin(actual);
 		for (auto& ex : expected) {

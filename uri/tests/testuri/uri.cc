@@ -3,7 +3,7 @@
 
 using namespace std::literals;
 
-namespace net { namespace testing {
+namespace tangle { namespace testing {
 	using ::testing::TestWithParam;
 	using ::testing::ValuesIn;
 

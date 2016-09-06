@@ -27,13 +27,13 @@
 
 namespace {
 	using namespace std::literals;
-	using namespace net::cookie;
+	using namespace tangle::cookie;
 
 	struct load_info {
 		size_t length;
 		const uint8_t* content;
 		bool valid;
-		const net::cookie::jar* expected;
+		const jar* expected;
 	};
 
 	class cookie_jar_load : public ::testing::TestWithParam<load_info> {
@@ -56,7 +56,7 @@ namespace {
 		auto& par = GetParam();
 		auto& expected = *par.expected;
 		io::data data { par.length, 0, par.content };
-		net::cookie::jar actual;
+		jar actual;
 
 		ASSERT_EQ(par.valid, actual.load_raw(&data, now()));
 		if (!par.valid)
@@ -252,7 +252,6 @@ namespace {
 		0x77, 0x77, 0x77, 0x2e, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x63, 0x6f, 0x6d, 0x00
 	};
 
-	using net::cookie::flags;
 	static const jar tested {
 		{ "name2", "value", { "example.com", "/" }, flags::http_only | flags::persistent, make_time(2100, 1, 1, 12, 30, 00), make_time(2016, 5, 29, 12, 30, 00) },
 		{ "name2", "value2", { "www.example.com", "/" }, flags::persistent, make_time(2100, 1, 1, 12, 30, 00), make_time(2016, 5, 29, 12, 30, 00) }

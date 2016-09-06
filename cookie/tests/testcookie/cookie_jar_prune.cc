@@ -27,7 +27,7 @@
 
 namespace {
 	using namespace std::literals;
-	using namespace net::cookie;
+	using namespace tangle::cookie;
 
 	struct session_info {
 		const jar before;
@@ -71,7 +71,6 @@ namespace {
 		}
 	}
 
-	using net::cookie::flags;
 	static const session_info session[] = {
 		{
 			{

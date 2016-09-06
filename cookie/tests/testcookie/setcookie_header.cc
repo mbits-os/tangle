@@ -29,7 +29,7 @@ namespace {
 	using namespace std::literals;
 	struct cookie_info {
 		const char* header;
-		net::cookie::item cookie;
+		tangle::cookie::item cookie;
 		bool prefer_maxage;
 	};
 
@@ -38,7 +38,7 @@ namespace {
 		return o << '`' << nfo.header << '`';
 	}
 
-	std::ostream& operator << (std::ostream& o, const net::cookie::time_point& pt)
+	std::ostream& operator << (std::ostream& o, const tangle::cookie::time_point& pt)
 	{
 		return o << pt.time_since_epoch().count();
 	}
@@ -48,13 +48,13 @@ namespace {
 
 	auto now()
 	{
-		static auto when = net::cookie::clock::now();
+		static auto when = tangle::cookie::clock::now();
 		return when;
 	}
 
 	auto make_time(int year, int month, int day, int hour, int minute, int second)
 	{
-		return net::cookie::clock::from_date({ year, month, day, hour, minute, second });
+		return tangle::cookie::clock::from_date({ year, month, day, hour, minute, second });
 	}
 
 	TEST_P(SetCookie_header, serialize)
@@ -65,7 +65,7 @@ namespace {
 		ASSERT_EQ(expected, actual);
 	}
 
-	using net::cookie::flags;
+	using tangle::cookie::flags;
 	static cookie_info flag_tests[] = {
 		{ "name=value", { "name", "value", { }, flags::host_only } },
 		{ "name=value", { "name", "value", { "example.com", { } }, flags::host_only } },

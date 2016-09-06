@@ -26,7 +26,7 @@
 #include <cctype>
 #include <ctime>
 
-namespace net { namespace cookie {
+namespace tangle { namespace cookie {
 	item::item(const std::string& name, const std::string& value, const scope_type& scope)
 		: m_name(name)
 		, m_value(value)

@@ -27,7 +27,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace net {
+namespace tangle {
 	std::string urlencode(const char* in, size_t in_len);
 	std::string urldecode(const char* in, size_t in_len);
 

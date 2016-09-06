@@ -40,10 +40,10 @@ the description of a single cookie.
 #include <vector>
 
 /**
- * \namespace net::cookie
+ * \namespace tangle::cookie
  * \brief Cookie item and cookie jar code
  */
-namespace net { namespace cookie {
+namespace tangle { namespace cookie {
 	/**
 	Bit flags for defining type of cookie.
 	*/

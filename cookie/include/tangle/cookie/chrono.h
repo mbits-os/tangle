@@ -35,7 +35,7 @@ Defines extensions to std::chrono for cookie-compatible time point.
 #include <chrono>
 #include <string>
 
-namespace net { namespace cookie {
+namespace tangle { namespace cookie {
 	/**
 	Chrono - extensions to std::chrono for cookie-compatible time point.
 

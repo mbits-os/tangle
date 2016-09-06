@@ -27,13 +27,13 @@
 
 namespace {
 	using namespace std::literals;
-	using namespace net::cookie;
+	using namespace tangle::cookie;
 
 	struct session_info {
-		const net::cookie::jar before;
-		const net::cookie::item cookie;
+		const jar before;
+		const item cookie;
 		bool from_http;
-		const net::cookie::jar after;
+		const jar after;
 
 		size_t length;
 		const uint8_t* content;
@@ -103,7 +103,7 @@ namespace {
 		auto& par = GetParam();
 		auto& jar = par.after;
 		io::data data { par.length, 0, par.content };
-		net::cookie::jar actual;
+		tangle::cookie::jar actual;
 
 		ASSERT_TRUE(actual.load_raw(&data, now()));
 
@@ -209,7 +209,6 @@ namespace {
 		0x2f, 0x00
 	};
 
-	using net::cookie::flags;
 	static const session_info session[] = {
 		{
 			{},

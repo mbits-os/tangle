@@ -2,7 +2,7 @@
 
 #include <tangle/cookie/jar.h>
 
-namespace net { namespace cookie { namespace io {
+namespace tangle { namespace cookie { namespace io {
 	struct data {
 		size_t length;
 		size_t ptr;

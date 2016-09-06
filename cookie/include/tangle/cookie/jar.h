@@ -37,7 +37,7 @@ the client-side container for HTTP cookies.
 #include <tangle/cookie/io.h>
 #include <experimental/filesystem>
 
-namespace net { namespace cookie {
+namespace tangle { namespace cookie {
 	namespace fs = std::experimental::filesystem;
 
 	/**
@@ -116,14 +116,14 @@ namespace net { namespace cookie {
 		void add(item&& cookie, bool for_http = true);
 
 		/**
-		 Shorthand for add(cookie::from_server()). For the description of the parameters, see net::cookie::from_server().
+		 Shorthand for add(cookie::from_server()). For the description of the parameters, see tangle::cookie::from_server().
 		 
-		 \see net::cookie::from_server()
+		 \see tangle::cookie::from_server()
 		 \see add()
 		 */
 		void from_server(const std::string& origin, const cstring& header, time_point created = clock::now())
 		{
-			add(net::cookie::from_server(origin, header, created));
+			add(tangle::cookie::from_server(origin, header, created));
 		}
 
 		/**

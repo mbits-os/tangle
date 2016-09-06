@@ -25,7 +25,7 @@
 #include <tangle/cookie/jar.h>
 #include <memory>
 
-namespace net { namespace cookie {
+namespace tangle { namespace cookie {
 	jar::const_iterator jar::find(const std::string& name, const scope_type& scope) const
 	{
 		for (auto cur = begin(), last = end(); cur != last; ++cur) {

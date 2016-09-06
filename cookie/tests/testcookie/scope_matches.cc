@@ -26,7 +26,7 @@
 #include <tangle/cookie/scope.h>
 
 struct scope_info {
-	net::cookie::scope_type in, out;
+	tangle::cookie::scope_type in, out;
 	bool host_only;
 	bool expected;
 	std::string explain;

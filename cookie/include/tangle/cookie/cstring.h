@@ -36,7 +36,7 @@ string of characters.
 #include <iostream>
 #include <string>
 
-namespace net { namespace cookie {
+namespace tangle { namespace cookie {
 	class cstring {
 	public:
 		using size_type = size_t;

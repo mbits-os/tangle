@@ -26,7 +26,7 @@
 #include <cctype>
 #include <ctime>
 
-namespace net { namespace cookie { namespace chrono {
+namespace tangle { namespace cookie { namespace chrono {
 
 	// gmtime/timegm doesn't work nice with the 1601-1970 range, required by RFC
 	// most of this is taken from boost/chrono/io/time_point_io.hpp

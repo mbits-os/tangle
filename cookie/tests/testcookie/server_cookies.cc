@@ -27,9 +27,10 @@
 
 namespace {
 	using namespace std::literals;
+	using namespace tangle::cookie;
 	struct cookie_info {
-		net::cookie::cstring header;
-		net::cookie::item cookie;
+		cstring header;
+		item cookie;
 	};
 
 	std::ostream& operator << (std::ostream& o, const cookie_info& nfo)
@@ -37,7 +38,7 @@ namespace {
 		return o << '`' << nfo.header << '`';
 	}
 
-	std::ostream& operator << (std::ostream& o, const net::cookie::time_point& pt)
+	std::ostream& operator << (std::ostream& o, const time_point& pt)
 	{
 		return o << pt.time_since_epoch().count();
 	}
@@ -48,23 +49,22 @@ namespace {
 	// a time point which is common for every test in this file
 	auto now()
 	{
-		static auto when = net::cookie::clock::now();
+		static auto when = clock::now();
 		return when;
 	}
 
 	auto make_time(int year, int month, int day, int hour, int minute, int second)
 	{
-		return net::cookie::clock::from_date({ year, month, day, hour, minute, second });
+		return clock::from_date({ year, month, day, hour, minute, second });
 	}
 
-	using net::cookie::flags;
 	TEST_P(server_cookies, parse)
 	{
 		auto& par = GetParam();
 		auto header = par.header;
 		auto& expected = par.cookie;
 
-		auto actual = net::cookie::from_server("example.com", header, now());
+		auto actual = from_server("example.com", header, now());
 		ASSERT_EQ(expected.name(), actual.name());
 		if (actual.name().empty())
 			return;
@@ -77,7 +77,7 @@ namespace {
 			ASSERT_EQ(expected.expires(), actual.expires());
 	}
 
-	constexpr net::cookie::cstring operator "" _cs(const char* ptr, size_t length)
+	constexpr cstring operator "" _cs(const char* ptr, size_t length)
 	{
 		return { ptr, length };
 	}

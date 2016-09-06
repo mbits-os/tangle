@@ -36,7 +36,7 @@ this pair as scope_type.
 
 #include <string>
 
-namespace net { namespace cookie {
+namespace tangle { namespace cookie {
 
 	/**
 	The string pair for domain and path. This type is extracted from cookie::item
