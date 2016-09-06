@@ -38,9 +38,11 @@ I/O.
 
 #pragma once
 
-#include <net/cookie/item.h>
+#include <tangle/cookie/item.h>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
+#include <memory>
 
 namespace net { namespace cookie {
 
@@ -204,7 +206,7 @@ namespace net { namespace cookie {
 					return true;
 				}
 
-				auto len = strlen(s) + 1;
+				auto len = std::strlen(s) + 1;
 				return Final::writeraw(writable, s, len) == len;
 			}
 

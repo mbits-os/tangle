@@ -23,7 +23,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <net/cookie/scope.h>
+#include <tangle/cookie/scope.h>
 
 struct scope_info {
 	net::cookie::scope_type in, out;

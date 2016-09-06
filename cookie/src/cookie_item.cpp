@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include <net/cookie/item.h>
+#include <tangle/cookie/item.h>
 #include <cctype>
 #include <ctime>
 
@@ -62,19 +62,19 @@ namespace net { namespace cookie {
 	bool item::matches(const scope_type& upstream, match options, time_point when) const
 	{
 		// secure cookie over non-secure channel?
-		if ((m_flags & flags::secure) == flags::secure && (options & match::secure) != match::secure)
+		if ((m_flags & cookie::flags::secure) == cookie::flags::secure && (options & match::secure) != match::secure)
 			return false;
 
 		// http-only cookie over non-http API?
-		if ((m_flags & flags::http_only) == flags::http_only && (options & match::http) == match::none)
+		if ((m_flags & cookie::flags::http_only) == cookie::flags::http_only && (options & match::http) == match::none)
 			return false;
 
 		// expired?
-		if ((m_flags & flags::persistent) == flags::persistent && when > m_expires)
+		if ((m_flags & cookie::flags::persistent) == cookie::flags::persistent && when > m_expires)
 			return false;
 
 		// domain matches?
-		return m_scope.matches(upstream, (m_flags & flags::host_only) == flags::host_only);
+		return m_scope.matches(upstream, (m_flags & cookie::flags::host_only) == cookie::flags::host_only);
 	}
 
 	namespace {
@@ -328,7 +328,7 @@ namespace net { namespace cookie {
 		std::string path;
 		cstring expires;
 		std::string max_age;
-		auto flags = flags::none;
+		auto flags = cookie::flags::none;
 		auto until = clock::max_epoch();
 
 		auto last = header.length();
@@ -372,11 +372,11 @@ namespace net { namespace cookie {
 				return;
 			}
 			if (name == "secure") {
-				flags = flags | flags::secure;
+				flags = flags | cookie::flags::secure;
 				return;
 			}
 			if (name == "httponly") {
-				flags = flags | flags::http_only;
+				flags = flags | cookie::flags::http_only;
 				return;
 			}
 		};
@@ -394,16 +394,16 @@ namespace net { namespace cookie {
 			auto secs = std::strtol(max_age.c_str(), &pos, 10);
 			if (pos == max_age.c_str() + max_age.length()) {
 				until = created + std::chrono::seconds(secs);
-				flags = flags | flags::persistent;
+				flags = flags | cookie::flags::persistent;
 			}
 		} else if (!expires.empty()) {
 			until = cookie_date(expires);
-			flags = flags | flags::persistent;
+			flags = flags | cookie::flags::persistent;
 		}
 
 		if (domain.empty()) {
 			domain = origin;
-			flags = flags | flags::host_only;
+			flags = flags | cookie::flags::host_only;
 		}
 
 		if (path.empty())
@@ -423,7 +423,7 @@ namespace net { namespace cookie {
 		size_t len = m_name.length() + m_value.length() + 1;
 		std::string date;
 
-		if ((m_flags & flags::host_only) != flags::host_only && !m_scope.domain().empty()) {
+		if ((m_flags & cookie::flags::host_only) != cookie::flags::host_only && !m_scope.domain().empty()) {
 			len += sizeof(s_dom) - 1;
 			len += m_scope.domain().length();
 		}
@@ -433,7 +433,7 @@ namespace net { namespace cookie {
 			len += m_scope.path().length();
 		}
 
-		if ((m_flags & flags::persistent) == flags::persistent) {
+		if ((m_flags & cookie::flags::persistent) == cookie::flags::persistent) {
 			if (prefer_maxage) {
 				date = std::to_string(std::chrono::duration_cast<std::chrono::seconds>(m_expires - when).count());
 				len += sizeof(s_maxage) - 1;
@@ -444,10 +444,10 @@ namespace net { namespace cookie {
 			len += date.length();
 		}
 
-		if ((m_flags & flags::secure) == flags::secure)
+		if ((m_flags & cookie::flags::secure) == cookie::flags::secure)
 			len += sizeof(s_secure) - 1;
 
-		if ((m_flags & flags::http_only) == flags::http_only)
+		if ((m_flags & cookie::flags::http_only) == cookie::flags::http_only)
 			len += sizeof(s_http_only) - 1;
 
 		std::string out;
@@ -457,7 +457,7 @@ namespace net { namespace cookie {
 		out.push_back('=');
 		out.append(m_value);
 
-		if ((m_flags & flags::host_only) != flags::host_only && !m_scope.domain().empty()) {
+		if ((m_flags & cookie::flags::host_only) != cookie::flags::host_only && !m_scope.domain().empty()) {
 			out.append(s_dom);
 			out.append(m_scope.domain());
 		}
@@ -467,7 +467,7 @@ namespace net { namespace cookie {
 			out.append(m_scope.path());
 		}
 
-		if ((m_flags & flags::persistent) == flags::persistent) {
+		if ((m_flags & cookie::flags::persistent) == cookie::flags::persistent) {
 			if (prefer_maxage)
 				out.append(s_maxage);
 			else
@@ -476,10 +476,10 @@ namespace net { namespace cookie {
 			out.append(date);
 		}
 
-		if ((m_flags & flags::secure) == flags::secure)
+		if ((m_flags & cookie::flags::secure) == cookie::flags::secure)
 			out.append(s_secure);
 
-		if ((m_flags & flags::http_only) == flags::http_only)
+		if ((m_flags & cookie::flags::http_only) == cookie::flags::http_only)
 			out.append(s_http_only);
 
 		return out;

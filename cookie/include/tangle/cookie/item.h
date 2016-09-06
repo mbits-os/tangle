@@ -33,9 +33,9 @@ the description of a single cookie.
 
 #pragma once
 
-#include <net/cookie/scope.h>
-#include <net/cookie/chrono.h>
-#include <net/cookie/cstring.h>
+#include <tangle/cookie/scope.h>
+#include <tangle/cookie/chrono.h>
+#include <tangle/cookie/cstring.h>
 #include <string>
 #include <vector>
 
@@ -172,7 +172,7 @@ namespace net { namespace cookie {
 		/**
 		Getter for flags property. Will return all flags set.
 		*/
-		flags flags() const { return m_flags; }
+		cookie::flags flags() const { return m_flags; }
 
 		/**
 		Setter for flags property. Will set internal state to value, but will retain the old value of flags::persistent,
@@ -180,7 +180,7 @@ namespace net { namespace cookie {
 		*/
 		void flags(cookie::flags value)
 		{
-			m_flags = (m_flags & flags::persistent) | (value & ~flags::persistent);
+			m_flags = (m_flags & cookie::flags::persistent) | (value & ~cookie::flags::persistent);
 		}
 
 		/**
@@ -226,7 +226,7 @@ namespace net { namespace cookie {
 		void expires(time_point value)
 		{
 			m_expires = value;
-			m_flags = m_flags | flags::persistent;
+			m_flags = m_flags | cookie::flags::persistent;
 		}
 
 		/**
@@ -236,7 +236,7 @@ namespace net { namespace cookie {
 		void clean_expires()
 		{
 			m_expires = time_point();
-			m_flags = m_flags & ~flags::persistent;
+			m_flags = m_flags & ~cookie::flags::persistent;
 		}
 
 		/**
@@ -245,7 +245,7 @@ namespace net { namespace cookie {
 		*/
 		bool has_expired(time_point when = clock::now()) const
 		{
-			return ((m_flags & flags::persistent) == flags::persistent) && (m_expires <= when);
+			return ((m_flags & cookie::flags::persistent) == cookie::flags::persistent) && (m_expires <= when);
 		}
 
 		/**
@@ -304,7 +304,7 @@ namespace net { namespace cookie {
 		std::string server_string(bool prefer_maxage = false, time_point when = clock::now()) const;
 
 	private:
-		cookie::flags m_flags = flags::none;
+		cookie::flags m_flags = cookie::flags::none;
 		scope_type m_scope;
 		std::string m_name;
 		std::string m_value;

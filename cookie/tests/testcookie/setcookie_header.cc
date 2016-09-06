@@ -23,7 +23,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <net/cookie/item.h>
+#include <tangle/cookie/item.h>
 
 namespace {
 	using namespace std::literals;
@@ -66,7 +66,7 @@ namespace {
 	}
 
 	using net::cookie::flags;
-	static cookie_info flags[] = {
+	static cookie_info flag_tests[] = {
 		{ "name=value", { "name", "value", { }, flags::host_only } },
 		{ "name=value", { "name", "value", { "example.com", { } }, flags::host_only } },
 		{ "name=value; Secure", { "name", "value", { "example.com", { } }, flags::host_only | flags::secure } },
@@ -127,7 +127,7 @@ namespace {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(flags, SetCookie_header, ::testing::ValuesIn(flags));
+	INSTANTIATE_TEST_CASE_P(flags, SetCookie_header, ::testing::ValuesIn(flag_tests));
 	INSTANTIATE_TEST_CASE_P(scope, SetCookie_header, ::testing::ValuesIn(scope));
 	INSTANTIATE_TEST_CASE_P(expires, SetCookie_header, ::testing::ValuesIn(expires));
 	INSTANTIATE_TEST_CASE_P(max_age, SetCookie_header, ::testing::ValuesIn(max_age));

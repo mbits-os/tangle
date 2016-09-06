@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.4)
-project(libs-cookie CXX)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -18,21 +17,19 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MT")
 set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MT")
 endif()
 
-add_definitions("-DGSL_THROW_ON_CONTRACT_VIOLATION")
-
 set(SOURCES
 	src/cookie_item.cpp
 	src/cookie_scope.cpp
 	src/cookie_jar.cpp
 	src/cookie_chrono.cpp
 
-	include/net/cookie.h
-	include/net/cookie/item.h
-	include/net/cookie/scope.h
-	include/net/cookie/cstring.h
-	include/net/cookie/jar.h
-	include/net/cookie/io.h
-	include/net/cookie/chrono.h
+	include/tangle/cookie.h
+	include/tangle/cookie/item.h
+	include/tangle/cookie/scope.h
+	include/tangle/cookie/cstring.h
+	include/tangle/cookie/jar.h
+	include/tangle/cookie/io.h
+	include/tangle/cookie/chrono.h
 	)
 
 macro(WRAP_SOURCELIST)
@@ -63,4 +60,4 @@ install(TARGETS cookie cookie_s
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)
-install(DIRECTORY include/net/ DESTINATION include/net)
+install(DIRECTORY include/tangle/ DESTINATION include/tangle)

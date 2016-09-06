@@ -33,8 +33,8 @@ the client-side container for HTTP cookies.
 
 #pragma once
 
-#include <net/cookie/item.h>
-#include <net/cookie/io.h>
+#include <tangle/cookie/item.h>
+#include <tangle/cookie/io.h>
 #include <experimental/filesystem>
 
 namespace net { namespace cookie {

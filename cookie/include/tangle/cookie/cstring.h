@@ -33,6 +33,7 @@ string of characters.
 
 #pragma once
 
+#include <iostream>
 #include <string>
 
 namespace net { namespace cookie {

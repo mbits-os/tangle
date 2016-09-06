@@ -23,7 +23,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <net/cookie/item.h>
+#include <tangle/cookie/item.h>
 
 namespace {
 	struct cookie_info {

@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include <net/cookie/scope.h>
-#include <net/cookie/chrono.h>
-#include <net/cookie/item.h>
-#include <net/cookie/io.h>
-#include <net/cookie/jar.h>
+#include <tangle/cookie/scope.h>
+#include <tangle/cookie/chrono.h>
+#include <tangle/cookie/item.h>
+#include <tangle/cookie/io.h>
+#include <tangle/cookie/jar.h>
