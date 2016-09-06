@@ -50,4 +50,3 @@ set(GOOGLETEST_LIBS
 	"${GMOCK_LIB}"
 )
 
-add_subdirectory( testuri )
