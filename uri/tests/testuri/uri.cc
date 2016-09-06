@@ -28,8 +28,9 @@ namespace tangle { namespace testing {
 		return o << "\"" << param.url << "\" -> \"" << param.expected << "\"";
 	}
 
-	class UriCannonicalHref : public TestWithParam<UriCannonicalHrefTest> { };
-	class UriCannonicalHex  : public TestWithParam<UriCannonicalHexTest>  { };
+	class UriCannonicalHref  : public TestWithParam<UriCannonicalHrefTest> { };
+	class UriCannonicalHex   : public TestWithParam<UriCannonicalHexTest>  { };
+	class UriCannonicalBase  : public TestWithParam<UriCannonicalHexTest>  { };
 
 	TEST_P(UriCannonicalHref, HrefAttr)
 	{
@@ -42,6 +43,13 @@ namespace tangle { namespace testing {
 	{
 		auto param = GetParam();
 		auto result = uri::canonical(param.url, { }).string();
+		ASSERT_EQ(param.expected, result);
+	}
+
+	TEST_P(UriCannonicalBase, MakeBase)
+	{
+		auto param = GetParam();
+		auto result = uri::make_base(param.url).string();
 		ASSERT_EQ(param.expected, result);
 	}
 
@@ -122,6 +130,21 @@ namespace tangle { namespace testing {
 		{ "?name=value",                                        "?name=value" },
 	};
 
+	static const UriCannonicalHexTest uri_make_base[] = {
+		{ "",                                                   "" },
+		{ "one-only",                                           "http://one-only/" },
+		{ "one-only/leaf",                                      "http://one-only/" },
+		{ "one-only/dir/",                                      "http://one-only/dir/" },
+		{ "one-only/dir/leaf",                                  "http://one-only/dir/" },
+		{ "one-only/dir/sub/",                                  "http://one-only/dir/sub/" },
+		{ "https://server",                                     "https://server/" },
+		{ "https://server/",                                    "https://server/" },
+		{ "https://server/leaf",                                "https://server/" },
+		{ "https://server/dir/",                                "https://server/dir/" },
+		{ "https://server/dir/leaf",                            "https://server/dir/" },
+		{ "https://server/dir/sub/",                            "https://server/dir/sub/" },
+	};
+
 #define URI_CANONICAL(Name, Domain, arr) \
 	INSTANTIATE_TEST_CASE_P(Name, UriCannonical ## Domain, ValuesIn(arr))
 
@@ -133,4 +156,5 @@ namespace tangle { namespace testing {
 	URI_CANONICAL(Path, Hex, uri_canonical_decode_path);
 	URI_CANONICAL(RelPath, Hex, uri_canonical_decode_relpath);
 	URI_CANONICAL(Query, Hex, uri_canonical_decode_query);
+	URI_CANONICAL(MakeBase, Base, uri_make_base);
 }}

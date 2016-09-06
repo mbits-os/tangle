@@ -24,7 +24,6 @@
 
 #include <tangle/uri.h>
 #include <cctype>
-#include <experimental/filesystem>
 
 namespace tangle {
 	namespace {
@@ -535,15 +534,26 @@ namespace tangle {
 		m_uri.replace(m_part, m_uri.length() - m_part, value);
 	}
 
+	std::string remove_filename(std::string path)
+	{
+		auto find = path.find_last_of('/');
+		if (find == std::string::npos)
+			return path;
+		return path.substr(0, find + 1);
+	}
+
 	uri uri::make_base(const uri& document)
 	{
+		if (document.string().empty())
+			return document;
+
 		auto tmp = document;
 		if (tmp.relative())
 			tmp = "http://" + tmp.string();
 
 		tmp.fragment(std::string());
 		tmp.query(std::string());
-		tmp.path(std::experimental::filesystem::path { tmp.path() }.remove_filename().string());
+		tmp.path(remove_filename(tmp.path()));
 		tmp.ensure_query();
 		return tmp;
 	}
