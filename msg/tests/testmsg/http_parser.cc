@@ -28,26 +28,25 @@
 #include <type_traits>
 #include <cctype>
 
-namespace tangle { namespace msg {
-	static std::ostream& operator<<(std::ostream& o, parsing p) {
-		switch (p) {
-		case parsing::reading: return o << "parsing::reading";
-		case parsing::separator: return o << "parsing::separator";
-		case parsing::error: return o << "parsing::error";
-		}
-		return o << "<" << (int)p << ">";
-	};
-}}
+static std::ostream& operator<<(std::ostream& o, tangle::msg::parsing p)
+{
+	switch (p) {
+	case tangle::msg::parsing::reading: return o << "parsing::reading";
+	case tangle::msg::parsing::separator: return o << "parsing::separator";
+	case tangle::msg::parsing::error: return o << "parsing::error";
+	}
+	return o << "<" << (int)p << ">";
+};
 
-namespace {
+namespace tangle { namespace msg { namespace testing {
 	struct http_request_info {
 		std::initializer_list<const char*> stream;
 		std::string method;
 		std::string request;
 		int maj, min;
-		std::unordered_map<tangle::msg::cstring, std::vector<const char*>> headers;
+		std::unordered_map<cstring, std::vector<const char*>> headers;
 
-		using parser_type = tangle::msg::http_request;
+		using parser_type = http_request;
 	};
 
 	struct http_response_info {
@@ -55,9 +54,9 @@ namespace {
 		int maj, min;
 		int status;
 		std::string reason;
-		std::unordered_map<tangle::msg::cstring, std::vector<const char*>> headers;
+		std::unordered_map<cstring, std::vector<const char*>> headers;
 
-		using parser_type = tangle::msg::http_response;
+		using parser_type = http_response;
 	};
 
 	template <typename Info>
@@ -106,8 +105,6 @@ namespace {
 	{
 		auto& par = ::testing::TestWithParam<Info>::GetParam();
 
-		using tangle::msg::parsing;
-
 		parser_type parser;
 
 		size_t read = 0;
@@ -127,7 +124,7 @@ namespace {
 		for (auto& header : headers) {
 			auto it = par.headers.find(header.first);
 			auto present = par.headers.end() != it;
-			ASSERT_TRUE(present) << "unexpected key in parsed headers: " << header.first.str();
+			ASSERT_TRUE(present) << "unexpected key in parsed headers: " << header.first;
 			ASSERT_EQ(header.second.size(), it->second.size());
 			auto val = std::begin(header.second);
 			for (auto& lhs : it->second) {
@@ -139,7 +136,7 @@ namespace {
 		for (auto& header : par.headers) {
 			auto it = headers.find(header.first);
 			auto present = headers.end() != it;
-			ASSERT_TRUE(present) << "missing key in parsed headers: " << header.first.str();
+			ASSERT_TRUE(present) << "missing key in parsed headers: " << header.first;
 			ASSERT_EQ(header.second.size(), it->second.size());
 			auto val = std::begin(header.second);
 			for (auto& lhs : it->second) {
@@ -166,8 +163,6 @@ namespace {
 	inline void http_parser_error<Parser>::error_test()
 	{
 		auto chunk = GetParam();
-
-		using tangle::msg::parsing;
 
 		parser_type parser;
 
@@ -198,10 +193,10 @@ namespace {
 		}
 	};
 
-	class request_error : public http_parser_error<tangle::msg::http_request> {
+	class request_error : public http_parser_error<http_request> {
 	};
 
-	class response_error : public http_parser_error<tangle::msg::http_response> {
+	class response_error : public http_parser_error<http_response> {
 	};
 
 	TEST_P(request_parser, append) { append_test(); }
@@ -285,4 +280,4 @@ namespace {
 
 	INSTANTIATE_TEST_CASE_P(first_line, request_error, ::testing::ValuesIn(error_requests));
 	INSTANTIATE_TEST_CASE_P(first_line, response_error, ::testing::ValuesIn(error_responses));
-}
+}}}

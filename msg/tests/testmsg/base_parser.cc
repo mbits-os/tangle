@@ -26,21 +26,20 @@
 #include <tangle/msg/base_parser.h>
 #include <cctype>
 
-namespace tangle { namespace msg {
-	static std::ostream& operator<<(std::ostream& o, parsing p) {
-		switch (p) {
-		case parsing::reading: return o << "parsing::reading";
-		case parsing::separator: return o << "parsing::separator";
-		case parsing::error: return o << "parsing::error";
-		}
-		return o << "<" << (int)p << ">";
-	};
-}}
+static std::ostream& operator<<(std::ostream& o, tangle::msg::parsing p)
+{
+	switch (p) {
+	case tangle::msg::parsing::reading: return o << "parsing::reading";
+	case tangle::msg::parsing::separator: return o << "parsing::separator";
+	case tangle::msg::parsing::error: return o << "parsing::error";
+	}
+	return o << "<" << (int)p << ">";
+};
 
-namespace {
+namespace tangle { namespace msg { namespace testing {
 	struct header_info {
 		std::initializer_list<const char*> stream;
-		std::unordered_map<tangle::msg::cstring, std::vector<const char*>> headers;
+		std::unordered_map<tangle::cstring, std::vector<const char*>> headers;
 	};
 
 	static std::ostream& operator<<(std::ostream& o, const header_info& nfo)
@@ -101,7 +100,7 @@ namespace {
 		for (auto& header : headers) {
 			auto it = par.headers.find(header.first);
 			auto present = par.headers.end() != it;
-			ASSERT_TRUE(present) << "unexpected key in parsed headers: " << header.first.str();
+			ASSERT_TRUE(present) << "unexpected key in parsed headers: " << header.first;
 			ASSERT_EQ(header.second.size(), it->second.size());
 			auto val = std::begin(header.second);
 			for (auto& lhs : it->second) {
@@ -113,7 +112,7 @@ namespace {
 		for (auto& header : par.headers) {
 			auto it = headers.find(header.first);
 			auto present = headers.end() != it;
-			ASSERT_TRUE(present) << "missing key in parsed headers: " << header.first.str();
+			ASSERT_TRUE(present) << "missing key in parsed headers: " << header.first;
 			ASSERT_EQ(header.second.size(), it->second.size());
 			auto val = std::begin(header.second);
 			for (auto& lhs : it->second) {
@@ -145,4 +144,4 @@ namespace {
 	};
 
 	INSTANTIATE_TEST_CASE_P(samples, base_parser, ::testing::ValuesIn(samples));
-}
+}}}

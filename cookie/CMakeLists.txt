@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.4)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../cstring/include)
 
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 1)
@@ -26,7 +27,6 @@ set(SOURCES
 	include/tangle/cookie.h
 	include/tangle/cookie/item.h
 	include/tangle/cookie/scope.h
-	include/tangle/cookie/cstring.h
 	include/tangle/cookie/jar.h
 	include/tangle/cookie/io.h
 	include/tangle/cookie/chrono.h

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.4)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../cstring/include)
 
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 1)
@@ -47,4 +48,4 @@ install(TARGETS msg msg_s
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
-install(DIRECTORY include/net/ DESTINATION include/net)
+install(DIRECTORY include/tangle/ DESTINATION include/tangle)

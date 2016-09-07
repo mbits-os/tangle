@@ -58,21 +58,8 @@ namespace tangle { namespace msg {
 		return *this;
 	}
 
-	size_t hasher::hash(const std::string& s)
-	{
-		return hasher { }.append(s.data(), s.length()).value();
-	}
-
 	size_t hasher::hash(const char* s, size_t l)
 	{
 		return hasher { }.append(s, l).value();
-	}
-
-	int cstring::compare(const cstring& rhs) const
-	{
-		auto hint = std::strncmp(c_str(), rhs.c_str(), std::min(length(), rhs.length()));
-		if (hint)
-			return hint;
-		return ((int)length()) - ((int)rhs.length());
 	}
 }};

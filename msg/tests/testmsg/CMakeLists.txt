@@ -1,6 +1,9 @@
 find_package(Threads)
 
 file(GLOB SRCS *.cc)
+if (MSVC)
+list(APPEND SRCS ${NATVIS})
+endif()
 
 set(LIBS $<TARGET_FILE:msg_s> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 

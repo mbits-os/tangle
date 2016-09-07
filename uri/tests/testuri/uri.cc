@@ -8,26 +8,28 @@ namespace tangle { namespace testing {
 	using ::testing::ValuesIn;
 
 	struct UriCannonicalHrefTest {
-		std::string base;
-		std::string href;
-		std::string expected;
+		cstring base;
+		cstring href;
+		cstring expected;
 	};
 
 	struct UriCannonicalHexTest {
-		std::string url;
-		std::string expected;
+		cstring url;
+		cstring expected;
 	};
+}}
 
-	std::ostream& operator<<(std::ostream& o, const UriCannonicalHrefTest& param)
-	{
-		return o << "\"" << param.base << "\" + \"" << param.href << "\"";
-	}
+std::ostream& operator<<(std::ostream& o, const tangle::testing::UriCannonicalHrefTest& param)
+{
+	return o << "\"" << param.base << "\" + \"" << param.href << "\"";
+}
 
-	std::ostream& operator<<(std::ostream& o, const UriCannonicalHexTest& param)
-	{
-		return o << "\"" << param.url << "\" -> \"" << param.expected << "\"";
-	}
+std::ostream& operator<<(std::ostream& o, const tangle::testing::UriCannonicalHexTest& param)
+{
+	return o << "\"" << param.url << "\" -> \"" << param.expected << "\"";
+}
 
+namespace tangle { namespace testing {
 	class UriCannonicalHref  : public TestWithParam<UriCannonicalHrefTest> { };
 	class UriCannonicalHex   : public TestWithParam<UriCannonicalHexTest>  { };
 	class UriCannonicalBase  : public TestWithParam<UriCannonicalHexTest>  { };
@@ -90,6 +92,9 @@ namespace tangle { namespace testing {
 		{ "HTTP://EXAMPLE.COM/",                               "http://example.com/" },
 		{ "http://127.0.0.1/",                                 "http://127.0.0.1/" },
 		{ "http://[::1]/",                                     "http://[::1]/" },
+		{ "http://[::1]:/",                                    "http://[::1]/" },
+		{ "http://[::1]:8080/",                                "http://[::1]:8080/" },
+		{ "http://[::1],80/",                                  "" },
 		{ "http://example.com:/",                              "http://example.com/" },
 		{ "http://example.com:80/",                            "http://example.com/" },
 		{ "https://example.com:443/",                          "https://example.com/" },

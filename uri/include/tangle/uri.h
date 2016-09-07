@@ -26,11 +26,11 @@
 
 #include <unordered_map>
 #include <vector>
+#include <tangle/cstring.h>
 
 namespace tangle {
 	std::string urlencode(const char* in, size_t in_len);
 	std::string urldecode(const char* in, size_t in_len);
-
 
 	inline std::string urlencode(const std::string& in)
 	{
@@ -38,6 +38,16 @@ namespace tangle {
 	}
 
 	inline std::string urldecode(const std::string& in)
+	{
+		return urldecode(in.c_str(), in.length());
+	}
+
+	inline std::string urlencode(const cstring& in)
+	{
+		return urlencode(in.c_str(), in.length());
+	}
+
+	inline std::string urldecode(const cstring& in)
 	{
 		return urldecode(in.c_str(), in.length());
 	}
@@ -89,14 +99,14 @@ namespace tangle {
 		uri& operator=(const uri&);
 		uri& operator=(uri&&);
 
-		uri(const std::string& ident);
+		uri(const cstring& ident);
 
 		struct auth_builder {
 			std::string userInfo;
 			std::string host;
 			std::string port;
 
-			static auth_builder parse(const std::string&);
+			static auth_builder parse(const cstring&);
 			std::string string() const;
 		};
 
@@ -107,7 +117,7 @@ namespace tangle {
 		struct query_builder {
 			std::unordered_map<std::string, std::vector<std::string>> m_values;
 		public:
-			static query_builder parse(const std::string& query);
+			static query_builder parse(const cstring& query);
 			query_builder& add(const std::string& name, const std::string& value)
 			{
 				m_values[name].push_back(value);
@@ -122,32 +132,32 @@ namespace tangle {
 		bool opaque() const { return !hierarchical(); }
 		bool relative() const;
 		bool absolute() const { return !relative(); }
-		std::string scheme() const;
-		std::string authority() const;
-		std::string path() const;
-		std::string query() const;
-		std::string fragment() const;
-		void scheme(const std::string& value);
-		void authority(const std::string& value);
-		void path(const std::string& value);
-		void query(const std::string& value);
-		void fragment(const std::string& value);
+		cstring scheme() const;
+		cstring authority() const;
+		cstring path() const;
+		cstring query() const;
+		cstring fragment() const;
+		void scheme(const cstring& value);
+		void authority(const cstring& value);
+		void path(const cstring& value);
+		void query(const cstring& value);
+		void fragment(const cstring& value);
 		std::string string() const { return m_uri; }
 
 		static uri make_base(const uri& document);
-		static uri make_base(const std::string& document)
+		static uri make_base(const cstring& document)
 		{
 			return make_base(uri { document });
 		}
 
 		static uri canonical(const uri& identifier, const uri& base);
-		static uri canonical(const char* identifier, const uri& base)
+		static uri canonical(const cstring& identifier, const uri& base)
 		{
 			return canonical(uri { identifier }, base);
 		}
 
 		static uri normal(uri identifier);
-		static uri normal(const char* identifier)
+		static uri normal(const cstring& identifier)
 		{
 			return normal(uri { identifier });
 		}

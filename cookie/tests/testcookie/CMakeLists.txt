@@ -2,6 +2,9 @@ find_package(Threads)
 
 file(GLOB SRCS *.cc)
 list(APPEND SRCS testing_io.h)
+if (MSVC)
+list(APPEND SRCS ${NATVIS})
+endif()
 
 set(LIBS $<TARGET_FILE:cookie_s> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 

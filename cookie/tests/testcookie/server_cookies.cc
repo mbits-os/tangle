@@ -28,21 +28,24 @@
 namespace {
 	using namespace std::literals;
 	using namespace tangle::cookie;
+	using tangle::cstring;
 	struct cookie_info {
 		cstring header;
 		item cookie;
 	};
+}
 
-	std::ostream& operator << (std::ostream& o, const cookie_info& nfo)
-	{
-		return o << '`' << nfo.header << '`';
-	}
+std::ostream& operator << (std::ostream& o, const cookie_info& nfo)
+{
+	return o << '`' << nfo.header << '`';
+}
 
-	std::ostream& operator << (std::ostream& o, const time_point& pt)
-	{
-		return o << pt.time_since_epoch().count();
-	}
+std::ostream& operator << (std::ostream& o, const time_point& pt)
+{
+	return o << pt.time_since_epoch().count();
+}
 
+namespace {
 	class server_cookies : public ::testing::TestWithParam<cookie_info> {
 	};
 

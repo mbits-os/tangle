@@ -35,7 +35,7 @@ the description of a single cookie.
 
 #include <tangle/cookie/scope.h>
 #include <tangle/cookie/chrono.h>
-#include <tangle/cookie/cstring.h>
+#include <tangle/cstring.h>
 #include <string>
 #include <vector>
 

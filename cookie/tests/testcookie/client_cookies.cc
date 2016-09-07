@@ -41,7 +41,7 @@ namespace {
 
 	auto make_span(const char* s)
 	{
-		return tangle::cookie::cstring(s, strlen(s));
+		return tangle::cstring(s, strlen(s));
 	}
 
 	TEST_P(cookies, parse)

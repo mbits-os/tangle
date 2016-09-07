@@ -189,7 +189,7 @@ namespace tangle { namespace msg {
 		m_dict.clear();
 
 		for (auto& pair : m_field_list){
-			auto key = string { lower(produce(get(std::get<0>(pair)))) };
+			auto key = lower(produce(get(std::get<0>(pair))));
 			auto value = produce(get(std::get<1>(pair)));
 			m_dict[std::move(key)].emplace_back(std::move(value));
 		}

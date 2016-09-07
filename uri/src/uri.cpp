@@ -27,7 +27,7 @@
 
 namespace tangle {
 	namespace {
-		int default_port(const std::string& scheme)
+		int default_port(const cstring& scheme)
 		{
 #define KNOWN(proto, port) if (scheme == #proto) return port;
 
@@ -50,7 +50,7 @@ namespace tangle {
 			return s;
 		}
 
-		std::vector<std::string> path_split(const std::string& path)
+		std::vector<cstring> path_split(const cstring& path)
 		{
 			auto length = 1;
 			for (auto c : path) {
@@ -58,17 +58,17 @@ namespace tangle {
 					++length;
 			}
 
-			std::vector<std::string> out;
+			std::vector<cstring> out;
 			out.reserve(length);
 
 			auto slash = path.find('/');
 			decltype(slash) prev = 0;
-			while (slash != std::string::npos) {
-				out.emplace_back(path.substr(prev, slash - prev));
+			while (slash != cstring::npos) {
+				out.emplace_back(path.subspan(prev, slash - prev));
 				prev = slash + 1;
 				slash = path.find('/', prev);
 			}
-			out.emplace_back(path.substr(prev));
+			out.emplace_back(path.subspan(prev));
 
 			return out;
 		}
@@ -155,7 +155,7 @@ namespace tangle {
 			return urlencode(in, in_len, auth_issafe);
 		}
 
-		inline std::string authority_urlencode(const std::string& in)
+		inline std::string authority_urlencode(const cstring& in)
 		{
 			return authority_urlencode(in.c_str(), in.length());
 		}
@@ -185,35 +185,35 @@ namespace tangle {
 		return out;
 	}
 
-	uri::auth_builder uri::auth_builder::parse(const std::string& auth)
+	uri::auth_builder uri::auth_builder::parse(const cstring& auth)
 	{
 		auto pos = auth.find('@');
-		auto host = pos == std::string::npos ? 0 : pos + 1;
+		auto host = pos == cstring::npos ? 0 : pos + 1;
 
-		auto colon = auth.find_last_of(':');
+		auto colon = auth.rfind(':');
 		if (auth.length() > host && auth[host] == '[') {
 			// IPv6/IPVFuture...
 			auto end = auth.find(']', host);
-			if (end == std::string::npos)
+			if (end == cstring::npos)
 				return { };
 
-			if (auth.length() > end && auth[end + 1] != ':' && auth[end + 1] != 0)
+			if (auth.length() > (end + 1) && auth[end + 1] != ':')
 				return { };
 
 			colon = end + 1;
 			if (colon >= auth.length())
-				colon = std::string::npos;
+				colon = cstring::npos;
 		}
-		auto host_count = colon == std::string::npos ? std::string::npos : colon - host;
+		auto host_count = colon == cstring::npos ? cstring::npos : colon - host;
 
 		auth_builder out { };
 
 		if (host)
-			out.userInfo = urldecode(auth.substr(0, pos));
+			out.userInfo = urldecode(auth.subspan(0, pos));
 
-		out.host = urldecode(auth.substr(0, host_count));
-		if (colon != std::string::npos)
-			out.port = urldecode(auth.substr(colon + 1));
+		out.host = urldecode(auth.subspan(0, host_count));
+		if (colon != cstring::npos)
+			out.port = urldecode(auth.subspan(colon + 1));
 
 		return out;
 	}
@@ -293,7 +293,7 @@ namespace tangle {
 #define LOOK_FOR2(ch1, ch2) do { while (!isspace((unsigned char)*c) && *c != (ch1) && *c != (ch2) && c < end) ++c; } while(0)
 #define IS(ch) (c < end && *c == (ch))
 
-	uri::query_builder uri::query_builder::parse(const std::string& query)
+	uri::query_builder uri::query_builder::parse(const cstring& query)
 	{
 		uri::query_builder out;
 		const char* c = query.c_str();
@@ -333,8 +333,8 @@ namespace tangle {
 	uri& uri::operator=(const uri&) = default;
 	uri& uri::operator=(uri&&) = default;
 
-	uri::uri(const std::string& ident)
-		: m_uri { ident }
+	uri::uri(const cstring& ident)
+		: m_uri { ident.c_str(), ident.length() }
 	{
 	}
 
@@ -455,61 +455,71 @@ namespace tangle {
 		return m_schema == npos;
 	}
 
-	std::string uri::scheme() const
+	cstring subspan(const std::string& s, size_t off, size_t len)
+	{
+		return { s.c_str() + off, len };
+	}
+
+	cstring subspan(const std::string& s, size_t off)
+	{
+		return { s.c_str() + off, s.length() - off };
+	}
+
+	cstring uri::scheme() const
 	{
 		if (relative())
-			return std::string();
+			return cstring();
 
-		return m_uri.substr(0, m_schema);
+		return subspan(m_uri, 0, m_schema);
 	}
 
-	std::string uri::authority() const
+	cstring uri::authority() const
 	{
 		if (relative() || opaque())
-			return std::string();
+			return cstring();
 
 		auto start = m_schema + 3;
-		return m_uri.substr(start, m_path - start);
+		return subspan(m_uri, start, m_path - start);
 	}
 
-	std::string uri::path() const
+	cstring uri::path() const
 	{
 		ensure_query();
-		return m_uri.substr(m_path, m_query - m_path);
+		return subspan(m_uri, m_path, m_query - m_path);
 	}
 
-	std::string uri::query() const
+	cstring uri::query() const
 	{
 		ensure_fragment();
-		return m_uri.substr(m_query, m_part - m_query);
+		return subspan(m_uri, m_query, m_part - m_query);
 	}
 
-	std::string uri::fragment() const
+	cstring uri::fragment() const
 	{
 		ensure_fragment();
-		return m_uri.substr(m_part);
+		return subspan(m_uri, m_part);
 	}
 
-	void uri::scheme(const std::string& value)
+	void uri::scheme(const cstring& value)
 	{
 		if (relative())
 			return;
 
-		m_uri.replace(0, m_schema, value);
+		m_uri.replace(0, m_schema, value.c_str(), value.length());
 		invalidate_path();
 	}
 
-	void uri::authority(const std::string& value)
+	void uri::authority(const cstring& value)
 	{
 		if (relative() || opaque())
 			return;
 
 		auto start = m_schema + 3;
-		m_uri.replace(start, m_path - start, value);
+		m_uri.replace(start, m_path - start, value.c_str(), value.length());
 		invalidate_path();
 	}
 
-	void uri::path(const std::string& value)
+	void uri::path(const cstring& value)
 	{
 		ensure_query();
 		if (hierarchical() && absolute() && (value.empty() || value[0] != '/')) {
@@ -517,29 +527,29 @@ namespace tangle {
 			++m_path;
 			m_query = m_path;
 		}
-		m_uri.replace(m_path, m_query - m_path, value);
+		m_uri.replace(m_path, m_query - m_path, value.c_str(), value.length());
 		invalidate_path(); // query -> path due to having possibly taken the '/' branch and having ++m_path
 	}
 
-	void uri::query(const std::string& value)
+	void uri::query(const cstring& value)
 	{
 		ensure_fragment();
-		m_uri.replace(m_query, m_part - m_query, value);
+		m_uri.replace(m_query, m_part - m_query, value.c_str(), value.length());
 		invalidate_fragment();
 	}
 
-	void uri::fragment(const std::string& value)
+	void uri::fragment(const cstring& value)
 	{
 		ensure_fragment();
-		m_uri.replace(m_part, m_uri.length() - m_part, value);
+		m_uri.replace(m_part, m_uri.length() - m_part, value.c_str(), value.length());
 	}
 
-	std::string remove_filename(std::string path)
+	cstring remove_filename(cstring path)
 	{
-		auto find = path.find_last_of('/');
-		if (find == std::string::npos)
+		auto find = path.rfind('/');
+		if (find == cstring::npos)
 			return path;
-		return path.substr(0, find + 1);
+		return path.subspan(0, find + 1);
 	}
 
 	uri uri::make_base(const uri& document)
@@ -549,10 +559,10 @@ namespace tangle {
 
 		auto tmp = document;
 		if (tmp.relative())
-			tmp = "http://" + tmp.string();
+			tmp = uri { "http://" + tmp.string() };
 
-		tmp.fragment(std::string());
-		tmp.query(std::string());
+		tmp.fragment(cstring());
+		tmp.query(cstring());
 		tmp.path(remove_filename(tmp.path()));
 		tmp.ensure_query();
 		return tmp;
@@ -582,7 +592,7 @@ namespace tangle {
 	uri uri::normal(uri tmp)
 	{
 		if (tmp.absolute() && tmp.hierarchical()) {
-			auto scheme = tolower(tmp.scheme());
+			auto scheme = tolower(to_string(tmp.scheme()));
 			tmp.scheme(scheme);
 
 			auto auth = auth_builder::parse(tmp.authority());
@@ -619,21 +629,23 @@ namespace tangle {
 		if (tmp.hierarchical()) {
 
 			auto path = path_split(tmp.path());
+			std::vector<std::string> recoded;
+			recoded.reserve(path.size());
 			for (auto& part : path)
-				part = urlencode(urldecode(part));
+				recoded.push_back(urlencode(urldecode(part)));
 
-			bool absolute = (path.size() > 1) && path.front().empty();
+			bool absolute = (recoded.size() > 1) && recoded.front().empty();
 
 			// URL ended with slash; should still end with slash
 			// Also, URL path ended with either xxxx/. or xxxxx/..
 			// -> after resolving the result should be a "dir"
-			bool empty_at_end = (path.size() > 1) &&
-				(path.back().empty() || path.back() == "." || path.back() == "..");
-			decltype(path) canon;
-			canon.reserve(path.size());
+			bool empty_at_end = (recoded.size() > 1) &&
+				(recoded.back().empty() || recoded.back() == "." || recoded.back() == "..");
+			decltype(recoded) canon;
+			canon.reserve(recoded.size());
 
-			decltype(path) overshots;
-			for (auto& p : path) {
+			decltype(recoded) overshots;
+			for (auto& p : recoded) {
 				if (p.empty() || p == ".")
 					continue;
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="tangle::cstring">
+    <DisplayString Condition="m_size == 0">empty</DisplayString>
+    <DisplayString>{{ {m_data,[m_size]} }}</DisplayString>
+    <StringView Condition="m_size &gt; 0">m_data,[m_size]</StringView>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">m_size</Item>
+      <ArrayItems>
+        <Size>m_size</Size>
+        <ValuePointer>m_data</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+</AutoVisualizer>

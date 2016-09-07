@@ -24,7 +24,7 @@
 
 #pragma once
 #include <string>
-#include <cstring>
+#include <tangle/cstring.h>
 
 namespace tangle { namespace msg {
 	class hasher {
@@ -32,103 +32,17 @@ namespace tangle { namespace msg {
 		hasher();
 		size_t value() const { return m_value; }
 		hasher& append(const void* buffer, size_t length);
-		static size_t hash(const std::string&);
+		static size_t hash(const std::string& s)
+		{
+			return hash(s.data(), s.length());
+		}
+		static size_t hash(const cstring& s)
+		{
+			return hash(s.data(), s.length());
+		}
 		static size_t hash(const char*, size_t);
 	private:
 		size_t m_value;
-	};
-
-	class cstring {
-	public:
-		constexpr cstring() = default;
-		constexpr cstring(const char* string, size_t length)
-			: m_data(string)
-			, m_length(length)
-		{
-		}
-
-		cstring(const char* string)
-			: cstring(string, string ? std::strlen(string) : 0)
-		{
-		}
-
-		int compare(const cstring& rhs) const;
-		bool operator < (const cstring& rhs) const
-		{
-			return compare(rhs) < 0;
-		}
-		bool operator == (const cstring& rhs) const
-		{
-			return compare(rhs) == 0;
-		}
-
-		const char* c_str() const { return m_data; }
-		size_t length() const { return m_length; }
-		size_t hash() const { return hasher::hash(m_data, m_length); }
-		const char* begin() const { return m_data; }
-		const char* end() const { return m_data + m_length; }
-
-		std::string str() const { return { c_str(), length() }; }
-	protected:
-		void update(const char* string, size_t length)
-		{
-			m_data = string;
-			m_length = length;
-		}
-	private:
-		const char* m_data = nullptr;
-		size_t m_length = 0;
-	};
-
-	class string {
-	public:
-		string() = default;
-		explicit string(const std::string& stg)
-			: m_data { stg }
-		{
-		}
-		explicit string(std::string&& stg)
-			: m_data { std::move(stg) }
-		{
-		}
-		explicit string(const char* stg)
-			: m_data { stg }
-		{
-		}
-		string(const char* stg, size_t length)
-			: m_data { stg, length }
-		{
-		}
-
-		int compare(const string& rhs) const
-		{
-			return m_data.compare(rhs.m_data);
-		}
-		bool operator < (const string& rhs) const
-		{
-			return m_data < rhs.m_data;
-		}
-		bool operator == (const string& rhs) const
-		{
-			return m_data == rhs.m_data;
-		}
-
-		bool operator == (const cstring& rhs) const
-		{
-			return rhs == *this;
-		}
-
-		const char* c_str() const { return m_data.c_str(); }
-		size_t length() const { return m_data.length(); }
-		size_t hash() const { return hasher::hash(m_data); }
-
-		const std::string& str() const { return m_data; }
-		operator cstring() const
-		{
-			return { c_str(), length() };
-		}
-	private:
-		const std::string m_data;
 	};
 
 	class combined_string {
@@ -143,14 +57,14 @@ namespace tangle { namespace msg {
 			new (&m_cstr) cstring { key };
 		}
 
-		combined_string(const string& key) : m_use_cstr { false }
+		combined_string(const std::string& key) : m_use_cstr { false }
 		{
-			new (&m_str) string { key };
+			new (&m_str) std::string { key };
 		}
 
-		combined_string(string&& key) : m_use_cstr { false }
+		combined_string(std::string&& key) : m_use_cstr { false }
 		{
-			new (&m_str) string { std::move(key) };
+			new (&m_str) std::string { std::move(key) };
 		}
 
 		combined_string(const combined_string& rhs) : m_use_cstr { rhs.m_use_cstr }
@@ -158,7 +72,7 @@ namespace tangle { namespace msg {
 			if (m_use_cstr)
 				new (&m_cstr) cstring { rhs.m_cstr };
 			else
-				new (&m_str) string { rhs.m_str };
+				new (&m_str) std::string { rhs.m_str };
 		}
 
 		combined_string& operator=(const combined_string& rhs)
@@ -169,13 +83,13 @@ namespace tangle { namespace msg {
 			if (m_use_cstr)
 				m_cstr.~cstring();
 			else
-				m_str.~string();
+				m_str.~basic_string();
 
 			m_use_cstr = rhs.m_use_cstr;
 			if (m_use_cstr)
 				new (&m_cstr) cstring { rhs.m_cstr };
 			else
-				new (&m_str) string { rhs.m_str };
+				new (&m_str) std::string { rhs.m_str };
 
 			return *this;
 		}
@@ -185,7 +99,7 @@ namespace tangle { namespace msg {
 			if (m_use_cstr)
 				m_cstr.~cstring();
 			else
-				m_str.~string();
+				m_str.~basic_string();
 		}
 
 		const char* c_str() const
@@ -200,7 +114,7 @@ namespace tangle { namespace msg {
 
 		size_t hash() const
 		{
-			return m_use_cstr ? m_cstr.hash() : m_str.hash();
+			return m_use_cstr ? hasher::hash(m_cstr) : hasher::hash(m_str);
 		}
 
 		std::string str() const { return { c_str(), length() }; }
@@ -216,7 +130,7 @@ namespace tangle { namespace msg {
 
 	private:
 		union {
-			string m_str;
+			std::string m_str;
 			cstring m_cstr;
 		};
 		bool m_use_cstr = true;
@@ -226,17 +140,10 @@ namespace tangle { namespace msg {
 
 namespace std {
 	template <>
-	struct hash<tangle::msg::cstring> : unary_function<tangle::msg::cstring, size_t> {
-		size_t operator()(const tangle::msg::cstring& key) const
+	struct hash<tangle::cstring> : unary_function<tangle::cstring, size_t> {
+		size_t operator()(const tangle::cstring& key) const
 		{
-			return key.hash();
-		}
-	};
-	template <>
-	struct hash<tangle::msg::string> : unary_function<tangle::msg::string, size_t> {
-		size_t operator()(const tangle::msg::string& key) const
-		{
-			return key.hash();
+			return tangle::msg::hasher::hash(key);
 		}
 	};
 	template <>
