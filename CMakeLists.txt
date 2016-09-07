@@ -21,6 +21,7 @@ enable_testing()
 include( ${CMAKE_CURRENT_SOURCE_DIR}/googletest.cmake )
 add_subdirectory( cookie )
 add_subdirectory( uri )
+add_subdirectory( msg )
 
 set(CPACK_PACKAGE_VERSION_MAJOR "${TANGLE_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${TANGLE_VERSION_MINOR}")
