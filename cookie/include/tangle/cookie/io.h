@@ -462,7 +462,7 @@ namespace tangle { namespace cookie {
 					items.push_back(next);
 				}
 
-				size_t str_length = 0;
+				uint32_t str_length = 0;
 				if (!io::io_impl<IO>::skip(readable, header.strings - strings))
 					return false;
 				if (!io::io_impl<IO>::read(readable, str_length))
@@ -492,7 +492,7 @@ namespace tangle { namespace cookie {
 						buffer.get() + raw.name,
 						buffer.get() + raw.value,
 						{ buffer.get() + raw.domain, buffer.get() + raw.path },
-						(flags)raw.flags,
+						(cookie::flags)raw.flags,
 						make_timepoint(raw.expires_lo, raw.expires_hi)
 					};
 					item.creation_time(make_timepoint(raw.created_lo, raw.created_hi));

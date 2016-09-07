@@ -35,10 +35,8 @@ the client-side container for HTTP cookies.
 
 #include <tangle/cookie/item.h>
 #include <tangle/cookie/io.h>
-#include <experimental/filesystem>
 
 namespace tangle { namespace cookie {
-	namespace fs = std::experimental::filesystem;
 
 	/**
 	 Cookie Jar.
@@ -236,7 +234,7 @@ namespace tangle { namespace cookie {
 
 		\see store_raw()
 		*/
-		bool store(const fs::path& path, time_point when = clock::now()) const;
+		bool store(const std::string& path, time_point when = clock::now()) const;
 
 		/**
 		Loads qualified cookies from the file pointed by the path.
@@ -247,7 +245,7 @@ namespace tangle { namespace cookie {
 
 		\see load_raw()
 		*/
-		bool load(const fs::path& path, time_point when = clock::now());
+		bool load(const std::string& path, time_point when = clock::now());
 	private:
 		container m_items;
 

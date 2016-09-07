@@ -135,24 +135,20 @@ namespace tangle { namespace cookie {
 	};
 
 #ifdef WIN32
-	FILE* pfopen(const fs::path& path, const char* mode)
+	FILE* pfopen(const std::string& path, const char* mode)
 	{
-		wchar_t wmode[100];
-		auto ptr = wmode;
-		while (*ptr++ = *mode++); // naive ASCII-to-UCS
-
 		FILE* handle = 0;
-		(void)_wfopen_s(&handle, path.native().c_str(), wmode);
+		(void)fopen_s(&handle, path.c_str(), mode);
 		return handle;
 	}
 #else
-	FILE* pfopen(const fs::path& path, const char* mode)
+	FILE* pfopen(const std::string& path, const char* mode)
 	{
-		return std::fopen(path.string().c_str(), mode);
+		return std::fopen(path.c_str(), mode);
 	}
 #endif
 
-	bool jar::store(const fs::path& path, time_point when) const
+	bool jar::store(const std::string& path, time_point when) const
 	{
 		file::ptr file{ pfopen(path, "wb") };
 		if (!file)
@@ -160,7 +156,7 @@ namespace tangle { namespace cookie {
 		return store_raw(file.get(), when);
 	}
 
-	bool jar::load(const fs::path& path, time_point when)
+	bool jar::load(const std::string& path, time_point when)
 	{
 		file::ptr file { pfopen(path, "rb") };
 		if (!file)
