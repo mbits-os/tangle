@@ -52,6 +52,21 @@ install(TARGETS cookie cookie_s
 install(DIRECTORY include/tangle/ DESTINATION include/tangle)
 
 ##################################################################
+##  DOCUMENTATION
+##################################################################
+
+if (DOXYGEN_FOUND)
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+		${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+	add_custom_target(cookie-doc
+		${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		COMMENT "Generating cookie API documentation with Doxygen" VERBATIM)
+	add_dependencies(doc cookie-doc)
+	set_target_properties(cookie-doc PROPERTIES FOLDER Doxygen)
+endif()
+
+##################################################################
 ##  TESTING
 ##################################################################
 
