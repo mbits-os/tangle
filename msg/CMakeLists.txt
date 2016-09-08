@@ -8,9 +8,6 @@ set(PROJECT_VERSION_MINOR 1)
 set(PROJECT_VERSION_PATCH 0)
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}" )
 
-enable_testing()
-add_subdirectory( tests/testmsg )
-
 if (MSVC)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
@@ -49,3 +46,27 @@ install(TARGETS msg msg_s
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
 install(DIRECTORY include/tangle/ DESTINATION include/tangle)
+
+##################################################################
+##  TESTING
+##################################################################
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+
+file(GLOB TEST_SRCS tests/*.cc)
+if (MSVC)
+list(APPEND TEST_SRCS ${NATVIS})
+endif()
+
+add_executable(msg-test ../googletest.cpp ${TEST_SRCS})
+set_target_properties(msg-test PROPERTIES CXX_STANDARD 14 FOLDER tests)
+add_dependencies(msg-test msg_s gtest gmock)
+target_link_libraries(msg-test $<TARGET_FILE:msg_s> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+
+enable_testing()
+add_test(NAME hash.samples COMMAND msg-test --gtest_filter=hashing/hasher.*)
+add_test(NAME hash.partial-update COMMAND msg-test --gtest_filter=partial/hasher_parts.*)
+add_test(NAME parser.base COMMAND msg-test --gtest_filter=samples/base_parser.*)
+add_test(NAME parser.http.req COMMAND msg-test --gtest_filter=requests/request_parser.*)
+add_test(NAME parser.http.resp COMMAND msg-test --gtest_filter=responses/response_parser.*)
+add_test(NAME parser.http.errors COMMAND msg-test --gtest_filter=first_line/*)

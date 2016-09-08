@@ -74,7 +74,7 @@ int _tmain(int argc, TCHAR** argv)
 int main(int argc, char** argv)
 #endif
 {
-	std::cout << "Running main() from main.cpp\n";
+	std::cout << "Running main() from googletest.cpp\n";
 	testing::InitGoogleMock(&argc, argv);
 	return RUN_ALL_TESTS();
 }
