@@ -229,12 +229,19 @@ namespace tangle {
 		*/
 		uri(const char* ident);
 
+		/** Flags for auth_builder::string */
+		enum auth_flag {
+			ui_safe = false, /**< Flag for encoding the user info for UI */
+			with_pass = true, /**< Flag for encoding the user info for transfer (highly unsafe) */
+		};
+
 		/**
 		Helper class for reading and setting
 		authority component.
 		*/
 		struct auth_builder {
-			std::string userInfo; /**< User information */
+			std::string user; /**< User information - name */
+			std::string password; /**< User information - password */
 			std::string host; /**< Host name - either IPv4, IPv6 or registered name */
 			std::string port; /**< String representation of the port on host */
 
@@ -252,10 +259,13 @@ namespace tangle {
 
 			Members, if present, are percent-encoded and joined together.
 
+			\param flag chooses, what to do with user password, if present;
+			            by default, the password is not placed in authority
+			            string
 			\result an authority component, which may be placed inside
 			        an uri object
 			*/
-			std::string string() const;
+			std::string string(auth_flag flag = ui_safe) const;
 		};
 
 		/** Flags for query_builder::string */
@@ -308,7 +318,7 @@ namespace tangle {
 			/**
 			Builds a resulting query string for URI or for form request.
 			\param flag chooses, if the resulting string should start
-			                  with question mark, or not; by default, it does
+			            with question mark, or not; by default, it does
 			\result encoded string created from all fields in the builder
 			*/
 			std::string string(query_flag flag = start_with_qmark) const;
@@ -414,9 +424,12 @@ namespace tangle {
 
 		\param identifier an url to expand
 		\param base base address to calculate the address against
+		\param flag chooses, what to do with user password, if present;
+		            by default, the password is not placed in authority
+		            string
 		\returns a fully-expanded and normalized version of the identifier 
 		*/
-		static uri canonical(const uri& identifier, const uri& base);
+		static uri canonical(const uri& identifier, const uri& base, auth_flag flag = ui_safe);
 
 		/**
 		Normalizes the input.
@@ -433,8 +446,11 @@ namespace tangle {
 		  and removed if not necessary
 
 		\param identifier uri to normalize
+		\param flag chooses, what to do with user password, if present;
+		            by default, the password is not placed in authority
+		            string
 		\returns normalized uri
 		*/
-		static uri normal(uri identifier);
+		static uri normal(uri identifier, auth_flag flag = ui_safe);
 	};
 }

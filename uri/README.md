@@ -11,11 +11,12 @@ The `tangle::uri` contains a couple of properties representing URI components de
 
 The `tangle::uri` class contains two helper classes to further parse the URI.
 
-For URLs, the `authority` property can be parsed with a `tangle::uri::auth_builder`. The resulting object allows to read and/or update the parts of authority component: user info, host and port (no work is done to further break the user info):
+For URLs, the `authority` property can be parsed with a `tangle::uri::auth_builder`. The resulting object allows to read and/or update the parts of authority component: user name, password, host and port:
 
     auto auth = uri::auth_builder::parse(m_uri.authority());
 	...
-	m_uri.authority(auth.string());
+	m_uri.authority(auth.string()); // will remove password, if any
+	m_uri.authority(auth.string(uri::with_pass)); // will preserve the password
 
 
 For any URI supporting the query component, `query` property can be parsed with a `tangle::uri::query_builder`. The `fields` object can be used to add or remove a field or to enumerate which fields there are:
@@ -33,3 +34,5 @@ The `tangle::uri::make_base` simplifies the task of canonization relative uris. 
 The URI from `make_base` can be used as a second argument in `tangle::uri::canonical`. This function makes a full URI from an identifiers, which might have been in some `href` attribute. As a result, an already absolute URI remains unchanged and a relative onces are calculated in respect to a base URI.
 
 Last one, `tangle::uri::normal`, attempts to get a single representation for an URI out of all the possible representations of this URI. This can be used to help with decision making (whitelisting, blacklisting, etc.)
+
+Both `tangle::uri::canonical` and `tangle::uri::normal` use `tangle::uri::auth_builder` internally, so both of them are able to take a `tangle::uri::auth_flag` to decide, what to do with the password in the URI.

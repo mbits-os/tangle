@@ -101,7 +101,7 @@ namespace tangle {
 			return std::isalnum(c) || c == '-' || c == '.' || c == '_' || c == '~';
 		}
 
-		inline bool auth_issafe(unsigned char c)
+		inline bool host_issafe(unsigned char c)
 		{
 			return issafe(c) || c == ':' || c == '[' || c == ']';
 		}
@@ -150,14 +150,14 @@ namespace tangle {
 			return 0;
 		}
 
-		inline std::string authority_urlencode(const char* in, size_t in_len)
+		inline std::string host_urlencode(const char* in, size_t in_len)
 		{
-			return urlencode(in, in_len, auth_issafe);
+			return urlencode(in, in_len, host_issafe);
 		}
 
-		inline std::string authority_urlencode(const cstring& in)
+		inline std::string host_urlencode(const cstring& in)
 		{
-			return authority_urlencode(in.c_str(), in.length());
+			return host_urlencode(in.c_str(), in.length());
 		}
 	}
 
@@ -203,41 +203,59 @@ namespace tangle {
 			colon = end + 1;
 			if (colon >= auth.length())
 				colon = cstring::npos;
-		}
+		} else if (colon < host)
+			colon = cstring::npos;
+
 		auto host_count = colon == cstring::npos ? cstring::npos : colon - host;
 
 		auth_builder out { };
 
-		if (host)
-			out.userInfo = urldecode(auth.subspan(0, pos));
+		if (host) {
+			auto userInfo = auth.subspan(0, pos);
+			auto colon = userInfo.find(':');
+			out.user = urldecode(userInfo.subspan(0, colon));
+			if (colon != cstring::npos)
+				out.password = urldecode(userInfo.subspan(colon + 1));
+		}
 
-		out.host = urldecode(auth.subspan(0, host_count));
+		out.host = urldecode(auth.subspan(host, host_count));
 		if (colon != cstring::npos)
 			out.port = urldecode(auth.subspan(colon + 1));
 
 		return out;
 	}
 
-	std::string uri::auth_builder::string() const
+	std::string uri::auth_builder::string(auth_flag flag) const
 	{
-		auto auserInfo = authority_urlencode(userInfo);
-		auto ahost = authority_urlencode(host);
-		auto aport = authority_urlencode(port);
+		auto auser_name = urlencode(user);
+		auto auser_pass = host_urlencode(password);
+		auto ahost = host_urlencode(host);
+		auto aport = urlencode(port);
 
-		if (aport.empty() && auserInfo.empty())
+		if (flag == ui_safe)
+			auser_pass.clear();
+
+		if (aport.empty() && auser_name.empty())
 			return ahost;
 
 		size_t length = ahost.length();
-		if (!auserInfo.empty())
-			length += auserInfo.length() + 1;
+		if (!auser_name.empty()) {
+			length += auser_name.length() + 1;
+			if (!auser_pass.empty())
+				length += auser_pass.length() + 1;
+		}
 		if (!aport.empty())
 			length += aport.length() + 1;
 
 		std::string out;
 		out.reserve(length);
 
-		if (!auserInfo.empty()) {
-			out.append(auserInfo);
+		if (!auser_name.empty()) {
+			out.append(auser_name);
+			if (!auser_pass.empty()) {
+				out.push_back(':');
+				out.append(auser_pass);
+			}
 			out.push_back('@');
 		}
 
@@ -360,6 +378,7 @@ namespace tangle {
 	{
 		m_uri = std::move(other.m_uri);
 		other.invalidate_schema();
+		invalidate_schema();
 		return *this;
 	}
 
@@ -594,10 +613,10 @@ namespace tangle {
 	}
 
 
-	uri uri::canonical(const uri& identifier, const uri& base)
+	uri uri::canonical(const uri& identifier, const uri& base, auth_flag flag)
 	{
 		if (identifier.absolute())
-			return normal(identifier);
+			return normal(identifier, flag);
 
 		// base-scheme://base-auth/base-path?uri-query#uri-frag
 		auto temp = base;
@@ -606,15 +625,15 @@ namespace tangle {
 
 		auto path = identifier.path();
 		if (!path.empty() && path[0] == '/')
-			return temp.path(path), normal(std::move(temp));
+			return temp.path(path), normal(std::move(temp), flag);
 
 		auto bpath = base.path();
 		if (!bpath.empty())
-			return temp.path(base.path() + "/" + path), normal(std::move(temp));
-		return temp.path(path), normal(std::move(temp));
+			return temp.path(base.path() + "/" + path), normal(std::move(temp), flag);
+		return temp.path(path), normal(std::move(temp), flag);
 	}
 
-	uri uri::normal(uri tmp)
+	uri uri::normal(uri tmp, auth_flag flag)
 	{
 		if (tmp.absolute() && tmp.hierarchical()) {
 			auto scheme = tolower(to_string(tmp.scheme()));
@@ -648,7 +667,7 @@ namespace tangle {
 					auth.port.clear();
 			}
 
-			tmp.authority(auth.string());
+			tmp.authority(auth.string(flag));
 		}
 		// PATH: =======================================================================================
 		if (tmp.hierarchical()) {
