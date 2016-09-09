@@ -98,7 +98,7 @@ namespace tangle {
 
 		inline bool issafe(unsigned char c)
 		{
-			return std::isalnum(c) || c == '-' || c == '-' || c == '.' || c == '_' || c == '~';
+			return std::isalnum(c) || c == '-' || c == '.' || c == '_' || c == '~';
 		}
 
 		inline bool auth_issafe(unsigned char c)
@@ -329,13 +329,38 @@ namespace tangle {
 
 	uri::uri() = default;
 	uri::uri(const uri&) = default;
-	uri::uri(uri&&) = default;
 	uri& uri::operator=(const uri&) = default;
-	uri& uri::operator=(uri&&) = default;
 
 	uri::uri(const cstring& ident)
 		: m_uri { ident.c_str(), ident.length() }
 	{
+	}
+	uri::uri(const std::string& ident)
+		: m_uri { ident }
+	{
+	}
+
+	uri::uri(std::string&& ident)
+		: m_uri { std::move(ident) }
+	{
+	}
+
+	uri::uri(const char* ident)
+		: m_uri { ident }
+	{
+	}
+
+	uri::uri(uri&& other)
+		: m_uri { std::move(other.m_uri) }
+	{
+		other.invalidate_schema();
+	}
+
+	uri& uri::operator=(uri&& other)
+	{
+		m_uri = std::move(other.m_uri);
+		other.invalidate_schema();
+		return *this;
 	}
 
 	void uri::ensure_schema() const
@@ -574,7 +599,7 @@ namespace tangle {
 		if (identifier.absolute())
 			return normal(identifier);
 
-		// base-schema://base-auth/base-path?uri-query#uri-frag
+		// base-scheme://base-auth/base-path?uri-query#uri-frag
 		auto temp = base;
 		temp.fragment(identifier.fragment());
 		temp.query(identifier.query());

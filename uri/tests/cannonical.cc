@@ -85,6 +85,12 @@ namespace tangle { namespace testing {
 		{ "http://example.com/A/B/",          "../../../C/other.file",    "http://example.com/C/other.file" },
 	};
 
+	static const UriCannonicalHrefTest uri_canonical_opaque[] = {
+		{ "http://example.com/A/B/",          "http:C/other.file",        "http://example.com/A/B/C/other.file" },
+		{ "http://example.com/A/B/",          "http:/C/other.file",       "http://example.com/C/other.file" },
+		{ "http://example.com/A/B/",          "mailto:user@server",       "mailto:user@server" },
+	};
+
 	static const UriCannonicalHexTest uri_canonical_decode_auth[] = {
 		{ "http://example.com/",                               "http://example.com/" },
 		{ "http://%45xample.com/",                             "http://example.com/" },

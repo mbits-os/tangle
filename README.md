@@ -16,7 +16,7 @@
 	* docs: _missing_
 * URI:
 	* code: done ([v1.0](https://github.com/mbits-os/tangle/tree/uri-1.0))
-	* docs: _missing_
+	* norm: [RFC 3986:  Uniform Resource Identifier (URI): Generic Syntax](https://tools.ietf.org/html/rfc3986)
 * COOKIE:
 	* code: done ([v1.0](https://github.com/mbits-os/tangle/tree/cookie-1.0))
 	* docs: _partial_
