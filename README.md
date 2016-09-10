@@ -5,7 +5,7 @@
 2. **URI**: parsing and manipulating strings representing resource
 3. **COOKIE**: parsing, manipulating cookies with support for session jar and persistent jar
 4. **MSG**: HTTP/1.1 request and response message, independent from both URI and COOKIE
-5. **CERT**: platform-specific and/or standalone certificate verification; should support SSL/TLS or code signing verification at equal footing.
+5. **CERT**: platform-specific and/or standalone certificate verification; should support both SSL/TLS and code signing verification.
 6. **NAV**: browser sessions, building requests based on current address and given uri, cookie jar attached to the session, certificate verification and communication flagging, no actual communication over the network
 7. **HTTP**: connection layer for libnav, probably over libcurl.
 
@@ -25,6 +25,8 @@
 	* code: done ([v0.1](https://github.com/mbits-os/tangle/tree/msg-0.1))
 	* docs: _missing_
 	* norm: [RFC 2616: Hypertext Transfer Protocol -- HTTP/1.1](https://tools.ietf.org/html/rfc2616)
+* CERT
+	* design: _missing_ (based on OpenSSL?)
 * NAV:
 	* design: _missing_
 * HTTP:

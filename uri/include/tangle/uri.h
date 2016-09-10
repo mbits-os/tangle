@@ -164,12 +164,12 @@ namespace tangle {
 		static constexpr size_type ncalc = (size_type)(-2);
 		static constexpr size_type npos = (size_type)(-1);
 
-		mutable size_type m_schema = ncalc;
+		mutable size_type m_scheme = ncalc;
 		mutable size_type m_path = ncalc;
 		mutable size_type m_query = ncalc;
 		mutable size_type m_part = ncalc;
 
-		void ensure_schema() const;
+		void ensure_scheme() const;
 		void ensure_path() const;
 		void ensure_query() const;
 		void ensure_fragment() const;
@@ -191,10 +191,10 @@ namespace tangle {
 			m_path = ncalc;
 		}
 
-		void invalidate_schema()
+		void invalidate_scheme()
 		{
 			invalidate_path();
-			m_schema = ncalc;
+			m_scheme = ncalc;
 		}
 #endif
 
@@ -330,10 +330,52 @@ namespace tangle {
 			std::vector<std::pair<std::string, std::string>> list() const;
 		};
 
+		/**
+		\returns the same value, as #tangle::uri::has_authority()
+		\deprecated Original designed mixed "hierarchical" (<i>an URI with a
+		            path</i> - AKA all of them) with "URI with an authority"
+		            (<i>an URI with <code>://</code></i>).
+		*/
+		[[deprecated("The name has nothing to do with behavior. "
+			"Use has_authority() instead.")]]
 		bool hierarchical() const;
-		bool opaque() const { return !hierarchical(); }
-		bool relative() const;
-		bool absolute() const { return !relative(); }
+
+		/**
+		\returns reverses the return value of #tangle::uri::has_scheme()
+		\deprecated The name suggest something along the line "no-scheme"/"no-auth",
+		            while the implementation did, what #tangle::uri::has_scheme() does,
+		            but in reverse.
+		*/
+		[[deprecated("The name has nothing to do with behavior. "
+			"Use has_scheme() instead.")]]
+		bool relative() const { return !has_scheme(); }
+
+		/**
+		\returns the same value, as #tangle::uri::has_scheme()
+		\deprecated The name suggest something along the line "a full URI, with scheme,
+		            auth", while the implementation did, what #tangle::uri::has_scheme().
+		*/
+		[[deprecated("The name has nothing to do with behavior. "
+			"Use has_scheme() instead.")]]
+		bool absolute() const { return has_scheme(); }
+
+		/**
+		Checks, if the URI seems to contain a scheme.
+		\returns true, if the uri starts with <code>[a-z][-+.a-z0-9]*:</code>
+		*/
+		bool has_scheme() const;
+
+		/**
+		Checks, if the URI seems to contain an authority.
+		\returns true, if the non-scheme part starts with <code>//</code>
+		*/
+		bool has_authority() const;
+
+		/**
+		Checks, if the URI seems to contain a path without authority.
+		\returns true, if the non-scheme part starts with anything, but <code>//</code>
+		*/
+		bool is_opaque() const { return !has_authority(); }
 
 		/**
 		Getter for the scheme property.
@@ -407,7 +449,9 @@ namespace tangle {
 		Assuming the path uses slashes, this functions
 		creates a copy of an uri with last part of the path
 		removed. If the path already ends with slash, does
-		nothing.
+		nothing. Also, the function behaves as if the document
+		was an argument supplied to the address bar - it will
+		prepend an HTTP protocol, if not protocol is given.
 
 		\param document an uri to convert to base path
 		\returns an uri, which can be used in canonical()

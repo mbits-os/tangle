@@ -6,15 +6,15 @@
     <Expand>
       <Item Name="[uri]">m_uri</Item>
 
-      <Synthetic Name="[schema]" Condition="m_schema == ncalc || m_schema == npos"> <DisplayString>unknown</DisplayString> </Synthetic>
-      <Item Name="[schema]" Condition="m_schema != npos &amp;&amp; m_schema != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &lt; m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Buf,[m_schema]</Item>
-      <Item Name="[schema]" Condition="m_schema != npos &amp;&amp; m_schema != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &gt;= m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Ptr,[m_schema]</Item>
+      <Synthetic Name="[scheme]" Condition="m_scheme == ncalc || m_scheme == npos"> <DisplayString>unknown</DisplayString> </Synthetic>
+      <Item Name="[scheme]" Condition="m_scheme != npos &amp;&amp; m_scheme != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &lt; m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Buf,[m_scheme]</Item>
+      <Item Name="[scheme]" Condition="m_scheme != npos &amp;&amp; m_scheme != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &gt;= m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Ptr,[m_scheme]</Item>
 
       <Synthetic Name="[authority]" Condition="m_path == ncalc || m_path == npos"> <DisplayString>unknown</DisplayString> </Synthetic>
-      <Item Name="[authority]" Condition="(m_schema == ncalc || m_schema == npos) &amp;&amp; m_path != npos &amp;&amp; m_path != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &lt; m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Buf,[m_path]</Item>
-      <Item Name="[authority]" Condition="(m_schema == ncalc || m_schema == npos) &amp;&amp; m_path != npos &amp;&amp; m_path != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &gt;= m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Ptr,[m_path]</Item>
-      <Item Name="[authority]" Condition="m_schema != ncalc &amp;&amp; m_schema != npos &amp;&amp; m_path != npos &amp;&amp; m_path != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &lt; m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Buf + m_schema + 3,[m_path - m_schema - 3]</Item>
-      <Item Name="[authority]" Condition="m_schema != ncalc &amp;&amp; m_schema != npos &amp;&amp; m_path != npos &amp;&amp; m_path != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &gt;= m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Ptr + m_schema + 3,[m_path - m_schema - 3]</Item>
+      <Item Name="[authority]" Condition="(m_scheme == ncalc || m_scheme == npos) &amp;&amp; m_path != npos &amp;&amp; m_path != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &lt; m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Buf,[m_path]</Item>
+      <Item Name="[authority]" Condition="(m_scheme == ncalc || m_scheme == npos) &amp;&amp; m_path != npos &amp;&amp; m_path != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &gt;= m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Ptr,[m_path]</Item>
+      <Item Name="[authority]" Condition="m_scheme != ncalc &amp;&amp; m_scheme != npos &amp;&amp; m_path != npos &amp;&amp; m_path != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &lt; m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Buf + m_scheme + 3,[m_path - m_scheme - 3]</Item>
+      <Item Name="[authority]" Condition="m_scheme != ncalc &amp;&amp; m_scheme != npos &amp;&amp; m_path != npos &amp;&amp; m_path != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &gt;= m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Ptr + m_scheme + 3,[m_path - m_scheme - 3]</Item>
 
       <Synthetic Name="[path]" Condition="m_path == ncalc || m_path == npos"> <DisplayString>unknown</DisplayString> </Synthetic>
       <Item Name="[path]" Condition="(m_query == ncalc || m_query == npos) &amp;&amp; m_path != npos &amp;&amp; m_path != ncalc &amp;&amp; m_uri._Mypair._Myval2._Myres &lt; m_uri._Mypair._Myval2._BUF_SIZE">m_uri._Mypair._Myval2._Bx._Buf + m_path</Item>
@@ -34,9 +34,9 @@
 
       <Synthetic Name="[positions]" ExcludeView="simple">
         <Expand>
-          <Item Name="[schema]" Condition="m_schema != npos &amp;&amp; m_schema != ncalc">m_schema</Item>
-          <Synthetic Name="[schema]" Condition="m_schema == npos"><DisplayString>npos</DisplayString></Synthetic>
-          <Synthetic Name="[schema]" Condition="m_schema == ncalc"><DisplayString>ncalc</DisplayString></Synthetic>
+          <Item Name="[scheme]" Condition="m_scheme != npos &amp;&amp; m_scheme != ncalc">m_scheme</Item>
+          <Synthetic Name="[scheme]" Condition="m_scheme == npos"><DisplayString>npos</DisplayString></Synthetic>
+          <Synthetic Name="[scheme]" Condition="m_scheme == ncalc"><DisplayString>ncalc</DisplayString></Synthetic>
           <Item Name="[path]" Condition="m_path != npos &amp;&amp; m_path != ncalc">m_path</Item>
           <Synthetic Name="[path]" Condition="m_path == npos"><DisplayString>npos</DisplayString></Synthetic>
           <Synthetic Name="[path]" Condition="m_path == ncalc"><DisplayString>ncalc</DisplayString></Synthetic>

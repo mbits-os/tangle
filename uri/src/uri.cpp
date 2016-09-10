@@ -371,23 +371,23 @@ namespace tangle {
 	uri::uri(uri&& other)
 		: m_uri { std::move(other.m_uri) }
 	{
-		other.invalidate_schema();
+		other.invalidate_scheme();
 	}
 
 	uri& uri::operator=(uri&& other)
 	{
 		m_uri = std::move(other.m_uri);
-		other.invalidate_schema();
-		invalidate_schema();
+		other.invalidate_scheme();
+		invalidate_scheme();
 		return *this;
 	}
 
-	void uri::ensure_schema() const
+	void uri::ensure_scheme() const
 	{
-		if (m_schema != ncalc)
+		if (m_scheme != ncalc)
 			return;
 
-		m_schema = npos;
+		m_scheme = npos;
 		auto length = m_uri.length();
 
 		auto b = m_uri.data();
@@ -404,7 +404,7 @@ namespace tangle {
 		if (c == e || *c != ':')
 			return;
 
-		m_schema = c - b;
+		m_scheme = c - b;
 	}
 
 	void uri::ensure_path() const
@@ -412,9 +412,9 @@ namespace tangle {
 		if (m_path != ncalc)
 			return;
 
-		ensure_schema();
+		ensure_scheme();
 
-		if (m_schema == npos) {
+		if (m_scheme == npos) {
 			m_path = 0;
 			return;
 		}
@@ -423,12 +423,12 @@ namespace tangle {
 
 		auto c = m_uri.data();
 
-		m_path = m_schema + 1;
+		m_path = m_scheme + 1;
 
-		if (m_schema + 2 >= length || c[m_schema + 1] != '/' || c[m_schema + 2] != '/')
+		if (m_scheme + 2 >= length || c[m_scheme + 1] != '/' || c[m_scheme + 2] != '/')
 			return;
 
-		m_path = m_schema + 3;
+		m_path = m_scheme + 3;
 		while (m_path < length) {
 			switch (c[m_path]) {
 			case '/': case '?': case '#':
@@ -481,22 +481,37 @@ namespace tangle {
 
 	bool uri::hierarchical() const
 	{
-		if (relative())
-			return true;
-
 		ensure_path();
 
-		if (m_path - m_schema <= 2)
+		if (m_scheme == npos)
+			return true;
+
+		if (m_path - m_scheme <= 2)
 			return false;
 
 		auto c = m_uri.data();
-		return c[m_schema + 1] == '/' && c[m_schema + 2] == '/';
+		return c[m_scheme + 1] == '/' && c[m_scheme + 2] == '/';
 	}
 
-	bool uri::relative() const
+	bool uri::has_scheme() const
 	{
-		ensure_schema();
-		return m_schema == npos;
+		ensure_scheme();
+		return m_scheme != npos;
+	}
+	bool uri::has_authority() const
+	{
+		ensure_path();
+
+		// standard behaviour of browsers is
+		// that the non-scheme URIs start with path-only
+		if (m_scheme == npos)
+			return false;
+
+		if (m_path - m_scheme <= 2)
+			return false; // no space for //
+
+		auto c = m_uri.data();
+		return c[m_scheme + 1] == '/' && c[m_scheme + 2] == '/';
 	}
 
 	cstring subspan(const std::string& s, size_t off, size_t len)
@@ -511,18 +526,21 @@ namespace tangle {
 
 	cstring uri::scheme() const
 	{
-		if (relative())
+		if (!has_scheme())
 			return cstring();
 
-		return subspan(m_uri, 0, m_schema);
+		return subspan(m_uri, 0, m_scheme);
 	}
 
 	cstring uri::authority() const
 	{
-		if (relative() || opaque())
+		if (!has_scheme())
 			return cstring();
 
-		auto start = m_schema + 3;
+		if (is_opaque())
+			return cstring();
+
+		auto start = m_scheme + 3;
 		return subspan(m_uri, start, m_path - start);
 	}
 
@@ -546,19 +564,19 @@ namespace tangle {
 
 	void uri::scheme(const cstring& value)
 	{
-		if (relative())
+		if (!has_scheme())
 			return;
 
-		m_uri.replace(0, m_schema, value.c_str(), value.length());
-		invalidate_path();
+		m_uri.replace(0, m_scheme, value.c_str(), value.length());
+		invalidate_scheme();
 	}
 
 	void uri::authority(const cstring& value)
 	{
-		if (relative() || opaque())
+		if (is_opaque())
 			return;
 
-		auto start = m_schema + 3;
+		auto start = m_scheme + 3;
 		m_uri.replace(start, m_path - start, value.c_str(), value.length());
 		invalidate_path();
 	}
@@ -566,7 +584,7 @@ namespace tangle {
 	void uri::path(const cstring& value)
 	{
 		ensure_query();
-		if (hierarchical() && absolute() && (value.empty() || value[0] != '/')) {
+		if (has_authority() && (value.empty() || value[0] != '/')) {
 			m_uri.replace(m_path, m_query - m_path, "/");
 			++m_path;
 			m_query = m_path;
@@ -602,7 +620,7 @@ namespace tangle {
 			return document;
 
 		auto tmp = document;
-		if (tmp.relative())
+		if (!tmp.has_scheme())
 			tmp = uri { "http://" + tmp.string() };
 
 		tmp.fragment(cstring());
@@ -615,10 +633,10 @@ namespace tangle {
 
 	uri uri::canonical(const uri& identifier, const uri& base, auth_flag flag)
 	{
-		if (identifier.absolute())
+		if (identifier.has_authority())
 			return normal(identifier, flag);
 
-		// base-scheme://base-auth/base-path?uri-query#uri-frag
+		// base-scheme://base-auth/base-path?ident-query#ident-frag
 		auto temp = base;
 		temp.fragment(identifier.fragment());
 		temp.query(identifier.query());
@@ -635,10 +653,13 @@ namespace tangle {
 
 	uri uri::normal(uri tmp, auth_flag flag)
 	{
-		if (tmp.absolute() && tmp.hierarchical()) {
+		tmp.ensure_path();
+		if (tmp.m_scheme != npos) {
 			auto scheme = tolower(to_string(tmp.scheme()));
 			tmp.scheme(scheme);
+		}
 
+		if (tmp.has_authority()) {
 			auto auth = auth_builder::parse(tmp.authority());
 			if (auth.host.empty()) // decoding failed
 				return { };
@@ -662,7 +683,7 @@ namespace tangle {
 			// if default for the scheme, remove
 			if (!auth.port.empty()) {
 				auto port = atoi(auth.port.c_str());
-				auto def = default_port(scheme);
+				auto def = default_port(tmp.scheme());
 				if (port == def)
 					auth.port.clear();
 			}
@@ -670,7 +691,10 @@ namespace tangle {
 			tmp.authority(auth.string(flag));
 		}
 		// PATH: =======================================================================================
-		if (tmp.hierarchical()) {
+		if (tmp.has_authority() || !tmp.has_scheme()) { 
+			// the "://" uris will have paths with slashes for sure;
+			// the "no-scheme, no-auth" URIs start with path with slashes (see has_authority());
+			// cannot say that about other paths (e.g. user@server in mailto:user@server)
 
 			auto path = path_split(tmp.path());
 			std::vector<std::string> recoded;
@@ -678,10 +702,10 @@ namespace tangle {
 			for (auto& part : path)
 				recoded.push_back(urlencode(urldecode(part)));
 
-			bool absolute = (recoded.size() > 1) && recoded.front().empty();
+			bool absolute_path = (recoded.size() > 1) && recoded.front().empty();
 
 			// URL ended with slash; should still end with slash
-			// Also, URL path ended with either xxxx/. or xxxxx/..
+			// Also, URL path ended with either xxxx/. or xxxx/..
 			// -> after resolving the result should be a "dir"
 			bool empty_at_end = (recoded.size() > 1) &&
 				(recoded.back().empty() || recoded.back() == "." || recoded.back() == "..");
@@ -705,7 +729,7 @@ namespace tangle {
 			}
 			if (empty_at_end)
 				canon.emplace_back();
-			if (absolute)
+			if (absolute_path)
 				tmp.path("/" + path_join(canon));
 			else {
 				canon.insert(canon.begin(), overshots.begin(), overshots.end());
