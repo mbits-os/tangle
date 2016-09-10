@@ -88,7 +88,16 @@ namespace tangle { namespace testing {
 	static const UriCannonicalHrefTest uri_canonical_opaque[] = {
 		{ "http://example.com/A/B/",          "http:C/other.file",        "http://example.com/A/B/C/other.file" },
 		{ "http://example.com/A/B/",          "http:/C/other.file",       "http://example.com/C/other.file" },
+		{ "http://example.com/A/B/",          "https:C/other.file",       "https:C/other.file" },
+		{ "http://example.com/A/B/",          "https:/C/other.file",      "https:/C/other.file" },
 		{ "http://example.com/A/B/",          "mailto:user@server",       "mailto:user@server" },
+		{ "http://example.com/A/B/",          "ftp:C/other.file",         "ftp:C/other.file" },
+		{ "https://example.com/A/B/",         "http:C/other.file",        "http:C/other.file" },
+		{ "https://example.com/A/B/",         "http:/C/other.file",       "http:/C/other.file" },
+		{ "https://example.com/A/B/",         "https:C/other.file",       "https://example.com/A/B/C/other.file" },
+		{ "https://example.com/A/B/",         "https:/C/other.file",      "https://example.com/C/other.file" },
+		{ "https://example.com/A/B/",         "mailto:user@server",       "mailto:user@server" },
+		{ "https://example.com/A/B/",         "ftp:C/other.file",         "ftp:C/other.file" },
 	};
 
 	static const UriCannonicalHexTest uri_canonical_decode_auth[] = {
@@ -163,6 +172,7 @@ namespace tangle { namespace testing {
 	URI_CANONICAL(Roots, Href, uri_canonical_roots);
 	URI_CANONICAL(Here, Href, uri_canonical_here);
 	URI_CANONICAL(Up, Href, uri_canonical_up);
+	URI_CANONICAL(Opaque, Href, uri_canonical_opaque);
 	URI_CANONICAL(Authority, Hex, uri_canonical_decode_auth);
 	URI_CANONICAL(Path, Hex, uri_canonical_decode_path);
 	URI_CANONICAL(RelPath, Hex, uri_canonical_decode_relpath);

@@ -50,6 +50,11 @@ namespace tangle {
 			return s;
 		}
 
+		std::string tolower(const cstring& s)
+		{
+			return tolower(to_string(s));
+		}
+
 		std::vector<cstring> path_split(const cstring& path)
 		{
 			auto length = 1;
@@ -635,6 +640,11 @@ namespace tangle {
 	{
 		if (identifier.has_authority())
 			return normal(identifier, flag);
+
+		if (identifier.has_scheme()) {
+			if (!base.has_scheme() || tolower(identifier.scheme()) != tolower(base.scheme()))
+				return normal(identifier, flag);
+		}
 
 		// base-scheme://base-auth/base-path?ident-query#ident-frag
 		auto temp = base;
