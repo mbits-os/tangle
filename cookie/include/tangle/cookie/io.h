@@ -50,6 +50,7 @@ namespace tangle { namespace cookie {
 	Cookie jar I/O code.
 	*/
 	namespace io {
+		/// Version-independent mnemonics
 		enum {
 			TAG_FILE = 0x52414A43, ///< First four bytes of stored files: CJAR
 		};
@@ -69,6 +70,7 @@ namespace tangle { namespace cookie {
 		and to the string buffer.
 		 */
 		inline namespace v1 {
+			/// Mnemonics for version 1.0
 			enum {
 				VERSION = 0x00010000 ///< Version tag for v1.0 I/O structure
 			};

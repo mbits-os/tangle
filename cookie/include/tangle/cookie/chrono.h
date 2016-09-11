@@ -121,12 +121,14 @@ namespace tangle { namespace cookie {
 			/**
 			Creates a time point representing given datetime. If the date is invalid, max_epoch() is returned.
 			\param time The date object to convert to time point
+			\returns time_point representing the `time` parameter
 			*/
 			static time_point from_date(const datetime& time);
 
 			/**
 			Creates a date/time representing given time point.
 			\param tp The time point to convert to date/time
+			\returns datetime representing the `tp` parameter
 			*/
 			static datetime to_date(time_point tp);
 
@@ -134,6 +136,7 @@ namespace tangle { namespace cookie {
 			Creates a string representing given time point.
 			The format is `"Wkd, DD Mth YYYY hh:mm:ss GMT"`.
 			\param tp The time point to convert to string
+			\returns a string representing the `tp` parameter
 			*/
 			static std::string to_string(time_point tp);
 		};

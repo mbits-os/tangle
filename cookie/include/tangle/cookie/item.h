@@ -171,12 +171,14 @@ namespace tangle { namespace cookie {
 
 		/**
 		Getter for flags property. Will return all flags set.
+		\returns the value of flags
 		*/
 		cookie::flags flags() const { return m_flags; }
 
 		/**
 		Setter for flags property. Will set internal state to value, but will retain the old value of flags::persistent,
 		as it can only be set from constructor or expires(time_point) and cleared from clean_expires().
+		\param value a new value to set
 		*/
 		void flags(cookie::flags value)
 		{
@@ -185,43 +187,51 @@ namespace tangle { namespace cookie {
 
 		/**
 		Immutable getter for the scope property.
+		\returns the current scope
 		*/
 		const scope_type& scope() const { return m_scope; }
 
 		/**
 		Setter for the scope property.
+		\param value a new value to set
 		*/
 		void scope(const scope_type& value) { m_scope = value; }
 
 		/**
 		Getter for the name property.
+		\returns the value of name
 		*/
 		const std::string& name() const { return m_name; }
 
 		/**
 		Setter for the name property.
+		\param value a new value to set
 		*/
 		void name(const std::string& value) { m_name = value; }
 
 		/**
 		Getter for the value property.
+		\returns the value of cookie
 		*/
 		const std::string& value() const { return m_value; }
 
 		/**
 		Setter for the name property.
+		\param value a new value to set
 		*/
 		void value(const std::string& value) { m_value = value; }
 
 		/**
 		Getter for the expires property. Will return any value currently
 		kept, whether flags::persistent is set or not.
+		\returns the value of expires
 		*/
 		time_point expires() const { return m_expires; }
 
 		/**
 		Setter for the expires property. Calling this function will also
 		set the flags::persistent flag.
+		\param value a new value to set
 		*/
 		void expires(time_point value)
 		{
@@ -242,6 +252,7 @@ namespace tangle { namespace cookie {
 		/**
 		Shorthand testing both presence of the flags::persistent and the value expires() property.
 		\param when point in time, against which the test for being expired should be performed.
+		\returns true if expires property is both set and in the past
 		*/
 		bool has_expired(time_point when = clock::now()) const
 		{
@@ -249,24 +260,28 @@ namespace tangle { namespace cookie {
 		}
 
 		/**
-		Setter for the creation_time property. If not explicitly set, initialized to clock::now().
+		Getter for the creation_time property. If not explicitly set, initialized to clock::now().
+		\returns the value of creation_time
 		*/
 		time_point creation_time() const { return m_creation_time; }
 
 		/**
-		Getter for the creation_time property. If not explicitly set, initialized to clock::now().
+		Setter for the creation_time property. If not explicitly set, initialized to clock::now().
+		\param value a new value to set
 		*/
 		void creation_time(time_point value) { m_creation_time = value; }
 
 		/**
-		Setter for the last_access_time property. Set to creation_time on original creation
+		Getter for the last_access_time property. Set to creation_time on original creation
 		and then updated during each jar::str() to indicate this cookie was selected for sending back.
+		\returns the value of last_access_time
 		*/
 		time_point last_access_time() const { return m_last_access_time; }
 
 		/**
-		Getter for the last_access_time property. Set to creation_time on original creation
+		Setter for the last_access_time property. Set to creation_time on original creation
 		and then updated during each jar::str() to indicate this cookie was selected for sending back.
+		\param value a new value to set
 		*/
 		void last_access_time(time_point value) { m_last_access_time = value; }
 
@@ -282,6 +297,7 @@ namespace tangle { namespace cookie {
 		               match::http option, the secured request should have the match::secure options set.
 					   _This means HTTPS network request should have __both__ of the options set._
 		\param when time point to use, when determining if the persistent cookie has expired or not.
+		\returns true, if the cookie should be sent
 		\see RFC6265, section 5.1.3, Domain Matching
 		\see RFC6265, section 5.1.4, Paths and Path-Match
 		\see scope_type::matches
@@ -298,8 +314,9 @@ namespace tangle { namespace cookie {
 		* The `Secure` and/or `HttpOnly` attributes are added, if the flags::secure and/or flags::http_only is set, respectively.
 
 		\param prefer_maxage Allows to decide, whether `MaxAge` or `Expires` should be used.
-		\param when If the cookie is persistent, and the `MaxAge` is prefered, what is the "now"
+		\param when If the cookie is persistent, and the `MaxAge` is preferred, what is the "now"
 					age should be calculated against.
+		\returns a string representation of the cookie for a `Set-Cookie` header
 		*/
 		std::string server_string(bool prefer_maxage = false, time_point when = clock::now()) const;
 
@@ -317,7 +334,7 @@ namespace tangle { namespace cookie {
 	Will parse a `Cookie` header extracting name/value pairs.
 	\param origin a domain name to be used for the `{origin, "/"}` scope for new cookies.
 	\param header a character span representing a `Cookie` header.
-	\returns a vector af all cookie name/value pairs found in the header.
+	\returns a vector of all cookie name/value pairs found in the header.
 	*/
 	std::vector<item> from_client(const std::string& origin, const cstring& header);
 

@@ -19,7 +19,6 @@
 	* norm: [RFC 3986:  Uniform Resource Identifier (URI): Generic Syntax](https://tools.ietf.org/html/rfc3986)
 * COOKIE:
 	* code: done ([v1.0](https://github.com/mbits-os/tangle/tree/cookie-1.0))
-	* docs: _partial_
 	* norm: [RFC 6265: HTTP State Management Mechanism](https://tools.ietf.org/html/rfc6265)
 * MSG:
 	* code: done ([v0.1](https://github.com/mbits-os/tangle/tree/msg-0.1))

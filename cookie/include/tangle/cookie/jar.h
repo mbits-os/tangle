@@ -116,6 +116,10 @@ namespace tangle { namespace cookie {
 		/**
 		 Shorthand for add(cookie::from_server()). For the description of the parameters, see tangle::cookie::from_server().
 		 
+		 \param origin a domain name to be used when the `Domain` is missing.
+		 \param header a character span representing a `Set-Cookie` header.
+		 \param created a point in time used for `MaxAge` calculations.
+
 		 \see tangle::cookie::from_server()
 		 \see add()
 		 */
@@ -130,6 +134,10 @@ namespace tangle { namespace cookie {
 		 `Options` argument is used to tweak the visibility of the cookies. For more information,
 		 see item::matches.
 
+		 \param uri the domain-path pair for the new request
+		 \param options the type of request being made
+		 \param when time point to use, when determining if the persistent cookie has expired or not
+		 \return a string representing all matching cookies in the jar
 		 \see item::matches
 		 */
 		std::string str(const scope_type& uri, match options, time_point when = clock::now());

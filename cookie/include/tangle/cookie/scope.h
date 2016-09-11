@@ -72,12 +72,14 @@ namespace tangle { namespace cookie {
 		/**
 		Copy-assigns given scope to this scope_type.
 		\param other already existing scope to use as source of data
+		\returns updated reference
 		*/
 		scope_type& operator=(const scope_type& other);
 
 		/**
 		Move-assigns given scope to this scope_type.
 		\param other expiring scope to use as source of data
+		\returns updated reference
 		*/
 		scope_type& operator=(scope_type&& other);
 
@@ -91,6 +93,9 @@ namespace tangle { namespace cookie {
 		
 		Two scopes are equal, if both domain and path are equal, string-wise.
 		No canonization is performed at this point.
+
+		\param rhs a value to compare against
+		\returns true, if the both objects are equal
 		*/
 		bool operator == (const scope_type& rhs) const
 		{
@@ -106,6 +111,8 @@ namespace tangle { namespace cookie {
 		it's domain is less than other's domain, string-wise. If the domains
 		are equal string-wise, it is less than the other, if it's path is less
 		then other's path. No canonization is performed at this point.
+		\param rhs a value to compare against
+		\returns true, if the left-hand side is lower, than the right-hand side
 		*/
 		bool operator < (const scope_type& rhs) const
 		{
@@ -119,6 +126,7 @@ namespace tangle { namespace cookie {
 		Getter for the domain property. The domain should either be contents
 		of `Domain` cookie attribute, or the domain from which the cookie
 		originated.
+		\returns the value of domain
 		*/
 		const std::string& domain() const { return m_domain; }
 
@@ -126,6 +134,7 @@ namespace tangle { namespace cookie {
 		Setter for the domain property. The domain should either be contents
 		of `Domain` cookie attribute, or the domain from which the cookie
 		originated.
+		\param value a new value to set
 		*/
 		void domain(const std::string& value) { m_domain = value; }
 
@@ -133,6 +142,7 @@ namespace tangle { namespace cookie {
 		Getter for the path property. The path represents the resource
 		directory this cookie belongs to and should either be contents
 		of `Path` cookie attribute, or the root path (`/`).
+		\returns the value of path
 		*/
 		const std::string& path() const { return m_path; }
 
@@ -140,6 +150,7 @@ namespace tangle { namespace cookie {
 		Setter for the path property. The path represents the resource
 		directory this cookie belongs to and should either be contents
 		of `Path` cookie attribute, or the root path (`/`).
+		\param value a new value to set
 		*/
 		void path(const std::string& value) { m_path = value; }
 
@@ -150,6 +161,8 @@ namespace tangle { namespace cookie {
 		                should be set to `Host` and the path should be set
 						to directory of the resource in the request.
 		\param host_only If set, this scope represent a `host-only` cookie.
+		\returns true, if the `upstream` both `domain-matches` and `path-matches`
+		         this scope
 		\see RFC6265, section 5.1.3, Domain Matching
 		\see RFC6265, section 5.1.4, Paths and Path-Match
 		*/
