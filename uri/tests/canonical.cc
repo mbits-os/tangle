@@ -136,7 +136,8 @@ namespace tangle { namespace testing {
 		{ "http://example.com/A/B/../../../some.file",         "http://example.com/some.file" },
 		{ "http://example.com/A/B/../../../C/../",             "http://example.com/" },
 		{ "http://example.com/A/B/../../.%2e/C/..",            "http://example.com/" },
-		{ "http://example.com/%7Euser",                        "http://example.com/~user" }
+		{ "http://example.com/%7Euser",                        "http://example.com/~user" },
+		{ "http://example.com/%%30%30",                        "http://example.com/%2500" }
 	};
 
 	static const UriCannonicalHexTest uri_canonical_decode_relpath[] = {
