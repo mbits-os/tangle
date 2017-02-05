@@ -231,8 +231,9 @@ namespace tangle {
 
 		/** Flags for auth_builder::string */
 		enum auth_flag {
-			ui_safe = false, /**< Flag for encoding the user info for UI */
-			with_pass = true, /**< Flag for encoding the user info for transfer (highly unsafe) */
+			ui_safe, /**< Flag for encoding the user info for UI */
+			with_pass, /**< Flag for encoding the user info for transfer (highly unsafe) */
+			no_userinfo /**< Flag for encoding the authority with no user info at all */
 		};
 
 		/**
@@ -402,6 +403,12 @@ namespace tangle {
 		cstring query() const;
 
 		/**
+		Getter for the resource property.
+		\returns path and query, if present
+		*/
+		cstring resource() const;
+
+		/**
 		Getter for the fragment property.
 		\returns fragment, if present
 		*/
@@ -439,9 +446,10 @@ namespace tangle {
 
 		/**
 		Getter for the underlying object
-		\returns a copy of the underlying string
+		\returns an immutable reference to
+		         the underlying string
 		*/
-		std::string string() const { return m_uri; }
+		const std::string& string() const { return m_uri; }
 
 		/**
 		Removes the last component of the path.

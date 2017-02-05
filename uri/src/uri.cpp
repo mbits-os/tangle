@@ -237,7 +237,9 @@ namespace tangle {
 		auto ahost = host_urlencode(host);
 		auto aport = urlencode(port);
 
-		if (flag == ui_safe)
+		if (flag == no_userinfo)
+			auser_name.clear();
+		else if (flag == ui_safe)
 			auser_pass.clear();
 
 		if (aport.empty() && auser_name.empty())
@@ -559,6 +561,12 @@ namespace tangle {
 	{
 		ensure_fragment();
 		return subspan(m_uri, m_query, m_part - m_query);
+	}
+
+	cstring uri::resource() const
+	{
+		ensure_fragment();
+		return subspan(m_uri, m_path, m_part - m_path);
 	}
 
 	cstring uri::fragment() const

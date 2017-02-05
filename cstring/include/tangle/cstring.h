@@ -107,6 +107,8 @@ namespace tangle {
 		constexpr const_iterator begin() const noexcept { return m_data; }
 		constexpr const_iterator end() const noexcept { return m_data + m_size; }
 
+		std::string str() const { return { data(), length() }; }
+
 		int compare(const cstring& rhs) const
 		{
 			auto hint = std::strncmp(c_str(), rhs.c_str(), std::min(length(), rhs.length()));
@@ -176,6 +178,36 @@ namespace tangle {
 			return npos; // no match
 		}
 
+		friend inline std::ostream& operator<<(std::ostream& o, const tangle::cstring& s)
+		{
+			std::ios_base::iostate state = std::ios_base::goodbit;
+
+			const std::ostream::sentry ok(o);
+			if (!ok) state |= std::ios_base::badbit;
+
+			if (state == std::ios_base::goodbit &&
+				o.rdbuf()->sputn(s.data(), s.length()) != s.length()) {
+				state |= std::ios_base::badbit;
+			};
+
+			o.setstate(state);
+			return o;
+		}
+
+		friend inline std::string operator+(const tangle::cstring& rhs, const tangle::cstring& lhs)
+		{
+			auto out = rhs.str();
+			out.append(lhs.c_str(), lhs.length());
+			return out;
+		}
+
+		friend inline std::string operator+(const std::string& rhs, const tangle::cstring& lhs)
+		{
+			auto out = rhs;
+			out.append(lhs.c_str(), lhs.length());
+			return out;
+		}
+
 	private:
 		const char* m_data;
 		size_type m_size;
@@ -183,37 +215,6 @@ namespace tangle {
 
 	inline std::string to_string(const cstring& h)
 	{
-		return { h.data(), h.length() };
+		return h.str();
 	}
-
-}
-
-inline std::ostream& operator<<(std::ostream& o, const tangle::cstring& s)
-{
-	std::ios_base::iostate state = std::ios_base::goodbit;
-
-	const std::ostream::sentry ok(o);
-	if (!ok) state |= std::ios_base::badbit;
-
-	if (state == std::ios_base::goodbit &&
-		o.rdbuf()->sputn(s.data(), s.length()) != s.length()) {
-		state |= std::ios_base::badbit;
-	};
-
-	o.setstate(state);
-	return o;
-}
-
-inline std::string operator+(const tangle::cstring& rhs, const tangle::cstring& lhs)
-{
-	auto out = tangle::to_string(rhs);
-	out.append(lhs.c_str(), lhs.length());
-	return out;
-}
-
-inline std::string operator+(const std::string& rhs, const tangle::cstring& lhs)
-{
-	auto out = rhs;
-	out.append(lhs.c_str(), lhs.length());
-	return out;
 }
