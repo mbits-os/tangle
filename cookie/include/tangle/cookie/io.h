@@ -326,7 +326,7 @@ namespace tangle { namespace cookie {
 			return clock::time_point { from_epoch };
 		}
 
-		namespace v1 {
+		inline namespace v1 {
 			/**
 			Stores qualified cookies from the jar into the writable I/O object.
 

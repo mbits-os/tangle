@@ -100,6 +100,8 @@ namespace tangle { namespace cookie {
 	// hide the boring details from the doygen
 	inline match operator| (match lhs, match rhs) { return match((int)lhs | (int)rhs); }
 	inline match operator& (match lhs, match rhs) { return match((int)lhs & (int)rhs); }
+	inline match& operator|= (match& lhs, match rhs) { return (match&)((int&)lhs |= (int)rhs); }
+	inline match& operator&= (match& lhs, match rhs) { return (match&)((int&)lhs &= (int)rhs); }
 	// for cleaning bits:
 	inline match operator~ (match lhs) { return match(~(int)lhs); }
 #endif // USING_DOXYGEN

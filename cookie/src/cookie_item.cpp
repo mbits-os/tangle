@@ -404,7 +404,7 @@ namespace tangle { namespace cookie {
 		if (domain.empty()) {
 			domain = origin;
 			flags = flags | cookie::flags::host_only;
-		}
+		} // else check for cross-site issues
 
 		if (path.empty())
 			path = "/";
