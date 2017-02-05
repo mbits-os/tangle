@@ -27,21 +27,14 @@ set(SOURCES
 
 WRAP_SOURCELIST(${SOURCES})
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-add_library(msg SHARED ${SOURCES})
-add_library(msg_s STATIC ${SOURCES})
+add_library(msg STATIC ${SOURCES})
 set_target_properties(msg PROPERTIES
 	CXX_STANDARD 14
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER libs/dynamic)
-set_target_properties(msg_s PROPERTIES
-	CXX_STANDARD 14
-	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER libs/static)
+	FOLDER libs)
 
-install(TARGETS msg msg_s
+install(TARGETS msg
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
@@ -50,6 +43,8 @@ install(DIRECTORY include/tangle/ DESTINATION include/tangle)
 ##################################################################
 ##  TESTING
 ##################################################################
+
+if (TANGLE_TESTING)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
@@ -60,8 +55,8 @@ endif()
 
 add_executable(msg-test ../googletest.cpp ${TEST_SRCS})
 set_target_properties(msg-test PROPERTIES CXX_STANDARD 14 FOLDER tests)
-add_dependencies(msg-test msg_s gtest gmock)
-target_link_libraries(msg-test $<TARGET_FILE:msg_s> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+add_dependencies(msg-test msg gtest gmock)
+target_link_libraries(msg-test $<TARGET_FILE:msg> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 enable_testing()
 add_test(NAME hash.samples COMMAND msg-test --gtest_filter=hashing/hasher.*)
@@ -70,3 +65,5 @@ add_test(NAME parser.base COMMAND msg-test --gtest_filter=samples/base_parser.*)
 add_test(NAME parser.http.req COMMAND msg-test --gtest_filter=requests/request_parser.*)
 add_test(NAME parser.http.resp COMMAND msg-test --gtest_filter=responses/response_parser.*)
 add_test(NAME parser.http.errors COMMAND msg-test --gtest_filter=first_line/*)
+
+endif()

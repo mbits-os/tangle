@@ -31,21 +31,14 @@ set(SOURCES
 
 WRAP_SOURCELIST(${SOURCES})
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-add_library(cookie SHARED ${SOURCES})
-add_library(cookie_s STATIC ${SOURCES})
+add_library(cookie STATIC ${SOURCES})
 set_target_properties(cookie PROPERTIES
 	CXX_STANDARD 14
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER libs/dynamic)
-set_target_properties(cookie_s PROPERTIES
-	CXX_STANDARD 14
-	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER libs/static)
+	FOLDER libs)
 
-install(TARGETS cookie cookie_s
+install(TARGETS cookie
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
@@ -70,6 +63,8 @@ endif()
 ##  TESTING
 ##################################################################
 
+if (TANGLE_TESTING)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 file(GLOB TEST_SRCS tests/*.cc)
@@ -80,8 +75,8 @@ endif()
 
 add_executable(cookie-test ../googletest.cpp ${TEST_SRCS})
 set_target_properties(cookie-test PROPERTIES CXX_STANDARD 14 FOLDER tests)
-add_dependencies(cookie-test cookie_s gtest gmock)
-target_link_libraries(cookie-test $<TARGET_FILE:cookie_s> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+add_dependencies(cookie-test cookie gtest gmock)
+target_link_libraries(cookie-test $<TARGET_FILE:cookie> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 enable_testing()
 add_test(NAME domains.scope COMMAND cookie-test --gtest_filter=domains/scope.*)
@@ -97,3 +92,5 @@ add_test(NAME scope.header COMMAND cookie-test --gtest_filter=scope/SetCookie_he
 add_test(NAME expires.header COMMAND cookie-test --gtest_filter=expires/SetCookie_header.*)
 add_test(NAME max_age.header COMMAND cookie-test --gtest_filter=max_age/SetCookie_header.*)
 add_test(NAME cookie.jar COMMAND cookie-test --gtest_filter=*/cookie_jar_*)
+
+endif()

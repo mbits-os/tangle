@@ -19,21 +19,14 @@ set(SOURCES src/uri.cpp include/tangle/uri.h)
 
 WRAP_SOURCELIST(${SOURCES})
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-add_library(url SHARED ${SOURCES})
-add_library(url_s STATIC ${SOURCES})
-set_target_properties(url PROPERTIES
+add_library(uri STATIC ${SOURCES})
+set_target_properties(uri PROPERTIES
 	CXX_STANDARD 14
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER libs/dynamic)
-set_target_properties(url_s PROPERTIES
-	CXX_STANDARD 14
-	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER libs/static)
+	FOLDER libs)
 
-install(TARGETS url url_s
+install(TARGETS uri
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
@@ -58,6 +51,8 @@ endif()
 ##  TESTING
 ##################################################################
 
+if (TANGLE_TESTING)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 file(GLOB TEST_SRCS tests/*.cc)
@@ -65,20 +60,22 @@ if (MSVC)
 list(APPEND TEST_SRCS ${NATVIS})
 endif()
 
-add_executable(url-test ../googletest.cpp ${TEST_SRCS})
-set_target_properties(url-test PROPERTIES CXX_STANDARD 14 FOLDER tests)
-add_dependencies(url-test url_s gtest gmock)
-target_link_libraries(url-test $<TARGET_FILE:url_s> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+add_executable(uri-test ../googletest.cpp ${TEST_SRCS})
+set_target_properties(uri-test PROPERTIES CXX_STANDARD 14 FOLDER tests)
+add_dependencies(uri-test uri gtest gmock)
+target_link_libraries(uri-test $<TARGET_FILE:uri> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 enable_testing()
-add_test(NAME href.empties COMMAND url-test --gtest_filter=Empties/*)
-add_test(NAME href.roots COMMAND url-test --gtest_filter=Roots/*)
-add_test(NAME href.here COMMAND url-test --gtest_filter=Here/*)
-add_test(NAME href.up COMMAND url-test --gtest_filter=Up/*)
-add_test(NAME uri.authority COMMAND url-test --gtest_filter=Authority/*)
-add_test(NAME uri.path COMMAND url-test --gtest_filter=Path/*)
-add_test(NAME uri.relpath COMMAND url-test --gtest_filter=RelPath/*)
-add_test(NAME uri.query COMMAND url-test --gtest_filter=Query/*)
-add_test(NAME uri.makeBase COMMAND url-test --gtest_filter=MakeBase/*)
-add_test(NAME uri.parts COMMAND url-test --gtest_filter=samples/uri_parts.*)
-add_test(NAME uri.auth-parts COMMAND url-test --gtest_filter=samples/uri_auth.*)
+add_test(NAME href.empties COMMAND uri-test --gtest_filter=Empties/*)
+add_test(NAME href.roots COMMAND uri-test --gtest_filter=Roots/*)
+add_test(NAME href.here COMMAND uri-test --gtest_filter=Here/*)
+add_test(NAME href.up COMMAND uri-test --gtest_filter=Up/*)
+add_test(NAME uri.authority COMMAND uri-test --gtest_filter=Authority/*)
+add_test(NAME uri.path COMMAND uri-test --gtest_filter=Path/*)
+add_test(NAME uri.relpath COMMAND uri-test --gtest_filter=RelPath/*)
+add_test(NAME uri.query COMMAND uri-test --gtest_filter=Query/*)
+add_test(NAME uri.makeBase COMMAND uri-test --gtest_filter=MakeBase/*)
+add_test(NAME uri.parts COMMAND uri-test --gtest_filter=samples/uri_parts.*)
+add_test(NAME uri.auth-parts COMMAND uri-test --gtest_filter=samples/uri_auth.*)
+
+endif()

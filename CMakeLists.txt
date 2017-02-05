@@ -6,6 +6,8 @@ set(TANGLE_VERSION_MINOR 1)
 set(TANGLE_VERSION_PATCH 0)
 set(TANGLE_VERSION "${TANGLE_VERSION_MAJOR}.${TANGLE_VERSION_MINOR}.${TANGLE_VERSION_PATCH}" )
 
+set(TANGLE_TESTING OFF CACHE BOOL "Compile and/or run self-tests")
+
 ##################################################################
 ##  SOURCES
 ##################################################################
@@ -25,8 +27,11 @@ file(GLOB NATVIS natvis/*.natvis)
 endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-enable_testing()
-include( ${CMAKE_CURRENT_SOURCE_DIR}/googletest.cmake )
+
+if (TANGLE_TESTING)
+	enable_testing()
+	include( ${CMAKE_CURRENT_SOURCE_DIR}/googletest.cmake )
+endif()
 
 ##################################################################
 ##  DOCUMENTATION
