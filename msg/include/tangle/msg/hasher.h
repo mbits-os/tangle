@@ -57,6 +57,11 @@ namespace tangle { namespace msg {
 			new (&m_cstr) cstring { key };
 		}
 
+		combined_string(const char* key)
+		{
+			new (&m_cstr) cstring { key };
+		}
+
 		combined_string(const std::string& key) : m_use_cstr { false }
 		{
 			new (&m_str) std::string { key };

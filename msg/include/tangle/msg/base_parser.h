@@ -54,6 +54,8 @@ namespace tangle { namespace msg {
 			size_t m_hash = 0;
 		};
 
+		using dict_t = std::unordered_map<combined_string, std::vector<std::string>>;
+
 		std::pair<size_t, parsing> append(const char* data, size_t length);
 
 		auto dict()
@@ -63,7 +65,7 @@ namespace tangle { namespace msg {
 	private:
 		std::vector<char> m_contents;
 		std::vector<std::tuple<span, span>> m_field_list;
-		std::unordered_map<combined_string, std::vector<std::string>> m_dict;
+		dict_t m_dict;
 		size_t m_last_line_end = 0;
 
 		bool rearrange();

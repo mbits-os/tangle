@@ -41,6 +41,7 @@ namespace tangle { namespace msg {
 	template <typename Final>
 	class http_parser_base {
 	public:
+		using dict_t = base_parser::dict_t;
 		std::pair<size_t, parsing> append(const char* data, size_t length);
 		const http_version& proto() const { return m_proto; }
 		auto dict() { return m_fields.dict(); }
