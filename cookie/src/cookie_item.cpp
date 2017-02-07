@@ -404,7 +404,11 @@ namespace tangle { namespace cookie {
 		if (domain.empty()) {
 			domain = origin;
 			flags = flags | cookie::flags::host_only;
-		} // else check for cross-site issues
+		} else if (domain != origin) {
+			// do not allow cookies from outside the scope
+			if (!scope_type{ domain, {}}.matches({ origin, {}}, false))
+				return {};
+		}
 
 		if (path.empty())
 			path = "/";

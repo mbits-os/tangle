@@ -67,7 +67,7 @@ namespace {
 		auto header = par.header;
 		auto& expected = par.cookie;
 
-		auto actual = from_server("example.com", header, now());
+		auto actual = from_server("www.example.com", header, now());
 		ASSERT_EQ(expected.name(), actual.name());
 		if (actual.name().empty())
 			return;
@@ -86,21 +86,23 @@ namespace {
 	}
 
 	static cookie_info flag_tests[] = {
-		{ "name=value"_cs, { "name", "value", { "example.com", "/" }, flags::host_only } },
-		{ "name=value; seCure"_cs, { "name", "value", { "example.com", "/" }, flags::host_only | flags::secure } },
-		{ "name=value; Secure"_cs, { "name", "value", { "example.com", "/" }, flags::host_only | flags::secure } },
-		{ "name=value; HttpOnly"_cs, { "name", "value", { "example.com", "/" }, flags::host_only | flags::http_only } },
-		{ "name=value; Secure; HttpOnly"_cs, { "name", "value", { "example.com", "/" }, flags::host_only | flags::http_only | flags::secure } },
-		{ "name=value; HttpOnly; Secure"_cs, { "name", "value", { "example.com", "/" }, flags::host_only | flags::http_only | flags::secure } },
+		{ "name=value"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only } },
+		{ "name=value; seCure"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::secure } },
+		{ "name=value; Secure"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::secure } },
+		{ "name=value; HttpOnly"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::http_only } },
+		{ "name=value; Secure; HttpOnly"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::http_only | flags::secure } },
+		{ "name=value; HttpOnly; Secure"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::http_only | flags::secure } },
 	};
 
 	static cookie_info scope[] = {
-		{ "name=value; Path=/"_cs, { "name", "value", { "example.com", "/" }, flags::host_only } },
+		{ "name=value; Path=/"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only } },
 		{ "name=value; Path=/; Domain=example.com"_cs, { "name", "value", { "example.com", "/" } } },
 		{ "name=value; Path=/; Domain=.example.com"_cs, { "name", "value", { "example.com", "/" } } },
 		{ "name=value; Path=/; Domain=www.example.com"_cs, { "name", "value", { "www.example.com", "/" } } },
+		{ "name=value; Path=/; Domain=www1.example.com"_cs, { } },
 		{ "name=value; Domain=www.example.com"_cs, { "name", "value", { "www.example.com", "/" } } },
-		{ "name=value; Path=/res/ource; Domain=example.com"_cs, { "name", "value", { "example.com", "/res/ource" } } }
+		{ "name=value; Path=/res/ource; Domain=example.com"_cs, { "name", "value", { "example.com", "/res/ource" } } },
+		{ "name=value; Path=/res/ource; Domain=example.org"_cs, { } },
 	};
 
 	static cookie_info expires[] = {

@@ -133,6 +133,11 @@ namespace tangle { namespace msg {
 			return (cstring)*this == rhs;
 		}
 
+		friend inline std::ostream& operator<<(std::ostream& o, const combined_string& cs)
+		{
+			return o << (cstring)cs;
+		}
+
 	private:
 		union {
 			std::string m_str;
