@@ -6,7 +6,8 @@ set(TANGLE_VERSION_MINOR 1)
 set(TANGLE_VERSION_PATCH 0)
 set(TANGLE_VERSION "${TANGLE_VERSION_MAJOR}.${TANGLE_VERSION_MINOR}.${TANGLE_VERSION_PATCH}" )
 
-set(TANGLE_TESTING OFF CACHE BOOL "Compile and/or run self-tests")
+set(TANGLE_TESTING ON CACHE BOOL "Compile and/or run self-tests")
+set(TANGLE_DOCS OFF CACHE BOOL "Create doxygen documentation")
 
 ##################################################################
 ##  SOURCES
@@ -38,6 +39,7 @@ endif()
 ##  DOCUMENTATION
 ##################################################################
 
+if (TANGLE_DOCS)
 find_package( Doxygen )
 if (DOXYGEN_FOUND)
 	add_custom_target(doc)
@@ -49,6 +51,7 @@ if (DOXYGEN_FOUND)
 	endif()
 else()
 	message(STATUS "Doxy not found...")
+endif()
 endif()
 
 ##################################################################
