@@ -24,6 +24,7 @@ endmacro()
 
 if (MSVC)
 file(GLOB NATVIS natvis/*.natvis)
+add_definitions(/EHsc)
 endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
