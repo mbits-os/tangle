@@ -57,16 +57,18 @@ namespace tangle { namespace nav {
 		~navigator();
 		navigator(const navigator&);
 		navigator& operator=(const navigator&);
-		navigator(navigator&&);
-		navigator& operator=(navigator&&);
+		navigator(navigator&&) noexcept;
+		navigator& operator=(navigator&&) noexcept;
 
 		void reg_proto(const std::string& scheme,
 			const std::shared_ptr<protocol>& proto);
 
-		jar& cookies();
-		const jar& cookies() const;
-		nav::cache& cache();
-		const nav::cache& cache() const;
+		const std::string& user_agent() const noexcept;
+		jar& cookies() noexcept;
+		const jar& cookies() const noexcept;
+		nav::cache& cache() noexcept;
+		const nav::cache& cache() const noexcept;
+		const std::vector<std::string>& languages() const noexcept;
 
 		loader open(const request& req, bool refreshing,
 			cookie::time_point when = cookie::clock::now());

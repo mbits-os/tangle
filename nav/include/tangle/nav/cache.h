@@ -56,6 +56,7 @@ namespace tangle { namespace nav {
 		};
 
 		virtual ~cache() {}
+		virtual bool storage_backed() const noexcept = 0;
 		virtual std::shared_ptr<file> get(const uri& address) = 0;
 		virtual std::shared_ptr<file> create(const uri& address) = 0;
 	};

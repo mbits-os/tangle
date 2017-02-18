@@ -31,6 +31,20 @@
 namespace tangle { namespace nav {
 	namespace impl {
 		struct empty_cache : cache {
+			bool storage_backed() const noexcept { return false; }
+			std::shared_ptr<file> get(const uri& address) override
+			{
+				return {};
+			}
+
+			std::shared_ptr<file> create(const uri& address) override
+			{
+				return {};
+			}
+		};
+
+		struct dummy_cache : cache {
+			bool storage_backed() const noexcept { return true; }
 			std::shared_ptr<file> get(const uri& address) override
 			{
 				return {};
@@ -52,24 +66,33 @@ namespace tangle { namespace nav {
 		void reg_proto(const std::string& scheme, const std::shared_ptr<protocol>& proto);
 		std::shared_ptr<protocol> get_proto(const std::string& scheme);
 
-		jar& cookies() { return m_jar; }
-		const jar& cookies() const { return m_jar; }
-		nav::cache& cache() { return *m_cache; }
-		const nav::cache& cache() const { return *m_cache; }
+		const std::string& user_agent() const noexcept { return m_user_agent; }
+		jar& cookies() noexcept { return m_jar; }
+		const jar& cookies() const noexcept { return m_jar; }
+		nav::cache& cache() noexcept { return *m_cache; }
+		const nav::cache& cache() const noexcept { return *m_cache; }
+		const std::vector<std::string>& languages() const noexcept { return m_languages; }
+		std::vector<std::string>& languages() noexcept { return m_languages; }
 
 	private:
 		std::string m_user_agent;
 		jar m_jar;
 		std::unique_ptr<nav::cache> m_cache;
+		std::vector<std::string> m_languages;
 		std::unordered_map<std::string, std::shared_ptr<protocol>> m_protocols;
 	};
 
-	navigator::navigator() = default;
 	navigator::~navigator() = default;
 	navigator::navigator(const navigator&) = default;
 	navigator& navigator::operator=(const navigator&) = default;
-	navigator::navigator(navigator&&) = default;
-	navigator& navigator::operator=(navigator&&) = default;
+	navigator::navigator(navigator&&) noexcept = default;
+	navigator& navigator::operator=(navigator&&) noexcept = default;
+
+	navigator::navigator()
+		: m_impl{ std::make_shared<backend, std::string>({}) }
+	{
+		m_impl->set_cache(std::make_unique<impl::empty_cache>());
+	}
 
 	navigator::navigator(const config& cfg)
 		: m_impl{ std::make_shared<backend>(cfg.app_version) }
@@ -80,8 +103,10 @@ namespace tangle { namespace nav {
 			m_impl->set_cache(std::make_unique<impl::empty_cache>());
 		else {
 			// TODO: missing cache implementation
-			m_impl->set_cache(std::make_unique<impl::empty_cache>());
+			m_impl->set_cache(std::make_unique<impl::dummy_cache>());
 		}
+
+		m_impl->languages() = cfg.languages;
 	}
 
 	void navigator::reg_proto(const std::string& key,
@@ -95,10 +120,16 @@ namespace tangle { namespace nav {
 	}
 
 
-	jar& navigator::cookies() { return m_impl->cookies(); }
-	const jar& navigator::cookies() const { return m_impl->cookies(); }
-	nav::cache& navigator::cache() { return m_impl->cache(); }
-	const nav::cache& navigator::cache() const { return m_impl->cache(); }
+	const std::string& navigator::user_agent() const noexcept { return m_impl->user_agent(); }
+	jar& navigator::cookies() noexcept { return m_impl->cookies(); }
+	const jar& navigator::cookies() const noexcept { return m_impl->cookies(); }
+	nav::cache& navigator::cache() noexcept { return m_impl->cache(); }
+	const nav::cache& navigator::cache() const noexcept { return m_impl->cache(); }
+
+	const std::vector<std::string>& navigator::languages() const noexcept
+	{
+		return m_impl->languages();
+	}
 
 	loader navigator::open(const request& req, bool refreshing, cookie::time_point when)
 	{
