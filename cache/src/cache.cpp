@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 midnightBITS
+ * Copyright (C) 2016 midnightBITS
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -22,45 +22,29 @@
  * SOFTWARE.
  */
 
-/**
-Cache content.
-\file
-\author Marcin Zdun <mzdun@midnightbits.com>
-*/
+#include <tangle/cache/cache.h>
+#include <tangle/cache/loader.h>
 
-#pragma once
+namespace tangle { namespace cache {
+	cache::file::file() = default;
 
-#include <tangle/uri.h>
-#include <functional>
-#include <memory>
+	bool cache::file::is_active() const
+	{
+		return false;
+	}
 
-namespace tangle { namespace nav {
-	struct loader_impl;
-	/**
-	Content loader.
+	bool cache::file::is_fresh(cookie::time_point when) const
+	{
+		return false;
+	}
 
-	Content interface for cache object clients.
-	*/
-	struct loader {
-		loader();
-		loader(const loader&);
-		loader& operator=(const loader&);
-		loader(loader&&);
-		loader& operator=(loader&&);
+	std::string cache::file::meta(const std::string& key)
+	{
+		return { };
+	}
 
-		loader& on_opened(const std::function<bool(loader&)>&);
-		loader& on_data(const std::function<void(loader&, const void*, size_t)>&);
-
-		bool exists() const; // file couldn't be opened, e.g. 4xx and 5xx on HTTP
-		bool is_link() const; // unsatisfied link, e.g. 3xx on HTTP
-
-		static loader wrap(std::shared_ptr<loader_impl> impl) {
-			return loader{ std::move(impl) };
-		}
-
-	private:
-		std::shared_ptr<loader_impl> m_impl;
-
-		explicit loader(std::shared_ptr<loader_impl> impl);
-	};
+	loader cache::file::get_loader()
+	{
+		return { };
+	}
 }}

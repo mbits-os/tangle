@@ -62,6 +62,7 @@ add_subdirectory( cstring )
 add_subdirectory( cookie )
 add_subdirectory( uri )
 add_subdirectory( msg )
+add_subdirectory( cache )
 add_subdirectory( nav )
 
 ##################################################################

@@ -22,43 +22,41 @@
  * SOFTWARE.
  */
 
-/**
-Navigation cache.
-\file
-\author Marcin Zdun <mzdun@midnightbits.com>
+#include <tangle/cache/loader.h>
+#include <tangle/cache/impl/loader_impl.h>
 
-Cache contains both the data already downloaded and still fresh
-and the data to be downloaded. Any clases wishing to get any data
-over any wire, should do so over the cache.
-*/
+namespace tangle { namespace cache {
+	loader::loader(std::shared_ptr<loader_impl> impl)
+		: m_impl(impl)
+	{
+	}
 
-#pragma once
-#include <memory>
-#include <tangle/uri.h>
-#include <tangle/nav/loader.h>
-#include <tangle/cookie/chrono.h>
+	loader::loader() = default;
+	loader::loader(const loader&) = default;
+	loader& loader::operator=(const loader&) = default;
+	loader::loader(loader&&) = default;
+	loader& loader::operator=(loader&&) = default;
 
-namespace tangle { namespace nav {
-	/**
-	Navigation cache.
+	loader& loader::on_opened(const std::function<bool(loader&)>&)
+	{
+		return *this;
+	}
+	loader& loader::on_data(const std::function<void(loader&, const void*, size_t)>&)
+	{
+		return *this;
+	}
 
-	Cache contains the data already downloaded ar currently being downloaded.
-	*/
-	class cache {
-	public:
-		class file {
-		public:
-			file();
-			bool is_active() const;
-			bool is_fresh(cookie::time_point when = cookie::clock::now()) const;
-			loader get_loader();
-			std::string meta(const std::string& key);
-		};
+	bool loader::exists() const
+	{
+		if (!m_impl)
+			return false;
+		return m_impl->exists();
+	}
 
-		virtual ~cache() {}
-		virtual bool storage_backed() const noexcept = 0;
-		virtual std::shared_ptr<file> get(const uri& address) = 0;
-		virtual std::shared_ptr<file> create(const uri& address) = 0;
-	};
-
+	bool loader::is_link() const
+	{
+		if (!m_impl)
+			return false;
+		return m_impl->is_link();
+	}
 }}

@@ -1,13 +1,9 @@
 cmake_minimum_required(VERSION 3.4)
 
-set(DEPS uri cookie cache msg)
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../cstring/include)
-
-foreach(DEP ${DEPS})
-	include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../${DEP}/include")
-endforeach()
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../uri/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../cookie/include)
 
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 1)
@@ -22,30 +18,23 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MT")
 endif()
 
 set(SOURCES
-	src/nav_jar.cpp
-	src/navigator.cpp
+	src/cache.cpp
+	src/loader.cpp
 
-	include/tangle/nav/jar.h
-	include/tangle/nav/request.h
-	include/tangle/nav/navigator.h
-	include/tangle/nav/protocol.h
+	include/tangle/cache/cache.h
+	include/tangle/cache/loader.h
 	)
 
 WRAP_SOURCELIST(${SOURCES})
 
-add_library(nav STATIC ${SOURCES})
-set_target_properties(nav PROPERTIES
+add_library(cache STATIC ${SOURCES})
+set_target_properties(cache PROPERTIES
 	CXX_STANDARD 14
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
 
-foreach(DEP ${DEPS})
-	add_dependencies(nav ${DEP})
-	target_link_libraries(nav $<TARGET_FILE:${DEP}>)
-endforeach()
-
-install(TARGETS nav
+install(TARGETS cache
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
@@ -58,12 +47,12 @@ install(DIRECTORY include/tangle/ DESTINATION include/tangle)
 if (DOXYGEN_FOUND)
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
 		${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
-	add_custom_target(nav-doc
+	add_custom_target(cache-doc
 		${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		COMMENT "Generating nav API documentation with Doxygen" VERBATIM)
-	add_dependencies(doc nav-doc)
-	set_target_properties(nav-doc PROPERTIES FOLDER Doxygen)
+		COMMENT "Generating cache API documentation with Doxygen" VERBATIM)
+	add_dependencies(doc cache-doc)
+	set_target_properties(cache-doc PROPERTIES FOLDER Doxygen)
 endif()
 
 ##################################################################
@@ -71,6 +60,7 @@ endif()
 ##################################################################
 
 if (TANGLE_TESTING)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 file(GLOB TEST_SRCS tests/*.cc)
@@ -78,14 +68,11 @@ if (MSVC)
 list(APPEND TEST_SRCS ${NATVIS})
 endif()
 
-add_executable(nav-test ../googletest.cpp ${TEST_SRCS})
-set_target_properties(nav-test PROPERTIES CXX_STANDARD 14 FOLDER tests)
-add_dependencies(nav-test nav gtest gmock)
-target_link_libraries(nav-test $<TARGET_FILE:nav> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-foreach(DEP ${DEPS})
-	add_dependencies(nav-test ${DEP})
-	target_link_libraries(nav-test $<TARGET_FILE:${DEP}>)
-endforeach()
+add_executable(cache-test ../googletest.cpp ${TEST_SRCS})
+set_target_properties(cache-test PROPERTIES CXX_STANDARD 14 FOLDER tests)
+add_dependencies(cache-test cache gtest gmock)
+target_link_libraries(cache-test $<TARGET_FILE:cache> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 enable_testing()
+
 endif()

@@ -23,24 +23,42 @@
  */
 
 /**
-Cache content.
+Navigation cache.
 \file
 \author Marcin Zdun <mzdun@midnightbits.com>
+
+Cache contains both the data already downloaded and still fresh
+and the data to be downloaded. Any clases wishing to get any data
+over any wire, should do so over the cache.
 */
 
 #pragma once
-
-#include <tangle/uri.h>
-#include <functional>
 #include <memory>
+#include <tangle/uri.h>
+#include <tangle/cache/loader.h>
+#include <tangle/cookie/chrono.h>
 
-namespace tangle { namespace nav {
-	struct loader_impl {
-		virtual ~loader_impl() {}
-		virtual loader& on_opened(const std::function<bool(loader&)>&) = 0;
-		virtual loader& on_data(const std::function<void(loader&, const void*, size_t)>&) = 0;
+namespace tangle { namespace cache {
+	/**
+	Navigation cache.
 
-		virtual bool exists() const = 0;
-		virtual bool is_link() const = 0;
+	Cache contains the data already downloaded ar currently being downloaded.
+	*/
+	class cache {
+	public:
+		class file {
+		public:
+			file();
+			bool is_active() const;
+			bool is_fresh(cookie::time_point when = cookie::clock::now()) const;
+			loader get_loader();
+			std::string meta(const std::string& key);
+		};
+
+		virtual ~cache() {}
+		virtual bool storage_backed() const noexcept = 0;
+		virtual std::shared_ptr<file> get(const uri& address) = 0;
+		virtual std::shared_ptr<file> create(const uri& address) = 0;
 	};
+
 }}

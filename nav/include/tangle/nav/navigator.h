@@ -35,7 +35,7 @@ over any wire, should do so over the cache.
 #pragma once
 #include <memory>
 #include <tangle/nav/request.h>
-#include <tangle/nav/cache.h>
+#include <tangle/cache/cache.h>
 #include <tangle/cookie/chrono.h>
 
 namespace tangle { namespace nav {
@@ -66,11 +66,11 @@ namespace tangle { namespace nav {
 		const std::string& user_agent() const noexcept;
 		jar& cookies() noexcept;
 		const jar& cookies() const noexcept;
-		nav::cache& cache() noexcept;
-		const nav::cache& cache() const noexcept;
+		tangle::cache::cache& cache() noexcept;
+		const tangle::cache::cache& cache() const noexcept;
 		const std::vector<std::string>& languages() const noexcept;
 
-		loader open(const request& req, bool refreshing,
+		tangle::cache::loader open(const request& req, bool refreshing,
 			cookie::time_point when = cookie::clock::now());
 	private:
 		std::shared_ptr<backend> m_impl;

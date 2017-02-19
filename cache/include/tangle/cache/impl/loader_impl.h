@@ -22,41 +22,24 @@
  * SOFTWARE.
  */
 
-#include <tangle/nav/loader.h>
-#include <tangle/nav/impl/loader_impl.h>
+/**
+Cache content.
+\file
+\author Marcin Zdun <mzdun@midnightbits.com>
+*/
 
-namespace tangle { namespace nav {
-	loader::loader(std::shared_ptr<loader_impl> impl)
-		: m_impl(impl)
-	{
-	}
+#pragma once
 
-	loader::loader() = default;
-	loader::loader(const loader&) = default;
-	loader& loader::operator=(const loader&) = default;
-	loader::loader(loader&&) = default;
-	loader& loader::operator=(loader&&) = default;
+#include <functional>
+#include <memory>
 
-	loader& loader::on_opened(const std::function<bool(loader&)>&)
-	{
-		return *this;
-	}
-	loader& loader::on_data(const std::function<void(loader&, const void*, size_t)>&)
-	{
-		return *this;
-	}
+namespace tangle { namespace cache {
+	struct loader_impl {
+		virtual ~loader_impl() {}
+		virtual loader& on_opened(const std::function<bool(loader&)>&) = 0;
+		virtual loader& on_data(const std::function<void(loader&, const void*, size_t)>&) = 0;
 
-	bool loader::exists() const
-	{
-		if (!m_impl)
-			return false;
-		return m_impl->exists();
-	}
-
-	bool loader::is_link() const
-	{
-		if (!m_impl)
-			return false;
-		return m_impl->is_link();
-	}
+		virtual bool exists() const = 0;
+		virtual bool is_link() const = 0;
+	};
 }}

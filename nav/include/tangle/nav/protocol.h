@@ -37,13 +37,13 @@ over any wire, should do so over the cache.
 #include <unordered_map>
 #include <tangle/nav/request.h>
 #include <tangle/nav/jar.h>
-#include <tangle/nav/loader.h>
-#include <tangle/nav/cache.h>
+#include <tangle/cache/loader.h>
+#include <tangle/cache/cache.h>
 
 namespace tangle { namespace nav {
 	struct navigator;
 	struct protocol {
 		virtual ~protocol() {}
-		virtual loader open(const request& req, navigator& nav) = 0;
+		virtual tangle::cache::loader open(const request& req, navigator& nav) = 0;
 	};
 }}

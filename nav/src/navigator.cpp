@@ -23,14 +23,14 @@
  */
 
 #include <tangle/nav/jar.h>
-#include <tangle/nav/cache.h>
+#include <tangle/cache/cache.h>
 #include <tangle/nav/navigator.h>
 #include <tangle/nav/protocol.h>
 #include <cctype>
 
 namespace tangle { namespace nav {
 	namespace impl {
-		struct empty_cache : cache {
+		struct empty_cache : tangle::cache::cache {
 			bool storage_backed() const noexcept { return false; }
 			std::shared_ptr<file> get(const uri& address) override
 			{
@@ -43,7 +43,7 @@ namespace tangle { namespace nav {
 			}
 		};
 
-		struct dummy_cache : cache {
+		struct dummy_cache : tangle::cache::cache {
 			bool storage_backed() const noexcept { return true; }
 			std::shared_ptr<file> get(const uri& address) override
 			{
@@ -61,7 +61,7 @@ namespace tangle { namespace nav {
 		backend(const std::string& user_agent);
 		~backend();
 
-		void set_cache(std::unique_ptr<nav::cache> cache) { m_cache = std::move(cache); }
+		void set_cache(std::unique_ptr<tangle::cache::cache> cache) { m_cache = std::move(cache); }
 
 		void reg_proto(const std::string& scheme, const std::shared_ptr<protocol>& proto);
 		std::shared_ptr<protocol> get_proto(const std::string& scheme);
@@ -69,15 +69,15 @@ namespace tangle { namespace nav {
 		const std::string& user_agent() const noexcept { return m_user_agent; }
 		jar& cookies() noexcept { return m_jar; }
 		const jar& cookies() const noexcept { return m_jar; }
-		nav::cache& cache() noexcept { return *m_cache; }
-		const nav::cache& cache() const noexcept { return *m_cache; }
+		tangle::cache::cache& cache() noexcept { return *m_cache; }
+		const tangle::cache::cache& cache() const noexcept { return *m_cache; }
 		const std::vector<std::string>& languages() const noexcept { return m_languages; }
 		std::vector<std::string>& languages() noexcept { return m_languages; }
 
 	private:
 		std::string m_user_agent;
 		jar m_jar;
-		std::unique_ptr<nav::cache> m_cache;
+		std::unique_ptr<tangle::cache::cache> m_cache;
 		std::vector<std::string> m_languages;
 		std::unordered_map<std::string, std::shared_ptr<protocol>> m_protocols;
 	};
@@ -123,15 +123,15 @@ namespace tangle { namespace nav {
 	const std::string& navigator::user_agent() const noexcept { return m_impl->user_agent(); }
 	jar& navigator::cookies() noexcept { return m_impl->cookies(); }
 	const jar& navigator::cookies() const noexcept { return m_impl->cookies(); }
-	nav::cache& navigator::cache() noexcept { return m_impl->cache(); }
-	const nav::cache& navigator::cache() const noexcept { return m_impl->cache(); }
+	tangle::cache::cache& navigator::cache() noexcept { return m_impl->cache(); }
+	const tangle::cache::cache& navigator::cache() const noexcept { return m_impl->cache(); }
 
 	const std::vector<std::string>& navigator::languages() const noexcept
 	{
 		return m_impl->languages();
 	}
 
-	loader navigator::open(const request& req, bool refreshing, cookie::time_point when)
+	tangle::cache::loader navigator::open(const request& req, bool refreshing, cookie::time_point when)
 	{
 		auto addr = req.address();
 		addr.fragment({});
