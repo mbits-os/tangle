@@ -186,7 +186,7 @@ namespace tangle {
 			if (!ok) state |= std::ios_base::badbit;
 
 			if (state == std::ios_base::goodbit &&
-				o.rdbuf()->sputn(s.data(), s.length()) != s.length()) {
+				(size_type)o.rdbuf()->sputn(s.data(), s.length()) != s.length()) {
 				state |= std::ios_base::badbit;
 			};
 
