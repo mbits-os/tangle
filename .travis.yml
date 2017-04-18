@@ -12,6 +12,6 @@ before_install:
 script:
   - mkdir build
   - cd build
-  - cmake .. -DBOOST_ROOT=$BOOST_ROOT -DCMAKE_INSTALL_PREFIX:PATH=~
+  - cmake ..
   - make 
   - make test
