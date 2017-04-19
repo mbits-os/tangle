@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/mbits-os/tangle.svg?branch=master)](https://travis-ci.org/mbits-os/tangle)
+[![Coverage Status](https://coveralls.io/repos/github/mbits-os/tangle/badge.svg?branch=master)](https://coveralls.io/github/mbits-os/tangle?branch=master)
+
 # Lego bricks for C++ programs.
 ## Low level, simple, loosely coupled libraries
 

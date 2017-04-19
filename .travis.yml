@@ -2,15 +2,11 @@ language: cpp
 
 compiler: gcc
 os: linux
-cache: apt
 
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-6
-      - g++-6
+    sources: [ ubuntu-toolchain-r-test ]
+    packages: [ gcc-6, g++-6, lcov, curl ]
 
 install:
   # setup g++ 6
@@ -29,6 +25,10 @@ install:
   - cmake --version
   - which g++
   - g++ --version
+  - which lcov
+  - lcov --version
+  - which curl
+  - curl --version
 
 script:
   - mkdir build
