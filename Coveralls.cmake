@@ -24,7 +24,7 @@ if (COVERALLS)
 		COMMAND rm -rf gcov
 		COMMAND mkdir -p gcov
 		WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
-		COMMENT "preparing for gcov..."
+		COMMENT "Preparing for gcov..."
 	)
 
 	add_custom_target(coveralls_test
