@@ -1,5 +1,4 @@
-from __future__ import print_function
-import os, argparse, subprocess, json, hashlib
+import os, sys, argparse, subprocess, json, hashlib
 
 parser = argparse.ArgumentParser(description='Gather GCOV data for Coveralls')
 parser.add_argument('--git', help='path to the git binary')
@@ -26,7 +25,6 @@ class cd:
 		os.chdir(self.saved)
 
 def run(*args):
-	# print('>>>', *args)
 	p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	out, err = p.communicate();
 	return (out, err, p.returncode)
@@ -64,7 +62,7 @@ job_id = ENV('TRAVIS_JOB_ID')
 if job_id:
 	service = 'travis-ci'
 	repo_token = ''
-	print("Preparing Coveralls stats for Travis-CI job", job_id)
+	sys.stdout.write("Preparing Coveralls for Travis-CI job {}.\n".format(job_id))
 else:
 	service = ''
 	repo_token = ENV('COVERALLS_REPO_TOKEN')
