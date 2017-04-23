@@ -58,6 +58,10 @@ def file_md5(path):
 			m.update(line)
 	return m.hexdigest()
 
+for key in sorted(os.environ.keys()):
+	if len(key) < 8 or key[:7] != 'TRAVIS_': continue
+	sys.stdout.write("{} = {}\n".format(key, os.environ[key]))
+
 job_id = ENV('TRAVIS_JOB_ID')
 if job_id:
 	service = 'travis-ci'
