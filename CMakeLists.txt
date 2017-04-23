@@ -8,6 +8,25 @@ set(TANGLE_VERSION "${TANGLE_VERSION_MAJOR}.${TANGLE_VERSION_MINOR}.${TANGLE_VER
 
 set(TANGLE_TESTING ON CACHE BOOL "Compile and/or run self-tests")
 set(TANGLE_DOCS OFF CACHE BOOL "Create doxygen documentation")
+set(MODULES
+	cstring
+	cookie
+	uri
+	msg
+	cache
+	nav
+)
+
+foreach(MODULE ${MODULES})
+	list(APPEND COVERALLS_DIRS ${MODULE}/include)
+	list(APPEND COVERALLS_DIRS ${MODULE}/src)
+endforeach()
+
+include(Coveralls.cmake)
+
+if (COVERALLS AND NOT TANGLE_TESTING)
+	message(FATAL_ERROR "Coveralls are useless without -DTANGLE_TESTING=ON")
+endif()
 
 ##################################################################
 ##  SOURCES
@@ -58,12 +77,10 @@ endif()
 ##  SUBPROJECTS
 ##################################################################
 
-add_subdirectory( cstring )
-add_subdirectory( cookie )
-add_subdirectory( uri )
-add_subdirectory( msg )
-add_subdirectory( cache )
-add_subdirectory( nav )
+foreach(MODULE ${MODULES})
+	add_subdirectory( ${MODULE} )
+endforeach()
+
 
 ##################################################################
 ##  PACKER

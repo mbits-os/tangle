@@ -33,6 +33,6 @@ install:
 script:
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake -DCMAKE_BUILD_TYPE=Debug -DCOVERALLS=ON ..
   - make 
-  - make test
+  - make coveralls
