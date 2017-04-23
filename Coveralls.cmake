@@ -1,6 +1,8 @@
 option(COVERALLS "Turn on coveralls support" OFF)
 option(COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
 
+find_package(PythonInterp)
+
 if (COVERALLS)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
@@ -43,6 +45,7 @@ if (COVERALLS)
 		set(JOIN_DIRS "${JOIN_DIRS}${DIR_NAME}")
 	endforeach()
 
+	message(STATUS "PYTHON_EXECUTABLE is: ${PYTHON_EXECUTABLE}")
 	add_custom_target(coveralls_generate
 		# Run lcov over the output and generate coveralls JSON
 		COMMAND ${PYTHON_EXECUTABLE}

@@ -1,13 +1,13 @@
 import os, sys, argparse, subprocess, json, hashlib
 
 parser = argparse.ArgumentParser(description='Gather GCOV data for Coveralls')
-parser.add_argument('--git', help='path to the git binary')
-parser.add_argument('--gcov', help='path to the gcov program')
-parser.add_argument('--src_dir', help='directory for source files')
-parser.add_argument('--bin_dir', help='directory for generated files')
-parser.add_argument('--int_dir', help='directory for temporary gcov files')
-parser.add_argument('--dirs', help='directory filters for relevant sources')
-parser.add_argument('--out', help='output JSON file for Coveralls')
+parser.add_argument('--git',     required=True, help='path to the git binary')
+parser.add_argument('--gcov',    required=True, help='path to the gcov program')
+parser.add_argument('--src_dir', required=True, help='directory for source files')
+parser.add_argument('--bin_dir', required=True, help='directory for generated files')
+parser.add_argument('--int_dir', required=True, help='directory for temporary gcov files')
+parser.add_argument('--dirs',    required=True, help='directory filters for relevant sources, separated with\':\'')
+parser.add_argument('--out',     required=True, help='output JSON file for Coveralls')
 args = parser.parse_args();
 args.dirs = args.dirs.split(':')
 for idx in xrange(len(args.dirs)):
