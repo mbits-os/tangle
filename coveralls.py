@@ -62,19 +62,16 @@ for key in sorted(os.environ.keys()):
 	if len(key) < 8 or key[:7] != 'TRAVIS_': continue
 	sys.stdout.write("{} = {}\n".format(key, os.environ[key]))
 
-job_id = ENV('TRAVIS_BUILD_ID') # ENV('TRAVIS_JOB_ID')
+job_id = ENV('TRAVIS_JOB_ID')
+service = ''
 if job_id:
 	service = 'travis-ci'
-	repo_token = ''
 	sys.stdout.write("Preparing Coveralls for Travis-CI job {}.\n".format(job_id))
-else:
-	service = ''
-	repo_token = ENV('COVERALLS_REPO_TOKEN')
 
 JSON = {
   'service_name': service,
   'service_job_id': job_id,
-  'repo_token': repo_token,
+  'repo_token': ENV('COVERALLS_REPO_TOKEN'),
   'git': {},
   'source_files': []
 }
