@@ -1,4 +1,10 @@
-import os, sys, argparse, subprocess, json, hashlib
+import os
+import errno
+import sys
+import argparse
+import subprocess
+import json
+import hashlib
 
 parser = argparse.ArgumentParser(description='Gather GCOV data for Coveralls')
 parser.add_argument('--git',     required=True, help='path to the git binary')
@@ -24,6 +30,15 @@ class cd:
 	def __exit__(self, etype, value, traceback):
 		os.chdir(self.saved)
 
+def mkdir_p(path):
+	try:
+		os.makedirs(path)
+	except OSError as exc:  # Python >2.5
+		if exc.errno == errno.EEXIST and os.path.isdir(path):
+			pass
+		else:
+			raise
+
 def run(*args):
 	p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	out, err = p.communicate();
@@ -35,8 +50,8 @@ def output(*args):
 def git_log_format(fmt):
 	return output(args.git, 'log', '-1', '--pretty=format:%' + fmt)
 
-def gcov(gcda):
-	run(args.gcov, '-p', '-o', os.path.dirname(gcda), gcda)
+def gcov(dir_name, gcdas):
+	run(args.gcov, '-p', '-o', dir_name, *gcdas)
 
 def recurse(root, ext):
 	for dirname, ign, files in os.walk(root):
@@ -57,6 +72,33 @@ def file_md5(path):
 		for line in f:
 			m.update(line)
 	return m.hexdigest()
+
+def merge_coverage(dst, src):
+	if len(dst) < len(src):
+		dst += [0]*(len(src) - len(dst))
+	ndx = 0
+	for sample in src:
+		if sample is None:
+			ndx += 1
+			continue
+		if dst[ndx] is None:
+			dst[ndx] = sample
+			ndx += 1
+			continue
+		dst[ndx] += sample
+		ndx += 1
+
+def merge_file(sources, name, source_digest, coverage):
+	for i in xrange(len(sources)):
+		if sources[i]['name'] != name:
+			continue
+		merge_coverage(sources[i]['coverage'], coverage)
+		return
+	sources.append({
+		'name': name,
+		'source_digest': source_digest,
+		'coverage': coverage
+	})
 
 for key in sorted(os.environ.keys()):
 	if len(key) < 8 or key[:7] != 'TRAVIS_': continue
@@ -90,9 +132,19 @@ with cd(args.src_dir):
 		'remotes': []
 	}
 
-with cd(args.int_dir):
-	for gcda in recurse(args.bin_dir, '.gcda'):
-		gcov(gcda)
+gcda_dirs = {}
+for gcda in recurse(args.bin_dir, '.gcda'):
+	dirn, filen = os.path.split(gcda)
+	if dirn not in gcda_dirs:
+		gcda_dirs[dirn] = []
+	gcda_dirs[dirn].append(filen)
+
+for dirn in gcda_dirs:
+	int_dir = os.path.relpath(dirn, args.bin_dir).replace('/', '#')
+	int_dir = os.path.join(args.int_dir, int_dir)
+	mkdir_p(int_dir)
+	with cd(int_dir):
+		gcov(dirn, [os.path.join(dirn, filen) for filen in gcda_dirs[dirn]])
 
 for stats in recurse(args.int_dir, '.gcov'):
 	src = os.path.splitext(os.path.basename(stats))[0].replace('#', '/')
@@ -107,11 +159,7 @@ for stats in recurse(args.int_dir, '.gcov'):
 			break
 	if not relevant: continue
 
-	file = {
-		'name': name,
-		'source_digest': file_md5(src),
-		'coverage': []
-	}
+	coverage = []
 
 	with open(stats) as stats_file:
 		for line in stats_file:
@@ -123,9 +171,9 @@ for stats in recurse(args.int_dir, '.gcov'):
 			if st == '-': st = None
 			elif st in ['#####', '=====']: st = 0
 			else: st = int(st)
-			file['coverage'].append(st)
+			coverage.append(st)
 
-	JSON['source_files'].append(file)
+	merge_file(JSON['source_files'], name, file_md5(src), coverage)
 
 with open(args.out, 'w') as j:
 	json.dump(JSON, j)
