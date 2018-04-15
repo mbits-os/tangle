@@ -68,6 +68,8 @@ namespace tangle { namespace testing {
 	static const UriCannonicalHrefTest uri_canonical_roots[] = {
 		{ "http://example.com/A/B/some.file", "/C/other.file",            "http://example.com/C/other.file" },
 		{ "http://example.com/A/B/",          "/C/other.file",            "http://example.com/C/other.file" },
+		{ "http://example.com",               "//example.net",            "http://example.net/" },
+		{ "https://example.com",              "//example.net",            "https://example.net/" },
 	};
 
 	static const UriCannonicalHrefTest uri_canonical_here[] = {

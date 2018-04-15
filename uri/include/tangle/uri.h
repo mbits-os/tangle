@@ -367,6 +367,12 @@ namespace tangle {
 		bool has_scheme() const;
 
 		/**
+		Checks, if the URI seems to contain a non-empty scheme.
+		\returns true, if the URI has_scheme(), but is scheme-relative
+		*/
+		bool is_scheme_relative() const;
+
+		/**
 		Checks, if the URI seems to contain an authority.
 		\returns true, if the non-scheme part starts with <code>//</code>
 		*/

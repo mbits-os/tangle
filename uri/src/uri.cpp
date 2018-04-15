@@ -401,6 +401,11 @@ namespace tangle {
 		auto c = b;
 		auto e = b + length;
 
+		if (c != e && (c + 1) != e && *c == '/' && c[1] == '/') {
+			m_scheme = 0;
+			return;
+		}
+
 		if (c == e || !isalpha((unsigned char)*c))
 			return;
 
@@ -410,6 +415,7 @@ namespace tangle {
 
 		if (c == e || *c != ':')
 			return;
+		++c;
 
 		m_scheme = c - b;
 	}
@@ -430,12 +436,12 @@ namespace tangle {
 
 		auto c = m_uri.data();
 
-		m_path = m_scheme + 1;
+		m_path = m_scheme;
 
-		if (m_scheme + 2 >= length || c[m_scheme + 1] != '/' || c[m_scheme + 2] != '/')
+		if (m_scheme + 1 >= length || c[m_scheme] != '/' || c[m_scheme + 1] != '/')
 			return;
 
-		m_path = m_scheme + 3;
+		m_path = m_scheme + 2;
 		while (m_path < length) {
 			switch (c[m_path]) {
 			case '/': case '?': case '#':
@@ -505,6 +511,13 @@ namespace tangle {
 		ensure_scheme();
 		return m_scheme != npos;
 	}
+
+	bool uri::is_scheme_relative() const
+	{
+		ensure_scheme();
+		return m_scheme == 0;
+	}
+
 	bool uri::has_authority() const
 	{
 		ensure_path();
@@ -518,7 +531,7 @@ namespace tangle {
 			return false; // no space for //
 
 		auto c = m_uri.data();
-		return c[m_scheme + 1] == '/' && c[m_scheme + 2] == '/';
+		return c[m_scheme] == '/' && c[m_scheme + 1] == '/';
 	}
 
 	cstring subspan(const std::string& s, size_t off, size_t len)
