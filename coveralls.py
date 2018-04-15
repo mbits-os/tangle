@@ -1,3 +1,6 @@
+from __future__ import unicode_literals
+
+from builtins import range
 import os
 import errno
 import sys
@@ -16,10 +19,11 @@ parser.add_argument('--dirs',    required=True, help='directory filters for rele
 parser.add_argument('--out',     required=True, help='output JSON file for Coveralls')
 args = parser.parse_args();
 args.dirs = args.dirs.split(':')
-for idx in xrange(len(args.dirs)):
-	dname = args.dirs[idx]
+for idx in range(len(args.dirs)):
+	dname = args.dirs[idx].replace('\\', os.sep).replace('/', os.sep)
 	if dname[len(dname) - 1] != os.path.sep:
-		args.dirs[idx] += os.path.sep
+		dname += os.path.sep
+	args.dirs[idx] = dname
 
 class cd:
 	def __init__(self, dirname):
@@ -45,13 +49,17 @@ def run(*args):
 	return (out, err, p.returncode)
 
 def output(*args):
-	return run(*args)[0].strip()
+	return run(*args)[0].strip().decode('utf-8')
 
 def git_log_format(fmt):
 	return output(args.git, 'log', '-1', '--pretty=format:%' + fmt)
 
 def gcov(dir_name, gcdas):
-	run(args.gcov, '-p', '-o', dir_name, *gcdas)
+	out, err, code = run(args.gcov, '-p', '-o', dir_name, *gcdas)
+	if code:
+		print >>sys.stderr, err
+		print >>sys.stderr, 'error:', code
+		sys.exit()
 
 def recurse(root, ext):
 	for dirname, ign, files in os.walk(root):
@@ -89,7 +97,8 @@ def merge_coverage(dst, src):
 		ndx += 1
 
 def merge_file(sources, name, source_digest, coverage):
-	for i in xrange(len(sources)):
+	name = name.replace('\\', '/')
+	for i in range(len(sources)):
 		if sources[i]['name'] != name:
 			continue
 		merge_coverage(sources[i]['coverage'], coverage)
@@ -100,9 +109,9 @@ def merge_file(sources, name, source_digest, coverage):
 		'coverage': coverage
 	})
 
-for key in sorted(os.environ.keys()):
-	if len(key) < 8 or key[:7] != 'TRAVIS_': continue
-	sys.stdout.write("{} = {}\n".format(key, os.environ[key]))
+# for key in sorted(os.environ.keys()):
+# 	if len(key) < 8 or key[:7] != 'TRAVIS_': continue
+# 	sys.stdout.write("{} = {}\n".format(key, os.environ[key]))
 
 job_id = ENV('TRAVIS_JOB_ID')
 service = ''
@@ -133,24 +142,37 @@ with cd(args.src_dir):
 	}
 
 gcda_dirs = {}
-for gcda in recurse(args.bin_dir, '.gcda'):
+for gcda in recurse(os.path.abspath(args.bin_dir), '.gcda'):
 	dirn, filen = os.path.split(gcda)
 	if dirn not in gcda_dirs:
 		gcda_dirs[dirn] = []
 	gcda_dirs[dirn].append(filen)
 
 for dirn in gcda_dirs:
-	int_dir = os.path.relpath(dirn, args.bin_dir).replace('/', '#')
+	int_dir = os.path.relpath(dirn, args.bin_dir).replace(os.sep, '#')
 	int_dir = os.path.join(args.int_dir, int_dir)
 	mkdir_p(int_dir)
 	with cd(int_dir):
 		gcov(dirn, [os.path.join(dirn, filen) for filen in gcda_dirs[dirn]])
 
+def gcov_source(filename):
+	with open(filename) as src:
+		for line in src:
+			split = line.split(' 0:', 1)
+			if len(split) < 2:
+				break
+			split = split[1].split('Source:', 1)
+			if len(split) < 2:
+				continue
+			return os.path.normpath(os.path.join(args.bin_dir, split[1].rstrip()))
+	return None
+
+src_dir = os.path.abspath(args.src_dir)
 for stats in recurse(args.int_dir, '.gcov'):
-	src = os.path.splitext(os.path.basename(stats))[0].replace('#', '/')
-	if src[0:len(args.src_dir)] != args.src_dir: continue
-	name = src[len(args.src_dir):]
-	if name[0] != '/': continue
+	src = gcov_source(stats)
+	if src[0:len(src_dir)] != src_dir: continue
+	name = src[len(src_dir):]
+	if name[0] != os.sep: continue
 	name = name[1:]
 	relevant = False
 	for dname in args.dirs:

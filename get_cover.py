@@ -1,8 +1,8 @@
 import os, sys, argparse, json
 
 parser = argparse.ArgumentParser(description='Gather GCOV data for Coveralls')
-parser.add_argument('--src_dir', required=True, help='directory for source files')
-parser.add_argument('--in',      required=True, help='Coveralls JSON file', dest='json')
+parser.add_argument('--in',      required=True,  help='Coveralls JSON file', dest='json')
+parser.add_argument('--prev',    required=False, help='Coveralls JSON file for previous build')
 args = parser.parse_args()
 
 class cd:
@@ -28,6 +28,7 @@ print 'commit: {}'.format(repo_head['id'])
 print 'author: {} <{}>'.format(repo_head['author_name'], repo_head['author_email'])
 if repo_head['author_email'] != repo_head['committer_email']:
 	print 'committer: {} <{}>'.format(repo_head['committer_name'], repo_head['committer_email'])
+print '\n   ', '\n    '.join(repo_head['message'].split('\n'))
 print
 
 total_lines = 0
@@ -85,13 +86,14 @@ avg = 0
 if total_lines:
 	per = 100 * total_covered / total_lines
 	avg = 100 * total_visited / total_lines
-print '{:6.2f}% {:6} {:6} {:6}.{:02} TOTAL'.format(per, total_lines, total_covered, avg / 100, avg % 100)
+print 'COVERAGE RELEVANT COVERED  HITS/LINE'
+print '{:7.2f}% {:8} {:7} {:7}.{:02} TOTAL'.format(per, total_lines, total_covered, avg / 100, avg % 100)
 print
 
 dirs = sorted(dirs, key=lambda stat: stat[0])
 for stat in dirs:
-	print '{:6.2f}% {:6} {:6} {:6}.{:02} {}'.format(*stat)
+	print '{:7.2f}% {:8} {:7} {:7}.{:02} {}'.format(*stat)
 	files = sorted(stats[stat[5]], key=lambda stat: stat[0])
 	for sub in files:
-		print '{:6.2f}% {:6} {:6} {:6}.{:02}     {}'.format(*sub)
+		print '{:7.2f}% {:8} {:7} {:7}.{:02}     {}'.format(*sub)
 	print

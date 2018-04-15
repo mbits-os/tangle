@@ -19,6 +19,7 @@ if (COVERALLS)
 
 	find_package(Git)
 
+	if (UNIX)
 	add_custom_target(coveralls_prepare
 		# Reset all counters
 		COMMAND find -name '*.gcda' -exec rm {} '\;'
@@ -28,6 +29,9 @@ if (COVERALLS)
 		WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
 		COMMENT "Preparing for gcov..."
 	)
+	else()
+		add_custom_target(coveralls_prepare)
+	endif()
 
 	add_custom_target(coveralls_test
 		# Run tests and regenerate the counters
