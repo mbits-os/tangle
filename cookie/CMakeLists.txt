@@ -33,7 +33,6 @@ WRAP_SOURCELIST(${SOURCES})
 
 add_library(cookie STATIC ${SOURCES})
 set_target_properties(cookie PROPERTIES
-	CXX_STANDARD 14
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
@@ -74,7 +73,7 @@ list(APPEND TEST_SRCS ${NATVIS})
 endif()
 
 add_executable(cookie-test ../googletest.cpp ${TEST_SRCS})
-set_target_properties(cookie-test PROPERTIES CXX_STANDARD 14 FOLDER tests)
+set_target_properties(cookie-test PROPERTIES FOLDER tests)
 add_dependencies(cookie-test cookie gtest gmock)
 target_link_libraries(cookie-test $<TARGET_FILE:cookie> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 

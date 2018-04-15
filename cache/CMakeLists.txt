@@ -29,7 +29,6 @@ WRAP_SOURCELIST(${SOURCES})
 
 add_library(cache STATIC ${SOURCES})
 set_target_properties(cache PROPERTIES
-	CXX_STANDARD 14
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
@@ -69,7 +68,7 @@ list(APPEND TEST_SRCS ${NATVIS})
 endif()
 
 add_executable(cache-test ../googletest.cpp ${TEST_SRCS})
-set_target_properties(cache-test PROPERTIES CXX_STANDARD 14 FOLDER tests)
+set_target_properties(cache-test PROPERTIES FOLDER tests)
 add_dependencies(cache-test cache gtest gmock)
 target_link_libraries(cache-test $<TARGET_FILE:cache> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 

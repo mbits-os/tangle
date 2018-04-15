@@ -35,7 +35,6 @@ WRAP_SOURCELIST(${SOURCES})
 
 add_library(nav STATIC ${SOURCES})
 set_target_properties(nav PROPERTIES
-	CXX_STANDARD 14
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
@@ -79,7 +78,7 @@ list(APPEND TEST_SRCS ${NATVIS})
 endif()
 
 add_executable(nav-test ../googletest.cpp ${TEST_SRCS})
-set_target_properties(nav-test PROPERTIES CXX_STANDARD 14 FOLDER tests)
+set_target_properties(nav-test PROPERTIES FOLDER tests)
 add_dependencies(nav-test nav gtest gmock)
 target_link_libraries(nav-test $<TARGET_FILE:nav> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 foreach(DEP ${DEPS})

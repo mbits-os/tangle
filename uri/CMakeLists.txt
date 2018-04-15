@@ -21,7 +21,6 @@ WRAP_SOURCELIST(${SOURCES})
 
 add_library(uri STATIC ${SOURCES})
 set_target_properties(uri PROPERTIES
-	CXX_STANDARD 14
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
@@ -61,7 +60,7 @@ list(APPEND TEST_SRCS ${NATVIS})
 endif()
 
 add_executable(uri-test ../googletest.cpp ${TEST_SRCS})
-set_target_properties(uri-test PROPERTIES CXX_STANDARD 14 FOLDER tests)
+set_target_properties(uri-test PROPERTIES FOLDER tests)
 add_dependencies(uri-test uri gtest gmock)
 target_link_libraries(uri-test $<TARGET_FILE:uri> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 

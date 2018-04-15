@@ -47,6 +47,12 @@ file(GLOB NATVIS natvis/*.natvis)
 add_definitions(/EHsc)
 endif()
 
+if(MSVC)
+	add_definitions(/std:c++latest)
+else()
+	add_definitions(-std=c++17)
+endif()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if (TANGLE_TESTING)

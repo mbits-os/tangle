@@ -29,7 +29,6 @@ WRAP_SOURCELIST(${SOURCES})
 
 add_library(msg STATIC ${SOURCES})
 set_target_properties(msg PROPERTIES
-	CXX_STANDARD 14
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
@@ -54,7 +53,7 @@ list(APPEND TEST_SRCS ${NATVIS})
 endif()
 
 add_executable(msg-test ../googletest.cpp ${TEST_SRCS})
-set_target_properties(msg-test PROPERTIES CXX_STANDARD 14 FOLDER tests)
+set_target_properties(msg-test PROPERTIES FOLDER tests)
 add_dependencies(msg-test msg gtest gmock)
 target_link_libraries(msg-test $<TARGET_FILE:msg> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
