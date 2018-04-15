@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-from builtins import range
 import os
 import errno
 import sys
