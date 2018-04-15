@@ -123,7 +123,7 @@ namespace tangle { namespace cookie {
 		 \see tangle::cookie::from_server()
 		 \see add()
 		 */
-		void from_server(const std::string& origin, const cstring& header, time_point created = clock::now())
+		void from_server(const std::string& origin, std::string_view header, time_point created = clock::now())
 		{
 			add(tangle::cookie::from_server(origin, header, created));
 		}

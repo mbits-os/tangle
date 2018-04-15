@@ -9,7 +9,6 @@ set(TANGLE_VERSION "${TANGLE_VERSION_MAJOR}.${TANGLE_VERSION_MINOR}.${TANGLE_VER
 set(TANGLE_TESTING ON CACHE BOOL "Compile and/or run self-tests")
 set(TANGLE_DOCS OFF CACHE BOOL "Create doxygen documentation")
 set(MODULES
-	cstring
 	cookie
 	uri
 	msg

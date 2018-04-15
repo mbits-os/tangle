@@ -25,6 +25,7 @@
 #include <tangle/msg/base_parser.h>
 #include <algorithm>
 #include <cctype>
+#include <cstring>
 
 namespace tangle { namespace msg {
 	namespace {
@@ -37,7 +38,7 @@ namespace tangle { namespace msg {
 			if (!sub || !*sub)
 				return end;
 
-			auto len = strlen(sub);
+			auto len = std::strlen(sub);
 			do {
 				cur = std::find(cur, end, *sub);
 				if (cur == end) break;
@@ -112,9 +113,9 @@ namespace tangle { namespace msg {
 		return { length, parsing::reading };
 	}
 
-	std::string produce(cstring cs)
+	std::string produce(std::string_view cs)
 	{
-		auto ptr = cs.c_str();
+		auto ptr = cs.data();
 		auto len = cs.length();
 		auto end = ptr + len;
 

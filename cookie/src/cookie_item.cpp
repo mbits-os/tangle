@@ -27,6 +27,10 @@
 #include <ctime>
 
 namespace tangle { namespace cookie {
+	static inline std::string to_string(const std::string_view& sv) {
+		return { sv.data(), sv.length() };
+	}
+
 	item::item(const std::string& name, const std::string& value, const scope_type& scope)
 		: m_name(name)
 		, m_value(value)
@@ -78,7 +82,7 @@ namespace tangle { namespace cookie {
 	}
 
 	namespace {
-		bool parse_pair(const cstring& pair, std::string& name, std::string& value)
+		bool parse_pair(std::string_view pair, std::string& name, std::string& value)
 		{
 			name.clear();
 			value.clear();
@@ -93,7 +97,7 @@ namespace tangle { namespace cookie {
 			auto nstop = cur;
 
 			while (nstop > nstart && std::isspace((uint8_t)pair[nstop - 1])) --nstop;
-			auto nspan = pair.subspan(nstart, nstop - nstart);
+			auto nspan = pair.substr(nstart, nstop - nstart);
 			name.assign(nspan.data(), nspan.length());
 
 			if (!result)
@@ -102,7 +106,7 @@ namespace tangle { namespace cookie {
 
 			while (cur != last && std::isspace((uint8_t)pair[cur])) ++cur;
 			while (cur < last && std::isspace((uint8_t)pair[last - 1])) --last;
-			auto vspan = pair.subspan(cur, last - cur);
+			auto vspan = pair.substr(cur, last - cur);
 			value.assign(vspan.data(), vspan.length());
 
 			return true;
@@ -119,7 +123,7 @@ namespace tangle { namespace cookie {
 			auto nstop = cur;
 
 			while (nstop > nstart && std::isspace((uint8_t)header[nstop - 1])) --nstop;
-			auto name = header.subspan(nstart, nstop - nstart);
+			auto name = header.substr(nstart, nstop - nstart);
 
 			if (cur != last)
 				++cur;
@@ -140,12 +144,12 @@ namespace tangle { namespace cookie {
 					++cur;
 			}
 
-			auto value = header.subspan(vstart, vstop - vstart);
+			auto value = header.substr(vstart, vstop - vstart);
 			pred(name, value, has_value);
 			return one_more;
 		}
 
-		std::string lower(const cstring& span)
+		std::string lower(std::string_view span)
 		{
 			std::string out;
 			out.reserve(span.length() + 1);
@@ -173,7 +177,7 @@ namespace tangle { namespace cookie {
 			return (delims[(c >> 5) & 0x7] & (1 << (c & 0x1F))) != 0;
 		}
 
-		bool cookie_date_int(const cstring& tok, int& value)
+		bool cookie_date_int(std::string_view tok, int& value)
 		{
 			for (uint8_t c : tok) {
 				if (!std::isdigit(c))
@@ -181,15 +185,14 @@ namespace tangle { namespace cookie {
 			}
 
 			char* pos = nullptr;
-			auto str = to_string(tok);
-			auto ret = std::strtol(str.c_str(), &pos, 10);
-			if (pos != str.length() + str.data())
+			auto ret = std::strtol(tok.data(), &pos, 10);
+			if (pos != tok.length() + tok.data())
 				return false;
 			value = ret;
 			return true;
 		}
 
-		bool cookie_date_month(const cstring& tok, int& value)
+		bool cookie_date_month(std::string_view tok, int& value)
 		{
 			auto mnth = lower(tok);
 			static const char* mnths[] = {
@@ -208,7 +211,7 @@ namespace tangle { namespace cookie {
 			return false;
 		}
 
-		bool cookie_date_time(const cstring& date, int& hour, int& minute, int& second)
+		bool cookie_date_time(std::string_view date, int& hour, int& minute, int& second)
 		{
 			if (date.length() < 8) return false;
 			if (!std::isdigit((uint8_t)date[0])) return false;
@@ -246,7 +249,7 @@ namespace tangle { namespace cookie {
 			return true;
 		}
 
-		time_point cookie_date(const cstring& date)
+		time_point cookie_date(std::string_view date)
 		{
 			auto last = date.length();
 			decltype(last) cur = 0;
@@ -269,7 +272,7 @@ namespace tangle { namespace cookie {
 				auto start = cur;
 				while (cur != last && !is_delim(date[cur])) ++cur;
 				if (cur != start) {
-					auto tok = date.subspan(start, cur - start);
+					auto tok = date.substr(start, cur - start);
 
 					if (!(found & found_time) && cookie_date_time(tok, hour, minute, second)) {
 						found |= found_time;
@@ -302,7 +305,7 @@ namespace tangle { namespace cookie {
 		}
 	}
 
-	std::vector<item> from_client(const std::string& origin, const cstring& header)
+	std::vector<item> from_client(const std::string& origin, std::string_view header)
 	{
 		std::vector<item> out;
 		scope_type orig { origin, "/" };
@@ -320,13 +323,13 @@ namespace tangle { namespace cookie {
 		return out;
 	}
 
-	item from_server(const std::string& origin, const cstring& header, time_point created)
+	item from_server(const std::string& origin, std::string_view header, time_point created)
 	{
 		std::string name;
 		std::string value;
 		std::string domain;
 		std::string path;
-		cstring expires;
+		std::string_view expires;
 		std::string max_age;
 		auto flags = cookie::flags::none;
 		auto until = clock::max_epoch();
@@ -348,7 +351,7 @@ namespace tangle { namespace cookie {
 			if (has_value) {
 				if (name == "domain") {
 					if (!v.empty() && v[0] == '.')
-						domain = to_string(v.last(v.length() - 1));
+						domain = to_string(v.substr(1));
 					else
 						domain = to_string(v);
 					return;

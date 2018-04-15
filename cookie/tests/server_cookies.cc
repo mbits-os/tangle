@@ -28,9 +28,8 @@
 namespace {
 	using namespace std::literals;
 	using namespace tangle::cookie;
-	using tangle::cstring;
 	struct cookie_info {
-		cstring header;
+		std::string_view header;
 		item cookie;
 	};
 }
@@ -80,77 +79,72 @@ namespace {
 			ASSERT_EQ(expected.expires(), actual.expires());
 	}
 
-	constexpr cstring operator "" _cs(const char* ptr, size_t length)
-	{
-		return { ptr, length };
-	}
-
 	static cookie_info flag_tests[] = {
-		{ "name=value"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only } },
-		{ "name=value; seCure"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::secure } },
-		{ "name=value; Secure"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::secure } },
-		{ "name=value; HttpOnly"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::http_only } },
-		{ "name=value; Secure; HttpOnly"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::http_only | flags::secure } },
-		{ "name=value; HttpOnly; Secure"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::http_only | flags::secure } },
+		{ "name=value"sv, { "name", "value", { "www.example.com", "/" }, flags::host_only } },
+		{ "name=value; seCure"sv, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::secure } },
+		{ "name=value; Secure"sv, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::secure } },
+		{ "name=value; HttpOnly"sv, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::http_only } },
+		{ "name=value; Secure; HttpOnly"sv, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::http_only | flags::secure } },
+		{ "name=value; HttpOnly; Secure"sv, { "name", "value", { "www.example.com", "/" }, flags::host_only | flags::http_only | flags::secure } },
 	};
 
 	static cookie_info scope[] = {
-		{ "name=value; Path=/"_cs, { "name", "value", { "www.example.com", "/" }, flags::host_only } },
-		{ "name=value; Path=/; Domain=example.com"_cs, { "name", "value", { "example.com", "/" } } },
-		{ "name=value; Path=/; Domain=.example.com"_cs, { "name", "value", { "example.com", "/" } } },
-		{ "name=value; Path=/; Domain=www.example.com"_cs, { "name", "value", { "www.example.com", "/" } } },
-		{ "name=value; Path=/; Domain=www1.example.com"_cs, { } },
-		{ "name=value; Domain=www.example.com"_cs, { "name", "value", { "www.example.com", "/" } } },
-		{ "name=value; Path=/res/ource; Domain=example.com"_cs, { "name", "value", { "example.com", "/res/ource" } } },
-		{ "name=value; Path=/res/ource; Domain=example.org"_cs, { } },
+		{ "name=value; Path=/"sv, { "name", "value", { "www.example.com", "/" }, flags::host_only } },
+		{ "name=value; Path=/; Domain=example.com"sv, { "name", "value", { "example.com", "/" } } },
+		{ "name=value; Path=/; Domain=.example.com"sv, { "name", "value", { "example.com", "/" } } },
+		{ "name=value; Path=/; Domain=www.example.com"sv, { "name", "value", { "www.example.com", "/" } } },
+		{ "name=value; Path=/; Domain=www1.example.com"sv, { } },
+		{ "name=value; Domain=www.example.com"sv, { "name", "value", { "www.example.com", "/" } } },
+		{ "name=value; Path=/res/ource; Domain=example.com"sv, { "name", "value", { "example.com", "/res/ource" } } },
+		{ "name=value; Path=/res/ource; Domain=example.org"sv, { } },
 	};
 
 	static cookie_info expires[] = {
 		{
-			"name=value; Expires = Sat, 08 May 2021 22:23:01; Domain = example.com"_cs,
+			"name=value; Expires = Sat, 08 May 2021 22:23:01; Domain = example.com"sv,
 			{ "name", "value", { "example.com", "/" }, flags::persistent, make_time(2021, 5, 8, 22, 23, 1) }
 		},
 		{
-			"name=value; Expires = Sat, 08 May 21 22:23:01; Domain = example.com"_cs,
+			"name=value; Expires = Sat, 08 May 21 22:23:01; Domain = example.com"sv,
 			{ "name", "value", { "example.com", "/" }, flags::persistent, make_time(2021, 5, 8, 22, 23, 1) }
 		},
 		{
-			"name=value; Expires = Mon, 08 May 00 22:23:01; Domain = example.com"_cs,
+			"name=value; Expires = Mon, 08 May 00 22:23:01; Domain = example.com"sv,
 			{ "name", "value", { "example.com", "/" }, flags::persistent, make_time(2000, 5, 8, 22, 23, 1) }
 		},
 		{
-			"name=value; Expires = Wed, 08 May 69 22:23:01; Domain = example.com"_cs,
+			"name=value; Expires = Wed, 08 May 69 22:23:01; Domain = example.com"sv,
 			{ "name", "value", { "example.com", "/" }, flags::persistent, make_time(2069, 5, 8, 22, 23, 1) }
 		},
 		{
-			"name=value; Expires = Thu, 08 May 80 22:23:01; Domain = example.com"_cs,
+			"name=value; Expires = Thu, 08 May 80 22:23:01; Domain = example.com"sv,
 			{ "name", "value", { "example.com", "/" }, flags::persistent, make_time(1980, 5, 8, 22, 23, 1) }
 		},
 		{
-			"name=value; Expires = Wed, 08 May 1602 22:23:01; Domain = example.com"_cs,
+			"name=value; Expires = Wed, 08 May 1602 22:23:01; Domain = example.com"sv,
 			{ "name", "value", { "example.com", "/" }, flags::persistent, make_time(1602, 5, 8, 22, 23, 1) }
 		},
 	};
 
 	static cookie_info max_age[] = {
 		{
-			"name=value; Max-Age = 200; Domain = example.com"_cs,
+			"name=value; Max-Age = 200; Domain = example.com"sv,
 			{ "name", "value", { "example.com", "/" }, flags::persistent, now() + 200s }
 		},
 		{
-			"name=value; Max-Age = 0; Domain = example.com"_cs,
+			"name=value; Max-Age = 0; Domain = example.com"sv,
 			{ "name", "value", { "example.com", "/" }, flags::persistent, now() }
 		},
 		{
-			"name=value; Max-Age = -5; Domain = example.com"_cs,
+			"name=value; Max-Age = -5; Domain = example.com"sv,
 			{ "name", "value", { "example.com", "/" }, flags::persistent, now() - 5s }
 		},
 		{
-			"name=value; Max-Age = 3x3; Domain = example.com"_cs,
+			"name=value; Max-Age = 3x3; Domain = example.com"sv,
 			{ "name", "value", { "example.com", "/" } }
 		},
 		{
-			"name=value; Max-Age = bleh; Domain = example.com"_cs,
+			"name=value; Max-Age = bleh; Domain = example.com"sv,
 			{ "name", "value", { "example.com", "/" } }
 		},
 	};

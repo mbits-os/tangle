@@ -36,7 +36,7 @@ utilities.
 
 #include <unordered_map>
 #include <vector>
-#include <tangle/cstring.h>
+#include <string_view>
 
 namespace tangle {
 	/**
@@ -118,34 +118,34 @@ namespace tangle {
 	of URL.
 
 	A version of urlencode(const char*, size_t) taking a
-	cstring as input range.
+	std::string_view as input range.
 
-	\param in a cstring to encode
+	\param in a std::string_view to encode
 	\return percent-encoded string containing no reserved
 	        characters, except for the percent sign.
 
 	\see urlencode(const char*, size_t)
 	*/
-	inline std::string urlencode(const cstring& in)
+	inline std::string urlencode(std::string_view in)
 	{
-		return urlencode(in.c_str(), in.length());
+		return urlencode(in.data(), in.length());
 	}
 
 	/**
 	Removes all percent-encodings from the input range.
 
 	A version of urldecode(const char*, size_t) taking a
-	cstring as input range.
+	std::string_view as input range.
 
-	\param in a cstring to decode
+	\param in a std::string_view to decode
 	\return percent-decoded string, which may include some
 	        registered characters.
 
 	\see urldecode(const char*, size_t)
 	*/
-	inline std::string urldecode(const cstring& in)
+	inline std::string urldecode(std::string_view in)
 	{
-		return urldecode(in.c_str(), in.length());
+		return urldecode(in.data(), in.length());
 	}
 
 	/**
@@ -209,7 +209,7 @@ namespace tangle {
 		Constructs an uri from the identifier.
 		\param ident a string representing the uri
 		*/
-		uri(const cstring& ident);
+		uri(std::string_view ident);
 
 		/**
 		Constructs an uri from the identifier.
@@ -253,7 +253,7 @@ namespace tangle {
 			        successful; an authority with empty
 					host on error
 			*/
-			static auth_builder parse(const cstring& auth);
+			static auth_builder parse(std::string_view auth);
 
 			/**
 			Generates an authority component from its members.
@@ -289,7 +289,7 @@ namespace tangle {
 			\param query a query component to be parsed
 			\result a parsed query with decoded name/value pairs
 			*/
-			static query_builder parse(const cstring& query);
+			static query_builder parse(std::string_view query);
 
 			/**
 			Adds a new name/value pair.
@@ -388,67 +388,67 @@ namespace tangle {
 		Getter for the scheme property.
 		\returns scheme, if present
 		*/
-		cstring scheme() const;
+		std::string_view scheme() const;
 
 		/**
 		Getter for the authority property.
 		\returns authority, if present
 		*/
-		cstring authority() const;
+		std::string_view authority() const;
 
 		/**
 		Getter for the path property.
 		\returns path, if present
 		*/
-		cstring path() const;
+		std::string_view path() const;
 
 		/**
 		Getter for the query property.
 		\returns query, if present
 		*/
-		cstring query() const;
+		std::string_view query() const;
 
 		/**
 		Getter for the resource property.
 		\returns path and query, if present
 		*/
-		cstring resource() const;
+		std::string_view resource() const;
 
 		/**
 		Getter for the fragment property.
 		\returns fragment, if present
 		*/
-		cstring fragment() const;
+		std::string_view fragment() const;
 
 		/**
 		Setter for the scheme property.
 		\param value new value of the property
 		*/
-		void scheme(const cstring& value);
+		void scheme(std::string_view value);
 
 		/**
 		Setter for the authority property.
 		\param value new value of the property
 		*/
-		void authority(const cstring& value);
+		void authority(std::string_view value);
 
 		/**
 		Setter for the path property.
 		\param value new value of the property
 		*/
-		void path(const cstring& value);
+		void path(std::string_view value);
 
 		/**
 		Setter for the query property.
 		\param value new value of the property
 		*/
-		void query(const cstring& value);
+		void query(std::string_view value);
 
 		/**
 		Setter for the fragment property.
 		\param value new value of the property
 		*/
-		void fragment(const cstring& value);
+		void fragment(std::string_view value);
 
 		/**
 		Getter for the underlying object

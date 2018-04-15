@@ -35,8 +35,8 @@ the description of a single cookie.
 
 #include <tangle/cookie/scope.h>
 #include <tangle/cookie/chrono.h>
-#include <tangle/cstring.h>
 #include <string>
+#include <string_view>
 #include <vector>
 
 /**
@@ -338,7 +338,7 @@ namespace tangle { namespace cookie {
 	\param header a character span representing a `Cookie` header.
 	\returns a vector of all cookie name/value pairs found in the header.
 	*/
-	std::vector<item> from_client(const std::string& origin, const cstring& header);
+	std::vector<item> from_client(const std::string& origin, std::string_view header);
 
 	/**
 	Will parse a `Set-Cookie` header extracting a cookie definition.
@@ -347,5 +347,5 @@ namespace tangle { namespace cookie {
 	\param created a point in time used for `MaxAge` calculations and for the creation_time and last_access_time properties.
 	\returns a cookie as defined by the header.
 	*/
-	item from_server(const std::string& origin, const cstring& header, time_point created = clock::now());
+	item from_server(const std::string& origin, std::string_view header, time_point created = clock::now());
 }}

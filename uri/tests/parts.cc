@@ -8,15 +8,19 @@ namespace tangle { namespace testing {
 	using ::testing::ValuesIn;
 
 	struct uri_parts_info {
-		cstring uri;
+		std::string_view uri;
 		struct exp {
-			cstring scheme;
-			cstring authority;
-			cstring path;
-			cstring query;
-			cstring fragment;
+			std::string_view scheme;
+			std::string_view authority;
+			std::string_view path;
+			std::string_view query;
+			std::string_view fragment;
 		} expected;
 	};
+
+	inline std::string to_string(std::string_view sv) {
+		return { sv.data(), sv.length() };
+	}
 }}
 
 std::ostream& operator<<(std::ostream& o, const tangle::testing::uri_parts_info& param)
@@ -29,12 +33,12 @@ std::ostream& operator<<(std::ostream& o, const tangle::testing::uri_parts_info&
 	if (param.expected.query.empty())
 		o << "?<empty>";
 	else
-		o << "?[" << param.expected.query.subspan(1) << "]";
+		o << "?[" << param.expected.query.substr(1) << "]";
 
 	if (param.expected.fragment.empty())
 		o << "#<empty>";
 	else
-		o << "#[" << param.expected.fragment.subspan(1) << "]";
+		o << "#[" << param.expected.fragment.substr(1) << "]";
 
 	return o;
 }

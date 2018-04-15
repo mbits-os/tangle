@@ -40,7 +40,7 @@ namespace tangle { namespace nav {
 		m_cookies.store(m_path, when);
 	}
 
-	bool jar::append(const uri& address, const cstring& header, cookie::time_point created)
+	bool jar::append(const uri& address, std::string_view header, cookie::time_point created)
 	{
 		auto auth = uri::auth_builder::parse(address.authority());
 		if (auth.host.empty())
@@ -65,6 +65,7 @@ namespace tangle { namespace nav {
 		auto options = cookie::match::http;
 		if (https)
 			options |= cookie::match::secure;
-		return m_cookies.str({ auth.host, address.path().str() }, options, when);
+		auto path = address.path();
+		return m_cookies.str({ auth.host, { path.data(), path.length() } }, options, when);
 	}
 }}

@@ -43,10 +43,25 @@ namespace {
 
 	using selector = select<sizeof(size_t)>;
 
+	std::ostream& operator<<(std::ostream& o, const hash_info& nfo) {
+		return o << selector::info(nfo) << ", \"" << nfo.msg << "\"";
+	}
+
 	struct partial_info {
 		const char* msg;
 		std::initializer_list<const char*> parts;
 	};
+
+	std::ostream& operator<<(std::ostream& o, const partial_info& nfo) {
+		o << "hash(\"" << nfo.msg << "\") vs hash({";
+		bool first = true;
+		for (auto const& part : nfo.parts) {
+			if (first) first = false;
+			else o << ", ";
+			o << '"' << part << '"';
+		}
+		return o << "})";
+	}
 
 	class hasher : public ::testing::TestWithParam<hash_info> {
 	};

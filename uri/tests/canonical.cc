@@ -8,14 +8,14 @@ namespace tangle { namespace testing {
 	using ::testing::ValuesIn;
 
 	struct UriCannonicalHrefTest {
-		cstring base;
-		cstring href;
-		cstring expected;
+		std::string_view base;
+		std::string_view href;
+		std::string_view expected;
 	};
 
 	struct UriCannonicalHexTest {
-		cstring url;
-		cstring expected;
+		std::string_view url;
+		std::string_view expected;
 	};
 }}
 

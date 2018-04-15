@@ -6,15 +6,19 @@ namespace tangle { namespace testing {
 	using ::testing::ValuesIn;
 
 	struct uri_auth_info {
-		cstring auth;
+		std::string_view auth;
 		struct exp {
-			cstring user;
-			cstring pass;
-			cstring host;
-			cstring port;
+			std::string_view user;
+			std::string_view pass;
+			std::string_view host;
+			std::string_view port;
 		} expected;
-		cstring merged;
+		std::string_view merged;
 	};
+
+	inline std::string to_string(std::string_view sv) {
+		return { sv.data(), sv.length() };
+	}
 }}
 
 std::ostream& operator<<(std::ostream& o, const tangle::testing::uri_auth_info& param)

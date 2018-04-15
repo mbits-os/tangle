@@ -44,7 +44,7 @@ namespace tangle { namespace msg { namespace testing {
 		std::string method;
 		std::string request;
 		int maj, min;
-		std::unordered_map<cstring, std::vector<const char*>> headers;
+		std::unordered_map<std::string_view, std::vector<const char*>> headers;
 
 		using parser_type = http_request;
 	};
@@ -54,7 +54,7 @@ namespace tangle { namespace msg { namespace testing {
 		int maj, min;
 		int status;
 		std::string reason;
-		std::unordered_map<cstring, std::vector<const char*>> headers;
+		std::unordered_map<std::string_view, std::vector<const char*>> headers;
 
 		using parser_type = http_response;
 	};

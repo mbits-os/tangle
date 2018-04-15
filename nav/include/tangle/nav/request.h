@@ -73,7 +73,7 @@ namespace tangle { namespace nav {
 		{
 		}
 
-		request(nav::method mth, const cstring& address)
+		request(nav::method mth, std::string_view address)
 			: m_address(address)
 			, m_method(mth)
 		{

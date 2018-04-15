@@ -44,7 +44,7 @@ namespace tangle { namespace nav {
 		void path(const std::string& path);
 		const std::string& path() const { return m_path; }
 		void store(cookie::time_point when = cookie::clock::now()) const;
-		bool append(const uri& address, const cstring& header, cookie::time_point created = cookie::clock::now());
+		bool append(const uri& address, std::string_view header, cookie::time_point created = cookie::clock::now());
 		std::string get(const uri& address, bool https, cookie::time_point when = cookie::clock::now());
 	private:
 		std::string m_path;

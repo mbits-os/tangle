@@ -27,11 +27,12 @@
 #include <tangle/nav/navigator.h>
 #include <tangle/nav/protocol.h>
 #include <cctype>
+#include <map>
 
 namespace tangle { namespace nav {
 	namespace impl {
 		struct empty_cache : tangle::cache::cache {
-			bool storage_backed() const noexcept { return false; }
+			bool storage_backed() const noexcept override { return false; }
 			std::shared_ptr<file> get(const uri& address) override
 			{
 				return {};
@@ -44,7 +45,7 @@ namespace tangle { namespace nav {
 		};
 
 		struct dummy_cache : tangle::cache::cache {
-			bool storage_backed() const noexcept { return true; }
+			bool storage_backed() const noexcept override { return true; }
 			std::shared_ptr<file> get(const uri& address) override
 			{
 				return {};
@@ -64,7 +65,7 @@ namespace tangle { namespace nav {
 		void set_cache(std::unique_ptr<tangle::cache::cache> cache) { m_cache = std::move(cache); }
 
 		void reg_proto(const std::string& scheme, const std::shared_ptr<protocol>& proto);
-		std::shared_ptr<protocol> get_proto(const std::string& scheme);
+		std::shared_ptr<protocol> get_proto(std::string_view scheme);
 
 		const std::string& user_agent() const noexcept { return m_user_agent; }
 		jar& cookies() noexcept { return m_jar; }
@@ -79,7 +80,7 @@ namespace tangle { namespace nav {
 		jar m_jar;
 		std::unique_ptr<tangle::cache::cache> m_cache;
 		std::vector<std::string> m_languages;
-		std::unordered_map<std::string, std::shared_ptr<protocol>> m_protocols;
+		std::map<std::string, std::shared_ptr<protocol>, std::less<>> m_protocols;
 	};
 
 	navigator::~navigator() = default;
@@ -146,8 +147,7 @@ namespace tangle { namespace nav {
 				return file->get_loader();
 		}
 
-		auto scheme = addr.scheme().str();
-		auto proto = m_impl->get_proto(scheme);
+		auto proto = m_impl->get_proto(addr.scheme());
 		if (!proto)
 			return {};
 
@@ -176,7 +176,7 @@ namespace tangle { namespace nav {
 		m_protocols[scheme] = proto;
 	}
 
-	std::shared_ptr<protocol> navigator::backend::get_proto(const std::string& scheme)
+	std::shared_ptr<protocol> navigator::backend::get_proto(std::string_view scheme)
 	{
 		// synchronize...
 		auto it = m_protocols.find(scheme);

@@ -39,7 +39,7 @@ static std::ostream& operator<<(std::ostream& o, tangle::msg::parsing p)
 namespace tangle { namespace msg { namespace testing {
 	struct header_info {
 		std::initializer_list<const char*> stream;
-		std::unordered_map<tangle::cstring, std::vector<const char*>> headers;
+		std::unordered_map<std::string_view, std::vector<const char*>> headers;
 	};
 
 	static std::ostream& operator<<(std::ostream& o, const header_info& nfo)

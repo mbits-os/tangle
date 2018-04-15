@@ -39,18 +39,13 @@ namespace {
 	class cookies : public ::testing::TestWithParam<cookie_info> {
 	};
 
-	auto make_span(const char* s)
-	{
-		return tangle::cstring(s, strlen(s));
-	}
-
 	TEST_P(cookies, parse)
 	{
 		auto& par = GetParam();
 		auto header = par.header;
 		auto& expected = par.cookies;
 
-		auto actual = tangle::cookie::from_client("example.com", make_span(header));
+		auto actual = tangle::cookie::from_client("example.com", header);
 		ASSERT_EQ(expected.size(), actual.size());
 		auto cur = std::begin(actual);
 		for (auto& ex : expected) {

@@ -69,7 +69,7 @@ namespace tangle { namespace msg {
 		size_t m_last_line_end = 0;
 
 		bool rearrange();
-		cstring get(span s)
+		std::string_view get(span s)
 		{
 			return { m_contents.data() + s.offset(), s.length() };
 		}
