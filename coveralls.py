@@ -82,7 +82,7 @@ def file_md5(path):
 
 def merge_coverage(dst, src):
 	if len(dst) < len(src):
-		dst += [0]*(len(src) - len(dst))
+		dst += [None]*(len(src) - len(dst))
 	ndx = 0
 	for sample in src:
 		if sample is None:
