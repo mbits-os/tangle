@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 
 import os
 import errno
@@ -10,7 +10,7 @@ import hashlib
 
 parser = argparse.ArgumentParser(description='Gather GCOV data for Coveralls')
 parser.add_argument('--git',     required=True, help='path to the git binary')
-parser.add_argument('--gcov',    required=True, help='path to the gcov program')
+parser.add_argument('--tool',    required=True, help='path to the gcov program')
 parser.add_argument('--src_dir', required=True, help='directory for source files')
 parser.add_argument('--bin_dir', required=True, help='directory for generated files')
 parser.add_argument('--int_dir', required=True, help='directory for temporary gcov files')
@@ -23,6 +23,32 @@ for idx in range(len(args.dirs)):
 	if dname[len(dname) - 1] != os.path.sep:
 		dname += os.path.sep
 	args.dirs[idx] = dname
+
+cmake_deps = {}
+def cmake_dep_info(filename):
+	orig = os.path.splitext(filename)[0] + '.o'
+	while True:
+		nfilename = os.path.dirname(filename)
+
+		if nfilename == filename: break
+		filename = nfilename
+
+		try: return cmake_deps[filename][orig]
+		except: pass
+
+		try:
+			with open(os.path.join(filename, 'DependInfo.cmake')) as f:
+				text = ' '.join([s.split('#', 1)[0] for s in f]).replace('\n', ' ').replace('\r', ' ')
+			text = ' '.join(text.split())
+			files = text.split('CMAKE_DEPENDS_CHECK_CXX')[1].split(') set(')[0].strip(' "').split('" "')
+			deps = {}
+			for n in range(len(files)/2):
+				deps[files[n*2 + 1]] = files[n*2]
+			cmake_deps[filename] = deps
+			try: return cmake_deps[filename][orig]
+			except: return
+		except:
+			pass
 
 class cd:
 	def __init__(self, dirname):
@@ -53,11 +79,11 @@ def output(*args):
 def git_log_format(fmt):
 	return output(args.git, 'log', '-1', '--pretty=format:%' + fmt)
 
-def gcov(dir_name, gcdas):
-	out, err, code = run(args.gcov, '-p', '-o', dir_name, *gcdas)
+def gcov(gcda, source):
+	out, err, code = run(args.tool, '-p', '-o', gcda, source)
 	if code:
-		print >>sys.stderr, err
-		print >>sys.stderr, 'error:', code
+		print(err, file=sys.stderr)
+		print('error:', code, file=sys.stderr)
 		sys.exit()
 
 def recurse(root, ext):
@@ -140,19 +166,17 @@ with cd(args.src_dir):
 		'remotes': []
 	}
 
-gcda_dirs = {}
-for gcda in recurse(os.path.abspath(args.bin_dir), '.gcda'):
-	dirn, filen = os.path.split(gcda)
-	if dirn not in gcda_dirs:
-		gcda_dirs[dirn] = []
-	gcda_dirs[dirn].append(filen)
+def safe_src(gcda):
+	source = cmake_dep_info(gcda)
+	if source is None: return gcda
+	return source
 
-for dirn in gcda_dirs:
-	int_dir = os.path.relpath(dirn, args.bin_dir).replace(os.sep, '#')
+for gcda in recurse(os.path.abspath(args.bin_dir), '.gcda'):
+	int_dir = os.path.relpath(gcda, args.bin_dir).replace(os.sep, '#')
 	int_dir = os.path.join(args.int_dir, int_dir)
 	mkdir_p(int_dir)
 	with cd(int_dir):
-		gcov(dirn, [os.path.join(dirn, filen) for filen in gcda_dirs[dirn]])
+		gcov(gcda, safe_src(gcda))
 
 def gcov_source(filename):
 	with open(filename) as src:
@@ -181,17 +205,23 @@ for stats in recurse(args.int_dir, '.gcov'):
 	if not relevant: continue
 
 	coverage = []
+	lines = set()
 
 	with open(stats) as stats_file:
 		for line in stats_file:
 			chunks = line.split(':', 2)
 			if len(chunks) != 3: continue
-			ln = chunks[1].strip()
-			if ln == '0': continue
+
+			try: ln = int(chunks[1].strip())
+			except: continue
+			if ln == 0 or ln in lines: continue
+			lines.add(ln)
+
 			st = chunks[0].strip()
 			if st == '-': st = None
 			elif st in ['#####', '=====']: st = 0
-			else: st = int(st)
+			else: st = int(st.rstrip('*'))
+
 			coverage.append(st)
 
 	merge_file(JSON['source_files'], name, file_md5(src), coverage)

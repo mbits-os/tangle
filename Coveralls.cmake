@@ -22,12 +22,9 @@ if (COVERALLS)
 	if (UNIX)
 	add_custom_target(coveralls_prepare
 		# Reset all counters
-		COMMAND find -name '*.gcda' -exec rm {} '\;'
-		# Prepare workspace
-		COMMAND rm -rf gcov
-		COMMAND mkdir -p gcov
+		COMMAND find -type f -name '*.gcda' -exec rm {} '\;'
 		WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
-		COMMENT "Preparing for gcov..."
+		COMMENT "Preparing for coverage..."
 	)
 	else()
 		add_custom_target(coveralls_prepare)
@@ -51,20 +48,21 @@ if (COVERALLS)
 
 	message(STATUS "PYTHON_EXECUTABLE is: ${PYTHON_EXECUTABLE}")
 	add_custom_target(coveralls_generate
-		# Run lcov over the output and generate coveralls JSON
+		COMMAND rm -rf cover-data
+		COMMAND mkdir -p cover-data
 		COMMAND ${PYTHON_EXECUTABLE}
 			"${PROJECT_SOURCE_DIR}/coveralls.py"
-			--gcov "${GCOV_EXECUTABLE}"
+			--tool "${GCOV_EXECUTABLE}"
 			--git "${GIT_EXECUTABLE}"
 			--src_dir "${PROJECT_SOURCE_DIR}"
 			--bin_dir "${PROJECT_BINARY_DIR}"
-			--int_dir "${PROJECT_BINARY_DIR}/gcov"
+			--int_dir "${PROJECT_BINARY_DIR}/cover-data"
 			--dirs "${JOIN_DIRS}"
 			--out "${COVERALLS_FILE}"
 		DEPENDS
 			coveralls_test
 			"${PROJECT_SOURCE_DIR}/coveralls.py"
-		WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/gcov"
+		WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
 		COMMENT "Generating coveralls output..."
 	)
 

@@ -1,10 +1,12 @@
+#!/usr/bin/env python
+
 from __future__ import print_function
 import os, sys, argparse, errno, subprocess, json
 
 parser = argparse.ArgumentParser(description='Gather GCOV data for Coveralls')
 parser.add_argument('--in',    required=True,  help='Coveralls JSON file', dest='json')
 parser.add_argument('--prev',  required=False, help='Coveralls JSON file for previous build')
-parser.add_argument('--out',   required=False, help='Output directory')
+parser.add_argument('--out',   required=False, help='Output directory', metavar='DIR')
 args = parser.parse_args()
 
 def escape(s):
@@ -283,6 +285,9 @@ table.listing pre {
 	word-wrap: break-word;
 }'''
 
+def slug(id):
+	return id.replace('\\', '__').replace('/', '__')
+
 if args.out is not None:
 	mkdir_p(args.out)
 
@@ -292,9 +297,9 @@ if args.out is not None:
 			finfo = curr.files[fname]
 			if finfo.digest is None:
 				continue
-			print(finfo.digest, fname)
+			print(finfo.digest, 'file-' + slug(fname) + '.html')
 			content = output('git', 'show', '%s:%s' % (commit, fname)).split('\n')
-			with open(finfo.digest + '.html', 'w') as out:
+			with open('file-' + slug(fname) + '.html', 'w') as out:
 				print('''<html>
 <head>
 <title>{fname}</title>
@@ -327,3 +332,13 @@ if args.out is not None:
 </div>
 </body>
 </html>''', file=out)
+			with open('file-' + slug(fname) + '.txt', 'w') as out:
+				for lineno in range(len(content)):
+					stat = None
+					if lineno < len(finfo.lines):
+						stat = finfo.lines[lineno]
+					if stat is None:
+						stat = '-'
+					elif stat == 0:
+						stat = '#####'
+					print('{stat:>10}:{lineno:>5}:{code}'.format(lineno=(lineno + 1), code=content[lineno], stat=stat), file=out)
