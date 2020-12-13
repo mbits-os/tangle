@@ -200,7 +200,7 @@ namespace tangle { namespace cookie {
 				"may", "jun", "jul", "aug",
 				"sep", "oct", "nov", "dec"
 			};
-			size_t ndx = 1;
+			int ndx = 1;
 			for (auto m : mnths) {
 				if (mnth == m) {
 					value = ndx;

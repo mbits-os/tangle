@@ -1,10 +1,75 @@
 cmake_minimum_required(VERSION 3.4)
-project( tangle CXX )
+project( tangle VERSION 0.1.0 LANGUAGES CXX )
 
-set(TANGLE_VERSION_MAJOR 0)
-set(TANGLE_VERSION_MINOR 1)
-set(TANGLE_VERSION_PATCH 0)
-set(TANGLE_VERSION "${TANGLE_VERSION_MAJOR}.${TANGLE_VERSION_MINOR}.${TANGLE_VERSION_PATCH}" )
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
+
+if (NOT TARGET CURL::libcurl)
+find_package(ZLIB REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
+find_package(OpenSSL REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
+find_package(CURL REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
+endif()
+
+set(TANGLE_WALL_FLAGS ON CACHE BOOL "Compile with -Wall/-W4 warning levels")
+
+if (TANGLE_WALL_FLAGS)
+  if (MSVC)
+    set(ADDITIONAL_WALL_FLAGS
+        /std:c++latest
+        /permissive-
+        /D_CRT_SECURE_NO_WARNINGS
+        /W4
+        /w14242
+        /w14254
+        /w14263
+        /w14265
+        /w14287
+        /we4289
+        /w14296
+        /w14311
+        /w14545
+        /w14546
+        /w14547
+        /w14549
+        /w14555
+        /w14619
+        /w14640
+        /w14826
+        /w14905
+        /w14906
+        /w14928
+        /w14946)
+  else()
+    set(ADDITIONAL_WALL_FLAGS
+        -std=c++17
+        -Wall -Wextra
+        -Wnon-virtual-dtor
+        -Wold-style-cast
+        -Wcast-align
+        -Wunused
+        -Woverloaded-virtual
+        -Wpedantic
+        -Wconversion
+        -Wsign-conversion
+        -Wnull-dereference
+        -Wdouble-promotion
+        -Wformat=2
+    )
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+      list(APPEND ADDITIONAL_WALL_FLAGS -fcolor-diagnostics) # -Wlifetime
+    else()
+      list(APPEND ADDITIONAL_WALL_FLAGS
+        -fdiagnostics-color
+        -Wmisleading-indentation
+        -Wduplicated-cond
+        -Wduplicated-branches
+        -Wlogical-op
+        -Wuseless-cast
+        )
+    endif()
+  endif()
+endif()
+
 
 set(TANGLE_TESTING ON CACHE BOOL "Compile and/or run self-tests")
 set(TANGLE_DOCS OFF CACHE BOOL "Create doxygen documentation")
@@ -13,7 +78,8 @@ set(MODULES
 	uri
 	msg
 	cache
-	nav
+  nav
+  http
 )
 
 foreach(MODULE ${MODULES})
@@ -91,10 +157,6 @@ endforeach()
 ##  PACKER
 ##################################################################
 
-set(CPACK_PACKAGE_VERSION_MAJOR "${TANGLE_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${TANGLE_VERSION_MINOR}")
-set(CPACK_PACKAGE_VERSION_PATCH "${TANGLE_VERSION_PATCH}")
-set(CPACK_PACKAGE_VERSION "${TANGLE_VERSION}")
 set(CPACK_PACKAGE_VENDOR "mbits-libs")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 include( CPack )

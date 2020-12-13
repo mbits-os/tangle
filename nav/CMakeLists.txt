@@ -1,30 +1,11 @@
 cmake_minimum_required(VERSION 3.4)
-
-set(DEPS uri cookie cache msg)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../cstring/include)
-
-foreach(DEP ${DEPS})
-	include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../${DEP}/include")
-endforeach()
-
-set(PROJECT_VERSION_MAJOR 0)
-set(PROJECT_VERSION_MINOR 1)
-set(PROJECT_VERSION_PATCH 0)
-set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}" )
-
-if (MSVC)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MT")
-set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MT")
-endif()
+project(nav VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
 	src/nav_jar.cpp
 	src/navigator.cpp
 
+	include/tangle/nav/http_doc_impl.h
 	include/tangle/nav/jar.h
 	include/tangle/nav/request.h
 	include/tangle/nav/navigator.h
@@ -38,11 +19,8 @@ set_target_properties(nav PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
-
-foreach(DEP ${DEPS})
-	add_dependencies(nav ${DEP})
-	target_link_libraries(nav $<TARGET_FILE:${DEP}>)
-endforeach()
+target_include_directories(nav PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(nav uri cookie cache msg)
 
 install(TARGETS nav
 	ARCHIVE DESTINATION lib

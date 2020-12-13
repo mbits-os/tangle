@@ -44,6 +44,6 @@ namespace tangle { namespace nav {
 	struct navigator;
 	struct protocol {
 		virtual ~protocol() {}
-		virtual tangle::cache::loader open(const request& req, navigator& nav) = 0;
+		virtual tangle::cache::document open(const request& req, navigator& nav) = 0;
 	};
 }}

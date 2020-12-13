@@ -1,21 +1,5 @@
 cmake_minimum_required(VERSION 3.4)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../cstring/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../uri/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../cookie/include)
-
-set(PROJECT_VERSION_MAJOR 0)
-set(PROJECT_VERSION_MINOR 1)
-set(PROJECT_VERSION_PATCH 0)
-set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}" )
-
-if (MSVC)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MT")
-set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MT")
-endif()
+project(cache VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
 	src/cache.cpp
@@ -32,6 +16,8 @@ set_target_properties(cache PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
+target_include_directories(cache PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(cache PUBLIC uri cookie)
 
 install(TARGETS cache
 	ARCHIVE DESTINATION lib

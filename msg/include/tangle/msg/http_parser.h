@@ -44,7 +44,7 @@ namespace tangle { namespace msg {
 		using dict_t = base_parser::dict_t;
 		std::pair<size_t, parsing> append(const char* data, size_t length);
 		const http_version& proto() const { return m_proto; }
-		auto dict() { return m_fields.dict(); }
+		dict_t const& dict() const { return m_fields.dict(); }
 	protected:
 		void set_proto(int http_major, int http_minor)
 		{

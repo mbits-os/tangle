@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 midnightBITS
+ * Copyright (C) 2020 midnightBITS
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -23,55 +23,9 @@
  */
 
 #pragma once
-#include <vector>
-#include <tuple>
-#include <unordered_map>
-#include <tangle/msg/hasher.h>
 
-namespace tangle { namespace msg {
-	enum class parsing {
-		reading,
-		separator,
-		error
-	};
+#include <tangle/nav/navigator.h>
 
-	class base_parser {
-	public:
-		class span {
-		public:
-			constexpr span() = default;
-			constexpr span(size_t offset, size_t length)
-				: m_offset(offset)
-				, m_length(length)
-			{
-			}
-
-			constexpr size_t offset() const { return m_offset; }
-			constexpr size_t length() const { return m_length; }
-		private:
-			size_t m_offset = 0;
-			size_t m_length = 0;
-			size_t m_hash = 0;
-		};
-
-		using dict_t = std::unordered_map<combined_string, std::vector<std::string>>;
-
-		std::pair<size_t, parsing> append(const char* data, size_t length);
-
-		dict_t const& dict() const
-		{
-			return m_dict;
-		}
-	private:
-		std::vector<char> m_contents;
-		std::vector<std::tuple<span, span>> m_field_list;
-		dict_t m_dict;
-		size_t m_last_line_end = 0;
-
-		bool rearrange();
-		std::string_view get(span s)
-		{
-			return { m_contents.data() + s.offset(), s.length() };
-		}
-	};
-}};
+namespace tangle::http {
+	std::shared_ptr<nav::protocol> proto();
+}

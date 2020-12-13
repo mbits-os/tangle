@@ -63,4 +63,28 @@ namespace tangle { namespace cache {
 
 		explicit loader(std::shared_ptr<loader_impl> impl);
 	};
+
+	struct doc_impl;
+	struct document {
+		document();
+		document(const document&);
+		document& operator=(const document&);
+		document(document&&);
+		document& operator=(document&&);
+
+		document open(uri const& loc);
+		uri const& location() const;
+		std::string const& text() const;
+		int status() const;
+		bool exists() const; // file couldn't be opened, e.g. 4xx and 5xx on HTTP
+		bool is_link() const; // unsatisfied link, e.g. 3xx on HTTP
+
+		static document wrap(std::shared_ptr<doc_impl> impl) {
+			return document{ std::move(impl) };
+		}
+	private:
+		std::shared_ptr<doc_impl> m_impl;
+
+		explicit document(std::shared_ptr<doc_impl> impl);
+	};
 }}

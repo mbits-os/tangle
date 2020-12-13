@@ -52,67 +52,51 @@ namespace tangle { namespace nav {
 		}
 
 		explicit request(const uri& address)
-			: m_address(address)
-		{
-		}
-
-		explicit request(uri&& address)
-			: m_address(std::move(address))
+			: m_address(normalized(address))
 		{
 		}
 
 		request(nav::method mth, const uri& address)
-			: m_address(address)
-			, m_method(mth)
-		{
-		}
-
-		request(nav::method mth, const std::string& address)
-			: m_address(address)
-			, m_method(mth)
-		{
-		}
-
-		request(nav::method mth, std::string_view address)
-			: m_address(address)
-			, m_method(mth)
-		{
-		}
-
-		request(nav::method mth, uri&& address)
-			: m_address(std::move(address))
-			, m_method(mth)
-		{
-		}
-
-		request(nav::method mth, std::string&& address)
-			: m_address(std::move(address))
+			: m_address(normalized(address))
 			, m_method(mth)
 		{
 		}
 
 		request& method(nav::method value) { m_method = value; return *this; }
-		request& address(const uri& value) { m_address = value; return *this; }
-		request& address(uri&& value) { m_address = std::move(value); return *this; }
+		request& address(const uri& value) { m_address = normalized(value); return *this; }
 		request& follow_redirects(bool value) { m_follow_redirects = value; return *this; }
 		request& max_redir(int value) { m_max_redir = value; return *this; }
-		request& referrer(const std::string& value) { m_referrer = value; return *this; }
-		request& referrer(std::string&& value) { m_referrer = std::move(value); return *this; }
-		request& custom_agent(const std::string& value) { m_custom_agent = value; return *this; }
-		request& custom_agent(std::string&& value) { m_custom_agent = std::move(value); return *this; }
+		request& referrer(const uri& value) { m_referrer = normalized(value); m_address = normalized(m_address, m_referrer); return *this; }
+		request& custom_agent(std::string value) { m_custom_agent = std::move(value); return *this; }
+		request& content_type(std::string value) { m_content_type = std::move(value); return *this; }
+		request& content(std::string value) { m_content = std::move(value); return *this; }
+		request& form_fields(std::string value) { m_form_fields = std::move(value); return *this; }
 
 		const uri& address() const { return m_address; }
 		nav::method method() const { return m_method; }
 		bool follow_redirects() const { return m_follow_redirects; }
 		int max_redir() const { return m_max_redir; }
-		const std::string& referrer() const { return m_referrer; }
+		const uri& referrer() const { return m_referrer; }
 		const std::string& custom_agent() const { return m_custom_agent; }
+		const std::string& content_type() const { return m_content_type; }
+		const std::string& content() const { return m_content; }
+		const std::string& form_fields() const { return m_form_fields; }
 	private:
+		uri normalized(uri const& input, uri const& doc) {
+			return uri::canonical(input, uri::make_base(doc), uri::with_pass);
+			return uri::normal(input, uri::with_pass);
+		}
+		uri normalized(uri const& input) {
+			return uri::normal(input, uri::with_pass);
+		}
 		uri m_address;
 		nav::method m_method = nav::method::get;
 		bool m_follow_redirects = true;
 		int m_max_redir = 10;
-		std::string m_referrer;
+		uri m_referrer;
 		std::string m_custom_agent;
+		std::string m_content_type;
+		std::string m_content;
+		std::string m_form_fields;
 	};
 }}

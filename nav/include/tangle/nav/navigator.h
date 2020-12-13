@@ -70,7 +70,7 @@ namespace tangle { namespace nav {
 		const tangle::cache::cache& cache() const noexcept;
 		const std::vector<std::string>& languages() const noexcept;
 
-		tangle::cache::loader open(const request& req, bool refreshing,
+		tangle::cache::document open(const request& req,
 			cookie::time_point when = cookie::clock::now());
 	private:
 		std::shared_ptr<backend> m_impl;

@@ -59,4 +59,60 @@ namespace tangle { namespace cache {
 			return false;
 		return m_impl->is_link();
 	}
+
+	document::document(std::shared_ptr<doc_impl> impl)
+		: m_impl(impl)
+	{
+	}
+
+	document::document() = default;
+	document::document(const document&) = default;
+	document& document::operator=(const document&) = default;
+	document::document(document&&) = default;
+	document& document::operator=(document&&) = default;
+
+	document document::open(uri const& loc)
+	{
+		if (!m_impl)
+			return {};
+		return m_impl->open(loc);
+	}
+
+	uri const& document::location() const
+	{
+		static uri const empty;
+		if (!m_impl)
+			return empty;
+		return m_impl->location();
+	}
+
+	std::string const& document::text() const
+	{
+		static std::string const empty;
+		if (!m_impl)
+			return empty;
+		return m_impl->text();
+	}
+
+	int document::status() const
+	{
+		if (!m_impl)
+			return false;
+		return m_impl->status();
+	}
+
+	bool document::exists() const
+	{
+		if (!m_impl)
+			return false;
+		return m_impl->exists();
+	}
+
+	bool document::is_link() const
+	{
+		if (!m_impl)
+			return false;
+		return m_impl->is_link();
+	}
+
 }}

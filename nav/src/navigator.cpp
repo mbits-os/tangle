@@ -132,20 +132,12 @@ namespace tangle { namespace nav {
 		return m_impl->languages();
 	}
 
-	tangle::cache::loader navigator::open(const request& req, bool refreshing, cookie::time_point when)
+	tangle::cache::document navigator::open(const request& req, cookie::time_point when)
 	{
-		auto addr = req.address();
-		addr.fragment({});
-		addr = uri::normal(addr);
+		auto& addr = req.address();
 
 		if (!addr.has_authority())
 			return {};
-
-		if (!refreshing) {
-			auto file = cache().get(addr);
-			if (file && (file->is_active() || file->is_fresh(when)))
-				return file->get_loader();
-		}
 
 		auto proto = m_impl->get_proto(addr.scheme());
 		if (!proto)

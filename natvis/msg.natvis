@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="tangle::msg::combined_string">
+    <DisplayString Condition="m_use_cstr">{{ {m_cstr} }}</DisplayString>
+    <DisplayString Condition="!m_use_cstr">{{ {m_str} }}</DisplayString>
+    <StringView Condition="m_use_cstr">m_cstr</StringView>
+    <StringView Condition="!m_use_cstr">m_str</StringView>
+    <Expand>
+      <Item Name="[str]" Condition="m_use_cstr">m_cstr</Item>
+      <Item Name="[str]" Condition="!m_use_cstr">m_str</Item>
+      <Item Name="[use_cstr]">m_use_cstr</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>

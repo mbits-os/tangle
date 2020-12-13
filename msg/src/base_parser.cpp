@@ -85,7 +85,7 @@ namespace tangle { namespace msg {
 			if (it == cur) { // empty line
 				if (!rearrange())
 					return { report_read(prev, std::distance(begin, it)), parsing::error };
-				return { report_read(prev, std::distance(begin, it)), parsing::separator };
+				return { report_read(prev, std::distance(begin, it)) + 2, parsing::separator };
 			}
 
 			std::advance(it, 2);

@@ -1,0 +1,6 @@
+[requires]
+libcurl/7.74.0
+
+[generators]
+cmake
+cmake_find_package_multi

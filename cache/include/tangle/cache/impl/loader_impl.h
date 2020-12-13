@@ -36,10 +36,21 @@ Cache content.
 namespace tangle { namespace cache {
 	struct loader_impl {
 		virtual ~loader_impl() {}
-		virtual loader& on_opened(const std::function<bool(loader&)>&) = 0;
-		virtual loader& on_data(const std::function<void(loader&, const void*, size_t)>&) = 0;
+		virtual void on_opened(const std::function<bool(loader&)>&) = 0;
+		virtual void on_data(const std::function<void(loader&, const void*, size_t)>&) = 0;
 
 		virtual bool exists() const = 0;
 		virtual bool is_link() const = 0;
 	};
+
+	struct doc_impl {
+		virtual ~doc_impl() {}
+		virtual document open(uri const& loc) = 0;
+		virtual uri const& location() const = 0;
+		virtual std::string const& text() const = 0;
+		virtual int status() const = 0;
+		virtual bool exists() const = 0;
+		virtual bool is_link() const = 0;
+	};
+
 }}
