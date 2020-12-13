@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4)
 project( tangle VERSION 0.1.0 LANGUAGES CXX )
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup(TARGETS)
+conan_basic_setup()
 
 if (NOT TARGET CURL::libcurl)
 find_package(ZLIB REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
