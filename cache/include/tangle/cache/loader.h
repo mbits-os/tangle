@@ -73,11 +73,15 @@ namespace tangle { namespace cache {
 		document& operator=(document&&);
 
 		document open(uri const& loc);
-		uri const& location() const;
-		std::string const& text() const;
-		int status() const;
-		bool exists() const; // file couldn't be opened, e.g. 4xx and 5xx on HTTP
-		bool is_link() const; // unsatisfied link, e.g. 3xx on HTTP
+		uri const& location() const noexcept;
+		std::string const& text() const noexcept;
+		std::string&& moveable_text() noexcept;
+		int status() const noexcept;
+		std::string const& status_text() const noexcept;
+		bool exists() const
+			noexcept;  // file couldn't be opened, e.g. 4xx and 5xx on HTTP
+		bool is_link() const noexcept;  // unsatisfied link, e.g. 3xx on HTTP
+		std::vector<std::pair<std::string, std::string>> const& headers() const noexcept;
 
 		static document wrap(std::shared_ptr<doc_impl> impl) {
 			return document{ std::move(impl) };

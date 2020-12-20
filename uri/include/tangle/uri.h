@@ -330,6 +330,8 @@ namespace tangle {
 			\result a vector of name/value pairs
 			*/
 			std::vector<std::pair<std::string, std::string>> list() const;
+
+			std::unordered_map<std::string, std::vector<std::string>> const& values() const noexcept { return m_values; }
 		};
 
 		/**

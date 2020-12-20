@@ -35,6 +35,7 @@ Navigation HTTP document backend.
 #include <tangle/nav/navigator.h>
 #include <tangle/msg/http_parser.h>
 #include <tangle/cookie/item.h>
+#include <tangle/nav/jar.h>
 
 namespace tangle { namespace nav {
 	struct http_doc_impl : cache::doc_impl
@@ -61,7 +62,10 @@ namespace tangle { namespace nav {
 
 		http_doc_impl(uri const& location, navigator* nav) : location_{ location }, nav_{ nav } {}
 
-		void on_error() { status_ = 999; }
+		void on_error(CURLcode code) {
+			status_ = 1000 + code;
+			status_text_ = curl_easy_strerror(code);
+		}
 
 		size_t on_data(const void* data, size_t count) {
 			text_.append(static_cast<char const*>(data), count);
@@ -69,14 +73,29 @@ namespace tangle { namespace nav {
 		}
 
 		void on_final_location(const std::string& location) { location_ = location; }
-		void on_headers(std::string const&, int status, msg::http_response::dict_t const& headers) {
+		void on_headers(std::string const& status_text, int status, msg::http_response::dict_t const& headers) {
 			status_ = status;
+			status_text_ = status_text;
 			auto it = headers.find("set-cookie");
 			if (it != headers.end()) {
 				auto& jar = nav_->cookies();
 				auto created = cookie::chrono::clock::now();
 				for (auto& header : it->second) {
 					jar.append(location_, header, created);
+				}
+			}
+
+			size_t count = 0;
+			for (auto const& pair : headers)
+				count += pair.second.size();
+
+			headers_.clear();
+			headers_.reserve(count);
+
+			for (auto const& [hdr, values] : headers) {
+				std::string header = hdr.str();
+				for (auto const& value : values) {
+					headers_.emplace_back(header, value);
 				}
 			}
 		}
@@ -104,18 +123,26 @@ namespace tangle { namespace nav {
 			);
 		}*/
 
-		uri const& location() const override { return location_; }
-		std::string const& text() const override { return text_; }
-		int status() const override { return status_; }
+		uri const& location() const noexcept override { return location_; }
+		std::string const& text() const noexcept override { return text_; }
+		std::string&& moveable_text() noexcept override { return std::move(text_); }
+		int status() const noexcept override { return status_; }
+		std::string const& status_text() const noexcept override { return status_text_; }
 
-		bool exists() const override {
+		bool exists() const noexcept override {
 			return (status_ / 100) == 2;
 		}
-		bool is_link() const override { return is_redirect(status_); }
+		bool is_link() const noexcept override { return is_redirect(status_); }
+		std::vector<std::pair<std::string, std::string>> const& headers()
+			const noexcept override {
+			return headers_;
+		} 
 	private:
-		uri location_;
-		std::string text_;
+		uri location_{};
+		std::string text_{};
 		int status_{ 0 };
-		nav::navigator* nav_;
+		std::string status_text_{};
+		nav::navigator* nav_{};
+		std::vector<std::pair<std::string, std::string>> headers_{};
 	};
 }}

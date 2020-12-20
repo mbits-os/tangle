@@ -1,10 +1,22 @@
 cmake_minimum_required(VERSION 3.10)
 project(http VERSION 0.1.0 LANGUAGES CXX )
 
-add_library(http STATIC
+set(SOURCES
+	src/client.cc
 	src/curl.cc
+	src/headers.cc
+	include/tangle/http/client.hh
+	include/tangle/http/headers.hh
 	include/tangle/http/proto.hh
 )
+
+WRAP_SOURCELIST(${SOURCES})
+
+if (MSVC)
+	list(APPEND SOURCES ../natvis/header.natvis)
+endif()
+
+add_library(http STATIC ${SOURCES})
 set_target_properties(http PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}

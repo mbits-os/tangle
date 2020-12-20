@@ -62,8 +62,12 @@ namespace tangle { namespace nav {
 		{
 		}
 
+		using header_list = std::vector<std::pair<std::string, std::string>>;
+
 		request& method(nav::method value) { m_method = value; return *this; }
 		request& address(const uri& value) { m_address = normalized(value); return *this; }
+		request& headers(header_list const& hdrs) { m_headers = hdrs; return *this; }
+		request& headers(header_list&& hdrs) { m_headers = std::move(hdrs); return *this; }
 		request& follow_redirects(bool value) { m_follow_redirects = value; return *this; }
 		request& max_redir(int value) { m_max_redir = value; return *this; }
 		request& referrer(const uri& value) { m_referrer = normalized(value); m_address = normalized(m_address, m_referrer); return *this; }
@@ -72,15 +76,16 @@ namespace tangle { namespace nav {
 		request& content(std::string value) { m_content = std::move(value); return *this; }
 		request& form_fields(std::string value) { m_form_fields = std::move(value); return *this; }
 
-		const uri& address() const { return m_address; }
-		nav::method method() const { return m_method; }
-		bool follow_redirects() const { return m_follow_redirects; }
-		int max_redir() const { return m_max_redir; }
-		const uri& referrer() const { return m_referrer; }
-		const std::string& custom_agent() const { return m_custom_agent; }
-		const std::string& content_type() const { return m_content_type; }
-		const std::string& content() const { return m_content; }
-		const std::string& form_fields() const { return m_form_fields; }
+		const uri& address() const noexcept { return m_address; }
+		header_list const& headers() const noexcept { return m_headers; }
+		nav::method method() const noexcept { return m_method; }
+		bool follow_redirects() const noexcept { return m_follow_redirects; }
+		int max_redir() const noexcept { return m_max_redir; }
+		const uri& referrer() const noexcept { return m_referrer; }
+		const std::string& custom_agent() const noexcept { return m_custom_agent; }
+		const std::string& content_type() const noexcept { return m_content_type; }
+		const std::string& content() const noexcept { return m_content; }
+		const std::string& form_fields() const noexcept { return m_form_fields; }
 	private:
 		uri normalized(uri const& input, uri const& doc) {
 			return uri::canonical(input, uri::make_base(doc), uri::with_pass);
@@ -98,5 +103,6 @@ namespace tangle { namespace nav {
 		std::string m_content_type;
 		std::string m_content;
 		std::string m_form_fields;
+		header_list m_headers;
 	};
 }}

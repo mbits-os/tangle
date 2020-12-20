@@ -32,8 +32,10 @@ Cache content.
 
 #include <functional>
 #include <memory>
+#include <tangle/uri.h>
 
 namespace tangle { namespace cache {
+	struct loader;
 	struct loader_impl {
 		virtual ~loader_impl() {}
 		virtual void on_opened(const std::function<bool(loader&)>&) = 0;
@@ -43,14 +45,19 @@ namespace tangle { namespace cache {
 		virtual bool is_link() const = 0;
 	};
 
+	struct document;
 	struct doc_impl {
 		virtual ~doc_impl() {}
 		virtual document open(uri const& loc) = 0;
-		virtual uri const& location() const = 0;
-		virtual std::string const& text() const = 0;
-		virtual int status() const = 0;
-		virtual bool exists() const = 0;
-		virtual bool is_link() const = 0;
+		virtual uri const& location() const noexcept = 0;
+		virtual std::string const& text() const noexcept = 0;
+		virtual std::string&& moveable_text() noexcept = 0;
+		virtual int status() const noexcept = 0;
+		virtual std::string const& status_text() const noexcept = 0;
+		virtual bool exists() const noexcept = 0;
+		virtual bool is_link() const noexcept = 0;
+		virtual std::vector<std::pair<std::string, std::string>> const& headers()
+			const noexcept = 0;
 	};
 
 }}

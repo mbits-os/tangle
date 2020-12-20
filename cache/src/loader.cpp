@@ -78,7 +78,7 @@ namespace tangle { namespace cache {
 		return m_impl->open(loc);
 	}
 
-	uri const& document::location() const
+	uri const& document::location() const noexcept
 	{
 		static uri const empty;
 		if (!m_impl)
@@ -86,7 +86,7 @@ namespace tangle { namespace cache {
 		return m_impl->location();
 	}
 
-	std::string const& document::text() const
+	std::string const& document::text() const noexcept
 	{
 		static std::string const empty;
 		if (!m_impl)
@@ -94,25 +94,48 @@ namespace tangle { namespace cache {
 		return m_impl->text();
 	}
 
-	int document::status() const
+	std::string&& document::moveable_text() noexcept
+	{
+		static std::string empty;
+		if (!m_impl)
+			return std::move(empty);
+		return m_impl->moveable_text();
+	}
+
+	int document::status() const noexcept
 	{
 		if (!m_impl)
 			return false;
 		return m_impl->status();
 	}
 
-	bool document::exists() const
+	std::string const& document::status_text() const noexcept
+	{
+		static std::string empty;
+		if (!m_impl)
+			return empty;
+		return m_impl->status_text();
+	}
+
+	bool document::exists() const noexcept
 	{
 		if (!m_impl)
 			return false;
 		return m_impl->exists();
 	}
 
-	bool document::is_link() const
+	bool document::is_link() const noexcept
 	{
 		if (!m_impl)
 			return false;
 		return m_impl->is_link();
 	}
 
+	std::vector<std::pair<std::string, std::string>> const& document::headers() const noexcept
+	{
+		static std::vector<std::pair<std::string, std::string>> const empty{};
+		if (!m_impl)
+			return empty;
+		return m_impl->headers();
+	}
 }}
