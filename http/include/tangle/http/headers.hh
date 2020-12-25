@@ -68,7 +68,26 @@ namespace tangle::http {
 
 		// Cookie headers:
 		Cookie,
-		Set_Cookie
+		Set_Cookie,
+
+		// https://tools.ietf.org/html/rfc6266
+		Content_Disposition,
+
+		// https://fetch.spec.whatwg.org/#origin-header
+		Origin,
+
+		// [CORS requests](https://fetch.spec.whatwg.org/#http-requests)
+		Access_Control_Allow_Origin,
+		Access_Control_Allow_Credentials,
+
+		// [CORS responses](https://fetch.spec.whatwg.org/#http-responses)
+		Access_Control_Allow_Methods,
+		Access_Control_Allow_Headers,
+		Access_Control_Max_Age,
+		Access_Control_Expose_Headers,
+
+		// https://tools.ietf.org/html/rfc8288#section-3
+		Link,
 	};
 
 	class header_key {

@@ -18,11 +18,23 @@ namespace tangle::http {
 		    {"accept-encoding", header::Accept_Encoding},
 		    {"accept-language", header::Accept_Language},
 		    {"accept-ranges", header::Accept_Ranges},
+		    {"access-control-allow-credentials",
+		     header::Access_Control_Allow_Credentials},
+		    {"access-control-allow-headers",
+		     header::Access_Control_Allow_Headers},
+		    {"access-control-allow-methods",
+		     header::Access_Control_Allow_Methods},
+		    {"access-control-allow-origin",
+		     header::Access_Control_Allow_Origin},
+		    {"access-control-expose-headers",
+		     header::Access_Control_Expose_Headers},
+		    {"access-control-max-age", header::Access_Control_Max_Age},
 		    {"age", header::Age},
 		    {"allow", header::Allow},
 		    {"authorization", header::Authorization},
 		    {"cache-control", header::Cache_Control},
 		    {"connection", header::Connection},
+		    {"content-disposition", header::Content_Disposition},
 		    {"content-encoding", header::Content_Encoding},
 		    {"content-language", header::Content_Language},
 		    {"content-length", header::Content_Length},
@@ -43,8 +55,10 @@ namespace tangle::http {
 		    {"if-range", header::If_Range},
 		    {"if-unmodified-since", header::If_Unmodified_Since},
 		    {"last-modified", header::Last_Modified},
+		    {"link", header::Link},
 		    {"location", header::Location},
 		    {"max-forwards", header::Max_Forwards},
+		    {"origin", header::Origin},
 		    {"pragma", header::Pragma},
 		    {"proxy-authenticate", header::Proxy_Authenticate},
 		    {"proxy-authorization", header::Proxy_Authorization},
@@ -180,6 +194,24 @@ namespace tangle::http {
 				return "Warning";
 			case header::WWW_Authenticate:
 				return "WWW-Authenticate";
+			case header::Content_Disposition:
+				return "Content-Disposition";
+			case header::Origin:
+				return "Origin";
+			case header::Access_Control_Allow_Origin:
+				return "Access-Control-Allow-Origin";
+			case header::Access_Control_Allow_Credentials:
+				return "Access-Control-Allow-Credentials";
+			case header::Access_Control_Allow_Methods:
+				return "Access-Control-Allow-Methods";
+			case header::Access_Control_Allow_Headers:
+				return "Access-Control-Allow-Headers";
+			case header::Access_Control_Max_Age:
+				return "Access-Control-Max-Age";
+			case header::Access_Control_Expose_Headers:
+				return "Access-Control-Expose-Headers";
+			case header::Link:
+				return "Link";
 			default:
 				break;
 		}
