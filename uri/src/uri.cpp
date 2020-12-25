@@ -324,6 +324,7 @@ namespace tangle {
 	uri::query_builder uri::query_builder::parse(std::string_view query)
 	{
 		uri::query_builder out;
+		if (!query.empty() && query.front() == '?') query = query.substr(1);
 		const char* c = query.data();
 		const char* end = c + query.length();
 		while (c < end) {
