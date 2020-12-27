@@ -42,10 +42,10 @@ namespace tangle { namespace nav {
 	struct protocol;
 
 	struct config {
-		std::string app_version;
-		std::string jar_file;
-		std::string cache_dir;
-		std::vector<std::string> languages;
+		std::string app_version{};
+		std::string jar_file{};
+		std::string cache_dir{};
+		std::vector<std::string> languages{};
 	};
 
 	class jar;

@@ -162,8 +162,8 @@ namespace tangle {
 		std::string m_uri;
 		using size_type = std::string::size_type;
 
-		static constexpr size_type ncalc = (size_type)(-2);
-		static constexpr size_type npos = (size_type)(-1);
+		static constexpr size_type ncalc = static_cast<size_type>(-2);
+		static constexpr size_type npos = static_cast<size_type>(-1);
 
 		mutable size_type m_scheme = ncalc;
 		mutable size_type m_path = ncalc;

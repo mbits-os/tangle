@@ -1,8 +1,6 @@
 // Copyright (c) 2020 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#pragma once
-
 #include <tangle/http/client.hh>
 
 namespace tangle::http::client {
