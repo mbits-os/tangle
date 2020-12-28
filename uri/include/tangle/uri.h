@@ -305,6 +305,16 @@ namespace tangle {
 			}
 
 			/**
+			Sets a value-less param name.
+			\param name a name of the field to set
+			\result a builder reference to chain the calls together
+			*/
+			query_builder& set(const std::string& name) {
+				m_values[name].clear();
+				return *this;
+			}
+
+			/**
 			Removes all fields with given name
 			\param name a name of the field to remove
 			\result a builder reference to chain the calls together

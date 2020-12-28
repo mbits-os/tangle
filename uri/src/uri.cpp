@@ -283,14 +283,24 @@ namespace tangle {
 	{
 		std::string out;
 		bool first = true;
+		auto add_prefix = [&, flag] {
+			if (first) {
+				first = false;
+				if (flag == start_with_qmark)
+					out.push_back('?');
+			} else
+				out.push_back('&');
+		};
 		for (auto& pair : m_values) {
 			auto name = urlencode(pair.first) + "=";
+			if (pair.second.empty()) {
+				add_prefix();
+				out += urlencode(pair.first);
+				continue;
+			}
+
 			for (auto& value : pair.second) {
-				if (first) {
-					first = false;
-					if (flag == start_with_qmark)
-						out += "?";
-				} else out += "&";
+				add_prefix();
 
 				out += name + urlencode(value);
 			}
