@@ -25,8 +25,10 @@ set_target_properties(http PROPERTIES
 target_include_directories(http PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(http PUBLIC nav CURL::libcurl)
 
+if (TANGLE_INSTALL)
 install(TARGETS http
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
 install(DIRECTORY include/tangle/ DESTINATION include/tangle)
+endif()

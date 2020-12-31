@@ -19,11 +19,13 @@ set_target_properties(cache PROPERTIES
 target_include_directories(cache PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(cache PUBLIC uri cookie)
 
+if (TANGLE_INSTALL)
 install(TARGETS cache
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
 install(DIRECTORY include/tangle/ DESTINATION include/tangle)
+endif()
 
 ##################################################################
 ##  DOCUMENTATION

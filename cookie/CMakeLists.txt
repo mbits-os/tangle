@@ -24,11 +24,13 @@ set_target_properties(cookie PROPERTIES
 	FOLDER libs)
 target_include_directories(cookie PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+if (TANGLE_INSTALL)
 install(TARGETS cookie
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
 install(DIRECTORY include/tangle/ DESTINATION include/tangle)
+endif()
 
 ##################################################################
 ##  DOCUMENTATION

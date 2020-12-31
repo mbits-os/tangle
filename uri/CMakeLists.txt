@@ -16,11 +16,13 @@ set_target_properties(uri PROPERTIES
 	FOLDER libs)
 target_include_directories(uri PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+if (TANGLE_INSTALL)
 install(TARGETS uri
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
 install(DIRECTORY include/tangle/ DESTINATION include/tangle)
+endif()
 
 ##################################################################
 ##  DOCUMENTATION

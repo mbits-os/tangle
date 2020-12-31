@@ -22,11 +22,13 @@ set_target_properties(nav PROPERTIES
 target_include_directories(nav PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(nav uri cookie cache msg)
 
+if (TANGLE_INSTALL)
 install(TARGETS nav
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
 install(DIRECTORY include/tangle/ DESTINATION include/tangle)
+endif()
 
 ##################################################################
 ##  DOCUMENTATION
