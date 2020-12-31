@@ -131,7 +131,7 @@ namespace tangle { namespace msg {
 
 		bool operator == (const combined_string& rhs) const
 		{
-			return (std::string_view)*this == rhs;
+			return (std::string_view)*this == (std::string_view)rhs;
 		}
 
 		friend inline std::ostream& operator<<(std::ostream& o, const combined_string& cs)
