@@ -111,7 +111,7 @@ namespace tangle { namespace nav {
 				return {};
 			auto addr = uri::canonical(loc, location_, uri::with_pass);
 
-			uri::query_builder query{};
+			uri::params query{};
 			for (auto& [name, value] : fields)
 				query.add(name, value);
 

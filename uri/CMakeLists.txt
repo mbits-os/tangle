@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4)
-project(url VERSION 1.0.0 LANGUAGES CXX )
+project(uri VERSION 1.0.0 LANGUAGES CXX )
 
 set(SOURCES src/uri.cpp include/tangle/uri.h)
 

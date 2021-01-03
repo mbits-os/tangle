@@ -42,7 +42,7 @@ namespace tangle { namespace nav {
 
 	bool jar::append(const uri& address, std::string_view header, cookie::time_point created)
 	{
-		auto auth = uri::auth_builder::parse(address.authority());
+		auto auth = address.parsed_authority();
 		if (auth.host.empty())
 			return false;
 		auto item = tangle::cookie::from_server(auth.host, header, created);
@@ -58,7 +58,7 @@ namespace tangle { namespace nav {
 
 	std::string jar::get(const uri& address, bool https, cookie::time_point when)
 	{
-		auto auth = uri::auth_builder::parse(address.authority());
+		auto auth = address.parsed_authority();
 		if (auth.host.empty())
 			return { };
 

@@ -1,26 +1,5 @@
-/*
-* Copyright (C) 2013 midnightBITS
-*
-* Permission is hereby granted, free of charge, to any person
-* obtaining a copy of this software and associated documentation
-* files (the "Software"), to deal in the Software without
-* restriction, including without limitation the rights to use, copy,
-* modify, merge, publish, distribute, sublicense, and/or sell copies
-* of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-* BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-* ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-* CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*/
+// Copyright (c) 2015 midnightBITS
+// This code is licensed under MIT license (see LICENSE for details)
 
 #pragma once
 
@@ -34,10 +13,10 @@ manipulation of resource addresses, with some helper
 utilities.
 */
 
-#include <unordered_map>
-#include <vector>
 #include <string>
 #include <string_view>
+#include <unordered_map>
+#include <vector>
 
 namespace tangle {
 	/**
@@ -92,8 +71,7 @@ namespace tangle {
 
 	\see urlencode(const char*, size_t)
 	*/
-	inline std::string urlencode(const std::string& in)
-	{
+	inline std::string urlencode(const std::string& in) {
 		return urlencode(in.c_str(), in.length());
 	}
 
@@ -109,8 +87,7 @@ namespace tangle {
 
 	\see urldecode(const char*, size_t)
 	*/
-	inline std::string urldecode(const std::string& in)
-	{
+	inline std::string urldecode(const std::string& in) {
 		return urldecode(in.c_str(), in.length());
 	}
 
@@ -127,8 +104,7 @@ namespace tangle {
 
 	\see urlencode(const char*, size_t)
 	*/
-	inline std::string urlencode(std::string_view in)
-	{
+	inline std::string urlencode(std::string_view in) {
 		return urlencode(in.data(), in.length());
 	}
 
@@ -144,8 +120,7 @@ namespace tangle {
 
 	\see urldecode(const char*, size_t)
 	*/
-	inline std::string urldecode(std::string_view in)
-	{
+	inline std::string urldecode(std::string_view in) {
 		return urldecode(in.data(), in.length());
 	}
 
@@ -175,36 +150,30 @@ namespace tangle {
 		void ensure_query() const;
 		void ensure_fragment() const;
 
-		void invalidate_fragment()
-		{
-			m_part = ncalc;
-		}
+		void invalidate_fragment() { m_part = ncalc; }
 
-		void invalidate_query()
-		{
+		void invalidate_query() {
 			invalidate_fragment();
 			m_query = ncalc;
 		}
 
-		void invalidate_path()
-		{
+		void invalidate_path() {
 			invalidate_query();
 			m_path = ncalc;
 		}
 
-		void invalidate_scheme()
-		{
+		void invalidate_scheme() {
 			invalidate_path();
 			m_scheme = ncalc;
 		}
 #endif
 
 	public:
-		uri(); /**< Constructs empty uri */
-		uri(const uri&); /**< Copy-constructs an uri */
-		uri(uri&&); /**< Move-constructs an uri */
+		uri();                      /**< Constructs empty uri */
+		uri(const uri&);            /**< Copy-constructs an uri */
+		uri(uri&&);                 /**< Move-constructs an uri */
 		uri& operator=(const uri&); /**< Copy-assigns an uri */
-		uri& operator=(uri&&); /**< Move-assigns an uri */
+		uri& operator=(uri&&);      /**< Move-assigns an uri */
 
 		/**
 		Constructs an uri from the identifier.
@@ -230,21 +199,24 @@ namespace tangle {
 		*/
 		uri(const char* ident);
 
-		/** Flags for auth_builder::string */
+		/** Flags for auth_parts::string */
 		enum auth_flag {
-			ui_safe, /**< Flag for encoding the user info for UI */
-			with_pass, /**< Flag for encoding the user info for transfer (highly unsafe) */
-			no_userinfo /**< Flag for encoding the authority with no user info at all */
+			ui_safe,   /**< Flag for encoding the user info for UI. */
+			with_pass, /**< Flag for encoding the user info for transfer (highly
+			              unsafe). */
+			no_userinfo /**< Flag for encoding the authority with no user info
+			               at all. */
 		};
 
 		/**
 		Helper class for reading and setting
 		authority component.
 		*/
-		struct auth_builder {
-			std::string user; /**< User information - name */
+		struct auth_parts {
+			std::string user;     /**< User information - name */
 			std::string password; /**< User information - password */
-			std::string host; /**< Host name - either IPv4, IPv6 or registered name */
+			std::string
+			    host; /**< Host name - either IPv4, IPv6 or registered name */
 			std::string port; /**< String representation of the port on host */
 
 			/**
@@ -252,9 +224,9 @@ namespace tangle {
 			\param auth an authority component to be parsed
 			\result a parsed authority with parts, if
 			        successful; an authority with empty
-					host on error
+			        host on error
 			*/
-			static auth_builder parse(std::string_view auth);
+			static auth_parts parse(std::string_view auth);
 
 			/**
 			Generates an authority component from its members.
@@ -270,17 +242,24 @@ namespace tangle {
 			std::string string(auth_flag flag = ui_safe) const;
 		};
 
-		/** Flags for query_builder::string */
+		using auth_builder
+		    [[deprecated("This name was almost never in-line with it's usage. "
+		                 "Plase use more neutral type `auth_parts`.")]] =
+		        auth_parts;
+
+		/** Flags for params::string */
 		enum query_flag {
-			form_urlencoded = false, /**< Flag for encoding fields from a form to place in request body */
-			start_with_qmark = true, /**< Flag for encoding fields to be part of an uri */
+			form_urlencoded = false, /**< Flag for encoding fields from a form
+			                            to place in request body */
+			start_with_qmark =
+			    true, /**< Flag for encoding fields to be part of an uri */
 		};
 
 		/**
 		Helper class for parsing, updating and setting
 		query component.
 		*/
-		struct query_builder {
+		struct params {
 #ifndef USING_DOXYGEN
 			std::unordered_map<std::string, std::vector<std::string>> m_values;
 #endif
@@ -290,7 +269,7 @@ namespace tangle {
 			\param query a query component to be parsed
 			\result a parsed query with decoded name/value pairs
 			*/
-			static query_builder parse(std::string_view query);
+			static params parse(std::string_view query);
 
 			/**
 			Adds a new name/value pair.
@@ -298,8 +277,8 @@ namespace tangle {
 			\param value a value of the field
 			\result a builder reference to chain the calls together
 			*/
-			query_builder& add(const std::string& name, const std::string& value)
-			{
+			params& add(const std::string& name,
+			                   const std::string& value) {
 				m_values[name].push_back(value);
 				return *this;
 			}
@@ -309,7 +288,7 @@ namespace tangle {
 			\param name a name of the field to set
 			\result a builder reference to chain the calls together
 			*/
-			query_builder& set(const std::string& name) {
+			params& set(const std::string& name) {
 				m_values[name].clear();
 				return *this;
 			}
@@ -319,11 +298,9 @@ namespace tangle {
 			\param name a name of the field to remove
 			\result a builder reference to chain the calls together
 			*/
-			query_builder& remove(const std::string& name)
-			{
+			params& remove(const std::string& name) {
 				auto it = m_values.find(name);
-				if (it != m_values.end())
-					m_values.erase(it);
+				if (it != m_values.end()) m_values.erase(it);
 				return *this;
 			}
 
@@ -341,37 +318,11 @@ namespace tangle {
 			*/
 			std::vector<std::pair<std::string, std::string>> list() const;
 
-			std::unordered_map<std::string, std::vector<std::string>> const& values() const noexcept { return m_values; }
+			std::unordered_map<std::string, std::vector<std::string>> const&
+			values() const noexcept {
+				return m_values;
+			}
 		};
-
-		/**
-		\returns the same value, as #tangle::uri::has_authority()
-		\deprecated Original designed mixed "hierarchical" (<i>an URI with a
-		            path</i> - AKA all of them) with "URI with an authority"
-		            (<i>an URI with <code>://</code></i>).
-		*/
-		[[deprecated("The name has nothing to do with behavior. "
-			"Use has_authority() instead.")]]
-		bool hierarchical() const;
-
-		/**
-		\returns reverses the return value of #tangle::uri::has_scheme()
-		\deprecated The name suggest something along the line "no-scheme"/"no-auth",
-		            while the implementation did, what #tangle::uri::has_scheme() does,
-		            but in reverse.
-		*/
-		[[deprecated("The name has nothing to do with behavior. "
-			"Use has_scheme() instead.")]]
-		bool relative() const { return !has_scheme(); }
-
-		/**
-		\returns the same value, as #tangle::uri::has_scheme()
-		\deprecated The name suggest something along the line "a full URI, with scheme,
-		            auth", while the implementation did, what #tangle::uri::has_scheme().
-		*/
-		[[deprecated("The name has nothing to do with behavior. "
-			"Use has_scheme() instead.")]]
-		bool absolute() const { return has_scheme(); }
 
 		/**
 		Checks, if the URI seems to contain a scheme.
@@ -393,7 +344,8 @@ namespace tangle {
 
 		/**
 		Checks, if the URI seems to contain a path without authority.
-		\returns true, if the non-scheme part starts with anything, but <code>//</code>
+		\returns true, if the non-scheme part starts with anything, but
+		         <code>//</code>
 		*/
 		bool is_opaque() const { return !has_authority(); }
 
@@ -410,6 +362,12 @@ namespace tangle {
 		std::string_view authority() const;
 
 		/**
+		Getter for the authority property, pre-parsed to auth_parts.
+		\returns parsed authority, if present
+		*/
+		auth_parts parsed_authority() const;
+
+		/**
 		Getter for the path property.
 		\returns path, if present
 		*/
@@ -420,6 +378,12 @@ namespace tangle {
 		\returns query, if present
 		*/
 		std::string_view query() const;
+
+		/**
+		Getter for the query property, pre-parsed to params.
+		\returns parsed query, if present
+		*/
+		params parsed_query() const;
 
 		/**
 		Getter for the resource property.
@@ -472,7 +436,7 @@ namespace tangle {
 
 		/**
 		Removes the last component of the path.
-		
+
 		Assuming the path uses slashes, this functions
 		creates a copy of an uri with last part of the path
 		removed. If the path already ends with slash, does
@@ -498,9 +462,11 @@ namespace tangle {
 		\param flag chooses, what to do with user password, if present;
 		            by default, the password is not placed in authority
 		            string
-		\returns a fully-expanded and normalized version of the identifier 
+		\returns a fully-expanded and normalized version of the identifier
 		*/
-		static uri canonical(const uri& identifier, const uri& base, auth_flag flag = ui_safe);
+		static uri canonical(const uri& identifier,
+		                     const uri& base,
+		                     auth_flag flag = ui_safe);
 
 		/**
 		Normalizes the input.
@@ -524,4 +490,4 @@ namespace tangle {
 		*/
 		static uri normal(uri identifier, auth_flag flag = ui_safe);
 	};
-}
+}  // namespace tangle

@@ -44,7 +44,18 @@ namespace tangle { namespace testing {
 	{
 		auto param = GetParam();
 		auto& expected = param.expected;
-		auto auth = uri::auth_builder::parse(param.auth);
+		auto auth = uri::auth_parts::parse(param.auth);
+		ASSERT_EQ(expected.user, auth.user);
+		ASSERT_EQ(expected.pass, auth.password);
+		ASSERT_EQ(expected.host, auth.host);
+		ASSERT_EQ(expected.port, auth.port);
+	}
+
+	TEST_P(uri_auth, breakup_2)
+	{
+		auto param = GetParam();
+		auto& expected = param.expected;
+		auto auth = uri{"dummy://" + param.auth + "/"}.parsed_authority();
 		ASSERT_EQ(expected.user, auth.user);
 		ASSERT_EQ(expected.pass, auth.password);
 		ASSERT_EQ(expected.host, auth.host);
@@ -56,7 +67,7 @@ namespace tangle { namespace testing {
 		auto param = GetParam();
 		auto& data = param.expected;
 		auto& expected = param.merged.empty() ? param.auth : param.merged;
-		uri::auth_builder auth {
+		uri::auth_parts auth {
 			to_string(data.user),
 			to_string(data.pass),
 			to_string(data.host),

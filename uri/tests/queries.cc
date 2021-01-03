@@ -44,7 +44,7 @@ namespace tangle { namespace testing {
 		auto param = GetParam();
 		auto& expected = param.expected;
 		uri address{param.query};
-		auto const params = uri::query_builder::parse(param.query);
+		auto const params = uri::params::parse(param.query);
 		for (auto const& [name, values] : param.expected) {
 			auto it = params.values().find({name.data(), name.size()});
 			if (it == params.values().end()) {
