@@ -1,27 +1,35 @@
 language: cpp
 
-compiler: gcc
 os: linux
-dist: trusty
+dist: bionic
 sudo: required
 
 addons:
   apt:
     sources: [ ubuntu-toolchain-r-test ]
-    packages: [ gcc-7, g++-7, lcov, curl ]
+    packages: [ gcc-10, g++-10, lcov, curl ]
 
 install:
-  # setup g++ 6
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90
+  # setup g++ 10
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 90
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 90
+  - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-10 90
   # install cmake
-  - CMAKE_VERSION="3.8"
-  - CMAKE_FULL="${CMAKE_VERSION}.0"
+  - CMAKE_VERSION="3.19"
+  - CMAKE_FULL="${CMAKE_VERSION}.2"
   - pushd ~
   - wget "https://cmake.org/files/v${CMAKE_VERSION}/cmake-${CMAKE_FULL}-Linux-x86_64.tar.gz"
   - tar xf "cmake-${CMAKE_FULL}-Linux-x86_64.tar.gz"
   - export PATH="${PWD}/cmake-${CMAKE_FULL}-Linux-x86_64/bin:${PATH}"
   - popd
+  - pyenv global 3.8
+  - python -m pip install -U conan
+  - export PATH=$PATH:`python -c "import site; import os; print(':'.join([os.path.abspath(os.path.join(dir, '..', '..', '..', 'bin')) for dir in site.getsitepackages()]))"`
+  - conan user
+  - conan profile new default --detect
+  - conan profile update settings.compiler.libcxx=libstdc++11 default
+
+before_script:
   # verify installed versions
   - which cmake
   - cmake --version
@@ -29,12 +37,15 @@ install:
   - g++ --version
   - which lcov
   - lcov --version
+  - which gcov
+  - gcov --version
   - which curl
   - curl --version
 
 script:
   - mkdir build
   - cd build
+  - conan install .. --build missing -s build_type=Debug
   - cmake -DCMAKE_BUILD_TYPE=Debug -DCOVERALLS=ON ..
-  - make -j2
+  - make -j`nproc`
   - make coveralls
