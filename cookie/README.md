@@ -5,7 +5,7 @@ Contains support for parsing, encoding and persistence.
 
 ## Client code
 
-For a hypothetical "browsing session", the session should use the `cookie::jar` to keep track of all cookies that have been seen. When a HTTP response would come with `Set-Cookie` header(s), the jar should be updated with `tangle::cookie::jar::from_server()` method,
+For a hypothetical "browsing session", the session should use the `cookie::jar` to keep track of all cookies that have been seen. When an HTTP response would come with `Set-Cookie` header(s), the jar should be updated with `tangle::cookie::jar::from_server()` method,
 which will parse the cookie and decide whether or not add the cookie to the jar, based on the criteria from the [RFC2665](https://tools.ietf.org/html/rfc6265).
 
 When sending back the request, the session should consult the `cookie::jar`, which cookies to send back. For `http://example.com/path` URLs, the `tangle::cookie::jar::str()` should be called with

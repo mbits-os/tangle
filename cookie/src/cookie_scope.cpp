@@ -1,32 +1,11 @@
-/*
- * Copyright (C) 2016 midnightBITS
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+// Copyright (c) 2016 midnightBITS
+// This code is licensed under MIT license (see LICENSE for details)
 
 #include <tangle/cookie/scope.h>
 #include <cctype>
 #include <ctime>
 
-namespace tangle { namespace cookie {
+namespace tangle::cookie {
 	scope_type::scope_type() = default;
 	scope_type::scope_type(const scope_type&) = default;
 	scope_type::scope_type(scope_type&&) = default;
@@ -34,52 +13,34 @@ namespace tangle { namespace cookie {
 	scope_type& scope_type::operator=(scope_type&&) = default;
 
 	scope_type::scope_type(const std::string& domain, const std::string& path)
-		: m_domain(domain)
-		, m_path(path)
-	{
-	}
+	    : domain(domain), path(path) {}
 
-	bool scope_type::matches_domain(const scope_type& upstream, bool host_only) const
-	{
-		if (upstream.m_domain.empty())
-			return false;
+	bool scope_type::matches_domain(const scope_type& upstream,
+	                                bool host_only) const {
+		if (upstream.domain.empty()) return false;
 
-		auto ulen = upstream.m_domain.length();
-		auto len = m_domain.length();
-		if (ulen < len)
-			return false;
+		auto ulen = upstream.domain.length();
+		auto len = domain.length();
 
-		if (ulen == len)
-			return upstream.m_domain == m_domain;
-
-		if (host_only)
-			return false;
+		if (ulen < len) return false;
+		if (ulen == len) return upstream.domain == domain;
+		if (host_only) return false;
 
 		auto lower = ulen - len;
-		if (m_domain.compare(upstream.m_domain.c_str() + lower) != 0)
-			return false;
 
-		return upstream.m_domain[lower - 1] == '.';
+		if (domain.compare(upstream.domain.c_str() + lower) != 0) return false;
+		return upstream.domain[lower - 1] == '.';
 	}
 
-	bool scope_type::matches_path(const scope_type& upstream) const
-	{
-		if (m_path.empty() || m_path == "/")
-			return true;
+	bool scope_type::matches_path(const scope_type& upstream) const {
+		if (path.empty() || path == "/") return true;
 
-		auto ulen = upstream.m_path.length();
-		auto len = m_path.length();
-		if (ulen < len)
-			return false;
+		auto ulen = upstream.path.length();
+		auto len = path.length();
 
-		if (ulen < len)
-			return false;
-
-		if (ulen == len)
-			return upstream.m_path == m_path;
-
-		if (m_path.compare(0, len, upstream.m_path.c_str(), len) != 0)
-			return false;
-		return m_path[len - 1] == '/' || upstream.m_path[len] == '/';
+		if (ulen < len) return false;
+		if (ulen == len) return upstream.path == path;
+		if (path.compare(0, len, upstream.path.c_str(), len) != 0) return false;
+		return path[len - 1] == '/' || upstream.path[len] == '/';
 	}
-}}
+}  // namespace tangle::cookie

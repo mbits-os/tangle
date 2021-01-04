@@ -46,7 +46,7 @@ namespace tangle { namespace nav {
 		if (auth.host.empty())
 			return false;
 		auto item = tangle::cookie::from_server(auth.host, header, created);
-		if (item.scope().domain().empty())
+		if (item.scope().domain.empty())
 			return false;
 		m_cookies.add(item);
 		if ((item.flags() & cookie::flags::persistent) == cookie::flags::persistent) {
