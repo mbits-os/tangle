@@ -1,26 +1,5 @@
-/*
- * Copyright (C) 2017 midnightBITS
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+// Copyright (c) 2016 midnightBITS
+// This code is licensed under MIT license (see LICENSE for details)
 
 /**
 Cache content.
@@ -34,7 +13,7 @@ Cache content.
 #include <functional>
 #include <memory>
 
-namespace tangle { namespace cache {
+namespace tangle::cache {
 	struct loader_impl;
 	/**
 	Content loader.
@@ -49,13 +28,16 @@ namespace tangle { namespace cache {
 		loader& operator=(loader&&);
 
 		loader& on_opened(const std::function<bool(loader&)>&);
-		loader& on_data(const std::function<void(loader&, const void*, size_t)>&);
+		loader& on_data(
+		    const std::function<void(loader&, const void*, size_t)>&);
 
-		bool exists() const; // file couldn't be opened, e.g. 4xx and 5xx on HTTP
-		bool is_link() const; // unsatisfied link, e.g. 3xx on HTTP
+		// false, when file couldn't be opened, e.g. 4xx and 5xx on HTTP
+		bool exists() const;
+		// unsatisfied link, e.g. 3xx on HTTP
+		bool is_link() const;
 
 		static loader wrap(std::shared_ptr<loader_impl> impl) {
-			return loader{ std::move(impl) };
+			return loader{std::move(impl)};
 		}
 
 	private:
@@ -78,17 +60,20 @@ namespace tangle { namespace cache {
 		std::string&& moveable_text() noexcept;
 		int status() const noexcept;
 		std::string const& status_text() const noexcept;
-		bool exists() const
-			noexcept;  // file couldn't be opened, e.g. 4xx and 5xx on HTTP
-		bool is_link() const noexcept;  // unsatisfied link, e.g. 3xx on HTTP
-		std::vector<std::pair<std::string, std::string>> const& headers() const noexcept;
+		// false, when file couldn't be opened, e.g. 4xx and 5xx on HTTP
+		bool exists() const noexcept;
+		// unsatisfied link, e.g. 3xx on HTTP
+		bool is_link() const noexcept;
+		std::vector<std::pair<std::string, std::string>> const& headers()
+		    const noexcept;
 
 		static document wrap(std::shared_ptr<doc_impl> impl) {
-			return document{ std::move(impl) };
+			return document{std::move(impl)};
 		}
+
 	private:
 		std::shared_ptr<doc_impl> m_impl;
 
 		explicit document(std::shared_ptr<doc_impl> impl);
 	};
-}}
+}  // namespace tangle::cache
