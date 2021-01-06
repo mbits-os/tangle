@@ -23,7 +23,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <tangle/msg/hasher.h>
+#include <tangle/msg/hasher.hpp>
 #include <initializer_list>
 
 namespace {

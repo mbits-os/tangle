@@ -1,9 +1,9 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/cookie/scope.h>
 #include <cctype>
 #include <ctime>
+#include <tangle/cookie/scope.hpp>
 
 namespace tangle::cookie {
 	scope_type::scope_type() = default;

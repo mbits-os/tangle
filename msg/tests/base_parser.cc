@@ -23,7 +23,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <tangle/msg/base_parser.h>
+#include <tangle/msg/base_parser.hpp>
 #include <cctype>
 
 static std::ostream& operator<<(std::ostream& o, tangle::msg::parsing p)

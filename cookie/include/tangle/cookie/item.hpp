@@ -12,10 +12,10 @@ the description of a single cookie.
 
 #pragma once
 
-#include <tangle/cookie/chrono.h>
-#include <tangle/cookie/scope.h>
 #include <string>
 #include <string_view>
+#include <tangle/cookie/chrono.hpp>
+#include <tangle/cookie/scope.hpp>
 #include <vector>
 
 /**

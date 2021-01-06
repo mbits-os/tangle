@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <tangle/nav/navigator.h>
+#include <tangle/nav/navigator.hpp>
 
 namespace tangle::http {
 	std::shared_ptr<nav::protocol> proto();

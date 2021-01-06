@@ -5,11 +5,11 @@ set(SOURCES
 	src/nav_jar.cpp
 	src/navigator.cpp
 
-	include/tangle/nav/http_doc_impl.h
-	include/tangle/nav/jar.h
-	include/tangle/nav/request.h
-	include/tangle/nav/navigator.h
-	include/tangle/nav/protocol.h
+	include/tangle/nav/http_doc_impl.hpp
+	include/tangle/nav/jar.hpp
+	include/tangle/nav/request.hpp
+	include/tangle/nav/navigator.hpp
+	include/tangle/nav/protocol.hpp
 	)
 
 WRAP_SOURCELIST(${SOURCES})

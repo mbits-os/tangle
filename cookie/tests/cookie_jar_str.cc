@@ -23,7 +23,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <tangle/cookie/jar.h>
+#include <tangle/cookie/jar.hpp>
 
 namespace {
 	using namespace std::literals;

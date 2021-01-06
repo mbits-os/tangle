@@ -1,8 +1,8 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/cache/impl/loader_impl.h>
-#include <tangle/cache/loader.h>
+#include <tangle/cache/impl/loader_impl.hpp>
+#include <tangle/cache/loader.hpp>
 
 namespace tangle::cache {
 	loader::loader(std::shared_ptr<loader_impl> impl) : m_impl(impl) {}

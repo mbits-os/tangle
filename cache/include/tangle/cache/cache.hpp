@@ -12,10 +12,10 @@ over any wire, should do so over the cache.
 */
 
 #pragma once
-#include <tangle/cache/loader.h>
-#include <tangle/cookie/chrono.h>
-#include <tangle/uri.h>
 #include <memory>
+#include <tangle/cache/loader.hpp>
+#include <tangle/cookie/chrono.hpp>
+#include <tangle/uri.hpp>
 
 namespace tangle::cache {
 	/**

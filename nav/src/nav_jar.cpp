@@ -1,7 +1,7 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/nav/jar.h>
+#include <tangle/nav/jar.hpp>
 
 namespace tangle::nav {
 	void jar::path(const std::string& path) {

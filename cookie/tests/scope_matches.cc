@@ -23,7 +23,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <tangle/cookie/scope.h>
+#include <tangle/cookie/scope.hpp>
 
 struct scope_info {
 	tangle::cookie::scope_type in, out;

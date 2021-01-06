@@ -12,8 +12,8 @@ over any wire, should do so over the cache.
 */
 
 #pragma once
-#include <tangle/uri.h>
 #include <memory>
+#include <tangle/uri.hpp>
 
 namespace tangle::nav {
 	enum class method { get, post };

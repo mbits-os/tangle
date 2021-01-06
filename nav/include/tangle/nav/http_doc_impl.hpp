@@ -9,12 +9,12 @@ Navigation HTTP document backend.
 
 #pragma once
 
-#include <tangle/cache/impl/loader_impl.h>
-#include <tangle/cookie/item.h>
-#include <tangle/msg/http_parser.h>
-#include <tangle/nav/jar.h>
-#include <tangle/nav/navigator.h>
-#include <tangle/uri.h>
+#include <tangle/cache/impl/loader_impl.hpp>
+#include <tangle/cookie/item.hpp>
+#include <tangle/msg/http_parser.hpp>
+#include <tangle/nav/jar.hpp>
+#include <tangle/nav/navigator.hpp>
+#include <tangle/uri.hpp>
 
 namespace tangle::nav {
 	struct http_doc_impl : cache::doc_impl {

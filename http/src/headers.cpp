@@ -3,7 +3,7 @@
 
 #include <algorithm>
 #include <cctype>
-#include <tangle/http/headers.hh>
+#include <tangle/http/headers.hpp>
 
 namespace tangle::http {
 	header_key header_key::make(std::string hdr) noexcept {

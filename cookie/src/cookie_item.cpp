@@ -1,9 +1,9 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/cookie/item.h>
 #include <cctype>
 #include <ctime>
+#include <tangle/cookie/item.hpp>
 
 namespace tangle::cookie {
 	static inline std::string to_string(const std::string_view& sv) {

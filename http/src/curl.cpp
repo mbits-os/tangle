@@ -4,10 +4,10 @@
 #include <curl/curl.h>
 #undef min
 #undef max
-#include <tangle/msg/http_parser.h>
-#include <tangle/nav/http_doc_impl.h>
-#include <tangle/nav/protocol.h>
-#include <tangle/http/proto.hh>
+#include <tangle/http/proto.hpp>
+#include <tangle/msg/http_parser.hpp>
+#include <tangle/nav/http_doc_impl.hpp>
+#include <tangle/nav/protocol.hpp>
 
 using namespace std::literals;
 
@@ -225,7 +225,8 @@ namespace tangle::http::curl {
 			static Curl::size_type onData(const DocumentPtr& http_callback,
 			                              const char* data,
 			                              Curl::size_type length) {
-				return http_callback->on_data(data, static_cast<size_t>(length));
+				return http_callback->on_data(data,
+				                              static_cast<size_t>(length));
 			}
 		};
 
@@ -326,8 +327,8 @@ namespace tangle::http::curl {
 		}
 
 		if (text) {
-			fprintf(stderr, "%s, %ld bytes (0x%lx)\n", text, static_cast<long>(size),
-			        static_cast<long>(size));
+			fprintf(stderr, "%s, %ld bytes (0x%lx)\n", text,
+			        static_cast<long>(size), static_cast<long>(size));
 		}
 		// fwrite(data, 1, size, stderr);
 

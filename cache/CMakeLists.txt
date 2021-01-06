@@ -5,8 +5,8 @@ set(SOURCES
 	src/cache.cpp
 	src/loader.cpp
 
-	include/tangle/cache/cache.h
-	include/tangle/cache/loader.h
+	include/tangle/cache/cache.hpp
+	include/tangle/cache/loader.hpp
 	)
 
 WRAP_SOURCELIST(${SOURCES})

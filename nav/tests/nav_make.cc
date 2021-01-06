@@ -24,10 +24,10 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <tangle/cache/cache.h>
-#include <tangle/nav/navigator.h>
-#include <tangle/nav/jar.h>
-#include <tangle/nav/protocol.h>
+#include <tangle/cache/cache.hpp>
+#include <tangle/nav/navigator.hpp>
+#include <tangle/nav/jar.hpp>
+#include <tangle/nav/protocol.hpp>
 
 namespace tangle { namespace nav { namespace testing {
 	class navigator_base : public ::testing::Test {

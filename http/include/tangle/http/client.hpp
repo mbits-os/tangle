@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <tangle/nav/navigator.h>
-#include <tangle/http/headers.hh>
+#include <tangle/http/headers.hpp>
+#include <tangle/nav/navigator.hpp>
 
 namespace tangle::http {
 	template <typename Final>

@@ -9,9 +9,9 @@ Cache content.
 
 #pragma once
 
-#include <tangle/uri.h>
 #include <functional>
 #include <memory>
+#include <tangle/uri.hpp>
 
 namespace tangle::cache {
 	struct loader_impl;

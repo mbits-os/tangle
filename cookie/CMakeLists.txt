@@ -7,12 +7,12 @@ set(SOURCES
 	src/cookie_jar.cpp
 	src/cookie_chrono.cpp
 
-	include/tangle/cookie.h
-	include/tangle/cookie/item.h
-	include/tangle/cookie/scope.h
-	include/tangle/cookie/jar.h
-	include/tangle/cookie/io.h
-	include/tangle/cookie/chrono.h
+	include/tangle/cookie.hpp
+	include/tangle/cookie/item.hpp
+	include/tangle/cookie/scope.hpp
+	include/tangle/cookie/jar.hpp
+	include/tangle/cookie/io.hpp
+	include/tangle/cookie/chrono.hpp
 	)
 
 WRAP_SOURCELIST(${SOURCES})
@@ -57,7 +57,7 @@ if (TANGLE_TESTING)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 file(GLOB TEST_SRCS tests/*.cc)
-list(APPEND TEST_SRCS tests/testing_io.h)
+list(APPEND TEST_SRCS tests/testing_io.hpp)
 if (MSVC)
 list(APPEND TEST_SRCS ${NATVIS})
 endif()

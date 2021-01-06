@@ -23,7 +23,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <tangle/msg/http_parser.h>
+#include <tangle/msg/http_parser.hpp>
 #include <initializer_list>
 #include <type_traits>
 #include <cctype>

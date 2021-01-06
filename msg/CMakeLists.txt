@@ -6,9 +6,9 @@ set(SOURCES
 	src/http_parser.cpp
 	src/hasher.cpp
 
-	include/tangle/msg/base_parser.h
-	include/tangle/msg/http_parser.h
-	include/tangle/msg/hasher.h
+	include/tangle/msg/base_parser.hpp
+	include/tangle/msg/http_parser.hpp
+	include/tangle/msg/hasher.hpp
 	)
 
 WRAP_SOURCELIST(${SOURCES})

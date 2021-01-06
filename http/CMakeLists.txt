@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 3.10)
 project(http VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
-	src/client.cc
-	src/curl.cc
-	src/headers.cc
-	include/tangle/http/client.hh
-	include/tangle/http/headers.hh
-	include/tangle/http/proto.hh
+	src/client.cpp
+	src/curl.cpp
+	src/headers.cpp
+	include/tangle/http/client.hpp
+	include/tangle/http/headers.hpp
+	include/tangle/http/proto.hpp
 )
 
 WRAP_SOURCELIST(${SOURCES})

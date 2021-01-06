@@ -12,11 +12,11 @@ over any wire, should do so over the cache.
 */
 
 #pragma once
-#include <tangle/cache/cache.h>
-#include <tangle/cache/loader.h>
-#include <tangle/nav/jar.h>
-#include <tangle/nav/request.h>
 #include <memory>
+#include <tangle/cache/cache.hpp>
+#include <tangle/cache/loader.hpp>
+#include <tangle/nav/jar.hpp>
+#include <tangle/nav/request.hpp>
 #include <unordered_map>
 
 namespace tangle::nav {

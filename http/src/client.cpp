@@ -1,7 +1,7 @@
 // Copyright (c) 2020 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/http/client.hh>
+#include <tangle/http/client.hpp>
 
 namespace tangle::http::client {
 	static constexpr char base64_chars[] =

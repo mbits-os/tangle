@@ -2,7 +2,7 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #pragma once
-#include <tangle/msg/base_parser.h>
+#include <tangle/msg/base_parser.hpp>
 #include <tuple>
 #include <unordered_map>
 #include <vector>

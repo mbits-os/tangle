@@ -12,8 +12,8 @@ for HTTP cookies.
 
 #pragma once
 
-#include <tangle/cookie/io.h>
-#include <tangle/cookie/item.h>
+#include <tangle/cookie/io.hpp>
+#include <tangle/cookie/item.hpp>
 
 namespace tangle::cookie {
 

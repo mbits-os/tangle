@@ -1,35 +1,27 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/cache/cache.h>
-#include <tangle/nav/jar.h>
-#include <tangle/nav/navigator.h>
-#include <tangle/nav/protocol.h>
 #include <cctype>
 #include <map>
+#include <tangle/cache/cache.hpp>
+#include <tangle/nav/jar.hpp>
+#include <tangle/nav/navigator.hpp>
+#include <tangle/nav/protocol.hpp>
 
 namespace tangle::nav {
 	namespace impl {
 		struct empty_cache : tangle::cache::cache {
 			bool storage_backed() const noexcept override { return false; }
-			std::shared_ptr<file> get(const uri&) override {
-				return {};
-			}
+			std::shared_ptr<file> get(const uri&) override { return {}; }
 
-			std::shared_ptr<file> create(const uri&) override {
-				return {};
-			}
+			std::shared_ptr<file> create(const uri&) override { return {}; }
 		};
 
 		struct dummy_cache : tangle::cache::cache {
 			bool storage_backed() const noexcept override { return true; }
-			std::shared_ptr<file> get(const uri&) override {
-				return {};
-			}
+			std::shared_ptr<file> get(const uri&) override { return {}; }
 
-			std::shared_ptr<file> create(const uri&) override {
-				return {};
-			}
+			std::shared_ptr<file> create(const uri&) override { return {}; }
 		};
 	}  // namespace impl
 

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <tangle/uri.h>
+#include <tangle/uri.hpp>
 
 namespace tangle { namespace testing {
 	using ::testing::TestWithParam;

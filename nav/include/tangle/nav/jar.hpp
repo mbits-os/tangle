@@ -8,8 +8,8 @@ Navigation cookie jar.
 */
 
 #pragma once
-#include <tangle/cookie/jar.h>
-#include <tangle/uri.h>
+#include <tangle/cookie/jar.hpp>
+#include <tangle/uri.hpp>
 
 namespace tangle::nav {
 

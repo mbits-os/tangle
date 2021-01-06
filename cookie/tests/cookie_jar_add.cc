@@ -23,7 +23,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "testing_io.h"
+#include "testing_io.hpp"
 
 namespace {
 	using namespace std::literals;

@@ -1,8 +1,8 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/msg/http_parser.h>
 #include <algorithm>
+#include <tangle/msg/http_parser.hpp>
 
 namespace tangle::msg {
 	namespace {
@@ -131,8 +131,10 @@ namespace tangle::msg {
 		if (status_pos == std::string::npos) return {len, parsing::error};
 
 		http_version ver;
-		if (!parse_proto(m_reason.begin(),
-		                 std::next(m_reason.begin(), static_cast<ptrdiff_t>(status_pos)), ver)) {
+		if (!parse_proto(
+		        m_reason.begin(),
+		        std::next(m_reason.begin(), static_cast<ptrdiff_t>(status_pos)),
+		        ver)) {
 			return {len, parsing::error};
 		}
 

@@ -1,10 +1,10 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/msg/base_parser.h>
 #include <algorithm>
 #include <cctype>
 #include <cstring>
+#include <tangle/msg/base_parser.hpp>
 
 namespace tangle::msg {
 	namespace {
