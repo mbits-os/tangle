@@ -117,7 +117,7 @@ namespace tangle { namespace msg { namespace testing {
 		}
 		std::tie(read, result) = parser.append("\r\n\r\n", 4);
 		ASSERT_EQ(parsing::separator, result);
-		ASSERT_EQ(0, read);
+		ASSERT_EQ(2, read);
 
 		auto headers = parser.dict();
 
