@@ -1,9 +1,12 @@
+// Copyright (c) 2016 midnightBITS
+// This code is licensed under MIT license (see LICENSE for details)
+
 #include <gtest/gtest.h>
 #include <tangle/uri.hpp>
 
 using namespace std::literals;
 
-namespace tangle { namespace testing {
+namespace tangle::testing {
 	using ::testing::TestWithParam;
 	using ::testing::ValuesIn;
 
@@ -17,44 +20,42 @@ namespace tangle { namespace testing {
 		std::string_view url;
 		std::string_view expected;
 	};
-}}
+}  // namespace tangle::testing
 
-std::ostream& operator<<(std::ostream& o, const tangle::testing::UriCannonicalHrefTest& param)
-{
+std::ostream& operator<<(std::ostream& o,
+                         const tangle::testing::UriCannonicalHrefTest& param) {
 	return o << "\"" << param.base << "\" + \"" << param.href << "\"";
 }
 
-std::ostream& operator<<(std::ostream& o, const tangle::testing::UriCannonicalHexTest& param)
-{
+std::ostream& operator<<(std::ostream& o,
+                         const tangle::testing::UriCannonicalHexTest& param) {
 	return o << "\"" << param.url << "\" -> \"" << param.expected << "\"";
 }
 
-namespace tangle { namespace testing {
-	class UriCannonicalHref  : public TestWithParam<UriCannonicalHrefTest> { };
-	class UriCannonicalHex   : public TestWithParam<UriCannonicalHexTest>  { };
-	class UriCannonicalBase  : public TestWithParam<UriCannonicalHexTest>  { };
+namespace tangle::testing {
+	class UriCannonicalHref : public TestWithParam<UriCannonicalHrefTest> {};
+	class UriCannonicalHex : public TestWithParam<UriCannonicalHexTest> {};
+	class UriCannonicalBase : public TestWithParam<UriCannonicalHexTest> {};
 
-	TEST_P(UriCannonicalHref, HrefAttr)
-	{
+	TEST_P(UriCannonicalHref, HrefAttr) {
 		auto param = GetParam();
 		auto result = uri::canonical(param.href, param.base).string();
 		ASSERT_EQ(param.expected, result);
 	}
 
-	TEST_P(UriCannonicalHex, URLDecode)
-	{
+	TEST_P(UriCannonicalHex, URLDecode) {
 		auto param = GetParam();
-		auto result = uri::canonical(param.url, { }).string();
+		auto result = uri::canonical(param.url, {}).string();
 		ASSERT_EQ(param.expected, result);
 	}
 
-	TEST_P(UriCannonicalBase, MakeBase)
-	{
+	TEST_P(UriCannonicalBase, MakeBase) {
 		auto param = GetParam();
 		auto result = uri::make_base(param.url).string();
 		ASSERT_EQ(param.expected, result);
 	}
 
+	// clang-format off
 	static const UriCannonicalHrefTest uri_canonical_empties[] = {
 		{ "http://example.com",               "",                         "http://example.com/" },
 		{ "http://example.com/",              "",                         "http://example.com/" },
@@ -167,6 +168,7 @@ namespace tangle { namespace testing {
 		{ "https://server/dir/leaf",                            "https://server/dir/" },
 		{ "https://server/dir/sub/",                            "https://server/dir/sub/" },
 	};
+	// clang-format off
 
 #define URI_CANONICAL(Name, Domain, arr) \
 	INSTANTIATE_TEST_CASE_P(Name, UriCannonical ## Domain, ValuesIn(arr))
@@ -181,4 +183,4 @@ namespace tangle { namespace testing {
 	URI_CANONICAL(RelPath, Hex, uri_canonical_decode_relpath);
 	URI_CANONICAL(Query, Hex, uri_canonical_decode_query);
 	URI_CANONICAL(MakeBase, Base, uri_make_base);
-}}
+}

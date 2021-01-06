@@ -1,26 +1,5 @@
-/*
- * Copyright (C) 2016 midnightBITS
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+// Copyright (c) 2016 midnightBITS
+// This code is licensed under MIT license (see LICENSE for details)
 
 #include <gtest/gtest.h>
 #include <tangle/cookie/item.hpp>
@@ -33,32 +12,33 @@ namespace {
 		bool prefer_maxage;
 	};
 
-	std::ostream& operator << (std::ostream& o, const cookie_info& nfo)
-	{
+	std::ostream& operator<<(std::ostream& o, const cookie_info& nfo) {
 		return o << '`' << nfo.header << '`';
 	}
 
-	std::ostream& operator << (std::ostream& o, const tangle::cookie::time_point& pt)
-	{
+	std::ostream& operator<<(std::ostream& o,
+	                         const tangle::cookie::time_point& pt) {
 		return o << pt.time_since_epoch().count();
 	}
 
-	class SetCookie_header : public ::testing::TestWithParam<cookie_info> {
-	};
+	class SetCookie_header : public ::testing::TestWithParam<cookie_info> {};
 
-	auto now()
-	{
+	auto now() {
 		static auto when = tangle::cookie::clock::now();
 		return when;
 	}
 
-	auto make_time(int year, int month, int day, int hour, int minute, int second)
-	{
-		return tangle::cookie::clock::from_date({ year, month, day, hour, minute, second });
+	auto make_time(int year,
+	               int month,
+	               int day,
+	               int hour,
+	               int minute,
+	               int second) {
+		return tangle::cookie::clock::from_date(
+		    {year, month, day, hour, minute, second});
 	}
 
-	TEST_P(SetCookie_header, serialize)
-	{
+	TEST_P(SetCookie_header, serialize) {
 		auto& par = GetParam();
 		auto expected = par.header;
 		auto actual = par.cookie.server_string(par.prefer_maxage, now());
@@ -67,68 +47,151 @@ namespace {
 
 	using tangle::cookie::flags;
 	static cookie_info flag_tests[] = {
-		{ "name=value", { "name", "value", { }, flags::host_only } },
-		{ "name=value", { "name", "value", { "example.com", { } }, flags::host_only } },
-		{ "name=value; Secure", { "name", "value", { "example.com", { } }, flags::host_only | flags::secure } },
-		{ "name=value; HttpOnly", { "name", "value", { "example.com", { } }, flags::host_only | flags::http_only } },
-		{ "name=value; Secure; HttpOnly", { "name", "value", { "example.com", { } }, flags::host_only | flags::http_only | flags::secure } },
+	    {
+	        "name=value",
+	        {"name", "value", {}, flags::host_only},
+	    },
+	    {
+	        "name=value",
+	        {"name", "value", {"example.com", {}}, flags::host_only},
+	    },
+	    {
+	        "name=value; Secure",
+	        {"name",
+	         "value",
+	         {"example.com", {}},
+	         flags::host_only | flags::secure},
+	    },
+	    {
+	        "name=value; HttpOnly",
+	        {"name",
+	         "value",
+	         {"example.com", {}},
+	         flags::host_only | flags::http_only},
+	    },
+	    {
+	        "name=value; Secure; HttpOnly",
+	        {"name",
+	         "value",
+	         {"example.com", {}},
+	         flags::host_only | flags::http_only | flags::secure},
+	    },
 	};
 
 	static cookie_info scope[] = {
-		{ "name=value; Path=/", { "name", "value", { "example.com", "/" }, flags::host_only } },
-		{ "name=value; Domain=example.com; Path=/", { "name", "value", { "example.com", "/" } } },
-		{ "name=value; Domain=www.example.com; Path=/", { "name", "value", { "www.example.com", "/" } } },
-		{ "name=value; Domain=www.example.com", { "name", "value", { "www.example.com", { } } } },
-		{ "name=value; Domain=example.com; Path=/res/ource", { "name", "value", { "example.com", "/res/ource" } } }
+	    {
+	        "name=value; Path=/",
+	        {"name", "value", {"example.com", "/"}, flags::host_only},
+	    },
+	    {
+	        "name=value; Domain=example.com; Path=/",
+	        {"name", "value", {"example.com", "/"}},
+	    },
+	    {
+	        "name=value; Domain=www.example.com; Path=/",
+	        {"name", "value", {"www.example.com", "/"}},
+	    },
+	    {
+	        "name=value; Domain=www.example.com",
+	        {"name", "value", {"www.example.com", {}}},
+	    },
+	    {"name=value; Domain=example.com; Path=/res/ource",
+	     {"name", "value", {"example.com", "/res/ource"}}},
 	};
 
 	static cookie_info expires[] = {
-		{
-			"name=value; Domain=example.com; Expires=Sat, 08 May 2021 22:23:01 GMT",
-			{ "name", "value", { "example.com", { } }, flags::persistent, make_time(2021, 5, 8, 22, 23, 1) }
-		},
-		{
-			"name=value; Domain=example.com; Expires=Mon, 08 May 2000 22:23:01 GMT",
-			{ "name", "value", { "example.com", { } }, flags::persistent, make_time(2000, 5, 8, 22, 23, 1) }
-		},
-		{
-			"name=value; Domain=example.com; Expires=Wed, 08 May 2069 22:23:01 GMT",
-			{ "name", "value", { "example.com", { } }, flags::persistent, make_time(2069, 5, 8, 22, 23, 1) }
-		},
-		{
-			"name=value; Domain=example.com; Expires=Thu, 08 May 1980 22:23:01 GMT",
-			{ "name", "value", { "example.com", { } }, flags::persistent, make_time(1980, 5, 8, 22, 23, 1) }
-		},
-		{
-			"name=value; Domain=example.com; Expires=Wed, 08 May 1602 22:23:01 GMT",
-			{ "name", "value", { "example.com", { } }, flags::persistent, make_time(1602, 5, 8, 22, 23, 1) }
-		},
-		{
-			"name=value; Domain=example.com; Expires=Mon, 01 Feb 2016 22:23:01 GMT",
-			{ "name", "value", { "example.com", { } }, flags::persistent, make_time(2016, 2, 1, 22, 23, 1) }
-		},
+	    {
+	        "name=value; Domain=example.com; Expires=Sat, 08 May 2021 22:23:01 "
+	        "GMT",
+	        {"name",
+	         "value",
+	         {"example.com", {}},
+	         flags::persistent,
+	         make_time(2021, 5, 8, 22, 23, 1)},
+	    },
+	    {
+	        "name=value; Domain=example.com; Expires=Mon, 08 May 2000 22:23:01 "
+	        "GMT",
+	        {"name",
+	         "value",
+	         {"example.com", {}},
+	         flags::persistent,
+	         make_time(2000, 5, 8, 22, 23, 1)},
+	    },
+	    {
+	        "name=value; Domain=example.com; Expires=Wed, 08 May 2069 22:23:01 "
+	        "GMT",
+	        {"name",
+	         "value",
+	         {"example.com", {}},
+	         flags::persistent,
+	         make_time(2069, 5, 8, 22, 23, 1)},
+	    },
+	    {
+	        "name=value; Domain=example.com; Expires=Thu, 08 May 1980 22:23:01 "
+	        "GMT",
+	        {"name",
+	         "value",
+	         {"example.com", {}},
+	         flags::persistent,
+	         make_time(1980, 5, 8, 22, 23, 1)},
+	    },
+	    {
+	        "name=value; Domain=example.com; Expires=Wed, 08 May 1602 22:23:01 "
+	        "GMT",
+	        {"name",
+	         "value",
+	         {"example.com", {}},
+	         flags::persistent,
+	         make_time(1602, 5, 8, 22, 23, 1)},
+	    },
+	    {
+	        "name=value; Domain=example.com; Expires=Mon, 01 Feb 2016 22:23:01 "
+	        "GMT",
+	        {"name",
+	         "value",
+	         {"example.com", {}},
+	         flags::persistent,
+	         make_time(2016, 2, 1, 22, 23, 1)},
+	    },
 	};
 
 	static cookie_info max_age[] = {
-		{
-			"name=value; Domain=example.com; Max-Age=200",
-			{ "name", "value", { "example.com", { } }, flags::persistent, now() + 200s },
-			true
-		},
-		{
-			"name=value; Domain=example.com; Max-Age=0",
-			{ "name", "value", { "example.com", { } }, flags::persistent, now() },
-			true
-		},
-		{
-			"name=value; Domain=example.com; Max-Age=-5",
-			{ "name", "value", { "example.com", { } }, flags::persistent, now() - 5s },
-			true
-		},
+	    {
+	        "name=value; Domain=example.com; Max-Age=200",
+	        {"name",
+	         "value",
+	         {"example.com", {}},
+	         flags::persistent,
+	         now() + 200s},
+	        true,
+	    },
+	    {
+	        "name=value; Domain=example.com; Max-Age=0",
+	        {"name", "value", {"example.com", {}}, flags::persistent, now()},
+	        true,
+	    },
+	    {
+	        "name=value; Domain=example.com; Max-Age=-5",
+	        {"name",
+	         "value",
+	         {"example.com", {}},
+	         flags::persistent,
+	         now() - 5s},
+	        true,
+	    },
 	};
 
-	INSTANTIATE_TEST_CASE_P(flags, SetCookie_header, ::testing::ValuesIn(flag_tests));
-	INSTANTIATE_TEST_CASE_P(scope, SetCookie_header, ::testing::ValuesIn(scope));
-	INSTANTIATE_TEST_CASE_P(expires, SetCookie_header, ::testing::ValuesIn(expires));
-	INSTANTIATE_TEST_CASE_P(max_age, SetCookie_header, ::testing::ValuesIn(max_age));
-}
+	INSTANTIATE_TEST_CASE_P(flags,
+	                        SetCookie_header,
+	                        ::testing::ValuesIn(flag_tests));
+	INSTANTIATE_TEST_CASE_P(scope,
+	                        SetCookie_header,
+	                        ::testing::ValuesIn(scope));
+	INSTANTIATE_TEST_CASE_P(expires,
+	                        SetCookie_header,
+	                        ::testing::ValuesIn(expires));
+	INSTANTIATE_TEST_CASE_P(max_age,
+	                        SetCookie_header,
+	                        ::testing::ValuesIn(max_age));
+}  // namespace

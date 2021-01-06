@@ -1,7 +1,10 @@
+// Copyright (c) 2016 midnightBITS
+// This code is licensed under MIT license (see LICENSE for details)
+
 #include <gtest/gtest.h>
 #include <tangle/uri.hpp>
 
-namespace tangle { namespace testing {
+namespace tangle::testing {
 	using ::testing::TestWithParam;
 	using ::testing::ValuesIn;
 
@@ -17,12 +20,12 @@ namespace tangle { namespace testing {
 	};
 
 	inline std::string to_string(std::string_view sv) {
-		return { sv.data(), sv.length() };
+		return {sv.data(), sv.length()};
 	}
-}}
+}  // namespace tangle::testing
 
-std::ostream& operator<<(std::ostream& o, const tangle::testing::uri_auth_info& param)
-{
+std::ostream& operator<<(std::ostream& o,
+                         const tangle::testing::uri_auth_info& param) {
 	o << "\"" << param.auth << "\" -> ";
 	if (!param.expected.user.empty()) {
 		o << "[" << param.expected.user << "]";
@@ -31,17 +34,15 @@ std::ostream& operator<<(std::ostream& o, const tangle::testing::uri_auth_info& 
 		o << "@";
 	}
 	o << "[" << param.expected.host << "]";
-	if (!param.expected.port.empty())
-		o << ":[" << param.expected.port << "]";
+	if (!param.expected.port.empty()) o << ":[" << param.expected.port << "]";
 
 	return o;
 }
 
-namespace tangle { namespace testing {
-	class uri_auth : public TestWithParam<uri_auth_info> { };
+namespace tangle::testing {
+	class uri_auth : public TestWithParam<uri_auth_info> {};
 
-	TEST_P(uri_auth, breakup)
-	{
+	TEST_P(uri_auth, breakup) {
 		auto param = GetParam();
 		auto& expected = param.expected;
 		auto auth = uri::auth_parts::parse(param.auth);
@@ -51,70 +52,68 @@ namespace tangle { namespace testing {
 		ASSERT_EQ(expected.port, auth.port);
 	}
 
-	TEST_P(uri_auth, breakup_2)
-	{
+	TEST_P(uri_auth, breakup_2) {
 		auto param = GetParam();
 		auto& expected = param.expected;
-		auto auth = uri{"dummy://" + std::string{param.auth.data(), param.auth.size()} + "/"}.parsed_authority();
+		auto auth = uri{"dummy://" +
+		                std::string{param.auth.data(), param.auth.size()} + "/"}
+		                .parsed_authority();
 		ASSERT_EQ(expected.user, auth.user);
 		ASSERT_EQ(expected.pass, auth.password);
 		ASSERT_EQ(expected.host, auth.host);
 		ASSERT_EQ(expected.port, auth.port);
 	}
 
-	TEST_P(uri_auth, merge)
-	{
+	TEST_P(uri_auth, merge) {
 		auto param = GetParam();
 		auto& data = param.expected;
 		auto& expected = param.merged.empty() ? param.auth : param.merged;
-		uri::auth_parts auth {
-			to_string(data.user),
-			to_string(data.pass),
-			to_string(data.host),
-			to_string(data.port)
-		};
+		uri::auth_parts auth{to_string(data.user), to_string(data.pass),
+		                     to_string(data.host), to_string(data.port)};
 		ASSERT_EQ(expected, auth.string(uri::with_pass));
 	}
 
 	static const uri_auth_info parts[] = {
-		{
-			"",
-			{ }
-		},
-		{
-			"example.com:8042",
-			{ { }, { }, "example.com", "8042" }
-		},
-		{
-			"user@example.com:8042",
-			{ "user", { }, "example.com", "8042" }
-		},
-		{
-			"user:pass@example.com:8042",
-			{ "user", "pass", "example.com", "8042" }
-		},
-		{
-			"user:pass:word@example.com:8042",
-			{ "user", "pass:word", "example.com", "8042" }
-		},
-		{
-			"user:pass:word@example.com",
-			{ "user", "pass:word", "example.com" }
-		},
-		{
-			"user%3Apass:word@example.com",
-			{ "user:pass", "word", "example.com" }
-		},
-		{
-			"user%40mail@example.com",
-			{ "user@mail", { }, "example.com" }
-		},
-		{ // overall nightmare of an example, required "merged" field for a more proper host
-			"user@mail@example.com",
-			{ "user", { }, "mail@example.com" },
-			"user@mail%40example.com"
-		},
+	    {
+	        "",
+	        {},
+	    },
+	    {
+	        "example.com:8042",
+	        {{}, {}, "example.com", "8042"},
+	    },
+	    {
+	        "user@example.com:8042",
+	        {"user", {}, "example.com", "8042"},
+	    },
+	    {
+	        "user:pass@example.com:8042",
+	        {"user", "pass", "example.com", "8042"},
+	    },
+	    {
+	        "user:pass:word@example.com:8042",
+	        {"user", "pass:word", "example.com", "8042"},
+	    },
+	    {
+	        "user:pass:word@example.com",
+	        {"user", "pass:word", "example.com"},
+	    },
+	    {
+	        "user%3Apass:word@example.com",
+	        {"user:pass", "word", "example.com"},
+	    },
+	    {
+	        "user%40mail@example.com",
+	        {"user@mail", {}, "example.com"},
+	    },
+	    {
+	        // overall nightmare of an example, required "merged" field for
+	        // a more proper host
+	        "user@mail@example.com",
+	        {"user", {}, "mail@example.com"},
+	        "user@mail%40example.com",
+	    },
 	};
 
 	INSTANTIATE_TEST_CASE_P(samples, uri_auth, ValuesIn(parts));
-}}
+}  // namespace tangle::testing
