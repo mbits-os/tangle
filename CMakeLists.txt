@@ -83,15 +83,13 @@ set(MODULES
   http
 )
 
-set(COVERALLS_PREFIX TANGLE_)
-foreach(MODULE ${MODULES})
-	list(APPEND TANGLE_COVERALLS_DIRS ${MODULE}/include ${MODULE}/src)
-endforeach()
+if (TANGLE_TESTING)
+  set(COVERALLS_PREFIX TANGLE_)
+  foreach(MODULE ${MODULES})
+    list(APPEND TANGLE_COVERALLS_DIRS ${MODULE}/include ${MODULE}/src)
+  endforeach()
 
-include(tools/coveralls/Coveralls.cmake)
-
-if (TANGLE_COVERALLS AND NOT TANGLE_TESTING)
-	message(FATAL_ERROR "Coveralls are useless without -DTANGLE_TESTING=ON")
+  include(tools/coveralls/Coveralls.cmake)
 endif()
 
 ##################################################################
