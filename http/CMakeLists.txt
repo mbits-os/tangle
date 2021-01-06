@@ -24,6 +24,7 @@ set_target_properties(http PROPERTIES
 )
 target_include_directories(http PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(http PUBLIC nav CURL::libcurl)
+target_compile_options(http PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
 if (TANGLE_INSTALL)
 install(TARGETS http

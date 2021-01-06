@@ -146,8 +146,9 @@ namespace tangle::http::curl {
 #define CURL_(name)                                                          \
 	static size_t curl_##name(const void* _Str, size_t _Size, size_t _Count, \
 	                          Final* _this) {                                \
-		return (size_t)(                                                     \
-		    _this->name((const char*)_Str, (size_type)_Size * _Count) /      \
+		return static_cast<size_t>(                                          \
+		    _this->name(reinterpret_cast<const char*>(_Str),                 \
+		                static_cast<size_type>(_Size) * _Count) /            \
 		    _Size);                                                          \
 	}
 		CURL_(onData);
@@ -157,8 +158,10 @@ namespace tangle::http::curl {
 		                               size_t _Size,
 		                               size_t _Count,
 		                               Final* _this) {
-			return (size_t)(
-			    _this->onUnderflow(_Str, (size_type)_Size * _Count) / _Size);
+			return static_cast<size_t>(
+			    _this->onUnderflow(_Str,
+			                       static_cast<size_type>(_Size) * _Count) /
+			    _Size);
 		}
 		static int curl_onProgress(Final* _this,
 		                           double dltotal,
@@ -167,7 +170,7 @@ namespace tangle::http::curl {
 		                           double ulnow) {
 			return _this->onProgress(dltotal, dlnow, ultotal, ulnow) ? 1 : 0;
 		}
-		static int curl_onTrace(CURL* handle,
+		static int curl_onTrace(CURL*,
 		                        curl_infotype type,
 		                        char* data,
 		                        size_t size,
@@ -199,9 +202,8 @@ namespace tangle::http::curl {
 
 		size_type onData(const char* data, size_type length);
 		size_type onHeader(const char* data, size_type length);
-		size_type onUnderflow(void* data, size_type length) {
-			return 0;
-		}  // still not implemented
+		// still not implemented:
+		size_type onUnderflow(void*, size_type) { return 0; }
 		inline bool onProgress(double, double, double, double);
 		int onTrace(curl_infotype type, char* data, size_t size);
 	};
@@ -223,7 +225,7 @@ namespace tangle::http::curl {
 			static Curl::size_type onData(const DocumentPtr& http_callback,
 			                              const char* data,
 			                              Curl::size_type length) {
-				return http_callback->on_data(data, (size_t)length);
+				return http_callback->on_data(data, static_cast<size_t>(length));
 			}
 		};
 
@@ -234,10 +236,10 @@ namespace tangle::http::curl {
 			                              Curl::size_type length) {
 				Curl::size_type written = 0;
 				while (length) {
-					Curl::size_type chunk = (size_t)-1;
+					Curl::size_type chunk = static_cast<size_t>(-1);
 					if (chunk > length) chunk = length;
 					length -= chunk;
-					size_t st_chunk = (size_t)chunk;
+					size_t st_chunk = static_cast<size_t>(chunk);
 					size_t ret = http_callback->on_data(data, st_chunk);
 					data += st_chunk;
 					written += ret;
@@ -254,7 +256,7 @@ namespace tangle::http::curl {
 			return Data<sizeof(Curl::size_type) == sizeof(size_t)>::onData(
 			    http_callback, data, length);
 		}
-	};  // namespace Transfer
+	}  // namespace Transfer
 
 	inline bool Curl::isRedirect() const {
 		return nav::http_doc_impl::is_redirect(m_inParser.status());
@@ -324,8 +326,8 @@ namespace tangle::http::curl {
 		}
 
 		if (text) {
-			fprintf(stderr, "%s, %ld bytes (0x%lx)\n", text, (long)size,
-			        (long)size);
+			fprintf(stderr, "%s, %ld bytes (0x%lx)\n", text, static_cast<long>(size),
+			        static_cast<long>(size));
 		}
 		// fwrite(data, 1, size, stderr);
 

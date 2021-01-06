@@ -20,15 +20,16 @@ namespace tangle::msg {
 			static constexpr uint64_t offset = 14695981039346656037ULL;
 			static constexpr uint64_t prime = 1099511628211ULL;
 		};
-	};  // namespace consts
+	}  // namespace consts
 
 	hasher::hasher() : m_value{consts::fnv_const<sizeof(size_t)>::offset} {}
 
 	hasher& hasher::append(const void* buffer, size_t length) {
 		constexpr auto prime = consts::fnv_const<sizeof(size_t)>::prime;
 
-		for (auto data = (const char*)buffer; length; ++data, --length) {
-			m_value ^= (size_t)*data;
+		for (auto data = static_cast<const char*>(buffer); length;
+		     ++data, --length) {
+			m_value ^= static_cast<size_t>(*data);
 			m_value *= prime;
 		}
 		return *this;

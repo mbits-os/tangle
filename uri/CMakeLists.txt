@@ -15,6 +15,7 @@ set_target_properties(uri PROPERTIES
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
 target_include_directories(uri PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_options(uri PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
 if (TANGLE_INSTALL)
 install(TARGETS uri

@@ -12,22 +12,22 @@ namespace tangle::nav {
 	namespace impl {
 		struct empty_cache : tangle::cache::cache {
 			bool storage_backed() const noexcept override { return false; }
-			std::shared_ptr<file> get(const uri& address) override {
+			std::shared_ptr<file> get(const uri&) override {
 				return {};
 			}
 
-			std::shared_ptr<file> create(const uri& address) override {
+			std::shared_ptr<file> create(const uri&) override {
 				return {};
 			}
 		};
 
 		struct dummy_cache : tangle::cache::cache {
 			bool storage_backed() const noexcept override { return true; }
-			std::shared_ptr<file> get(const uri& address) override {
+			std::shared_ptr<file> get(const uri&) override {
 				return {};
 			}
 
-			std::shared_ptr<file> create(const uri& address) override {
+			std::shared_ptr<file> create(const uri&) override {
 				return {};
 			}
 		};
@@ -93,7 +93,7 @@ namespace tangle::nav {
 	                          const std::shared_ptr<protocol>& proto) {
 		auto scheme = key;
 		for (auto& c : scheme)
-			c = std::tolower((uint8_t)c);
+			c = static_cast<char>(std::tolower(static_cast<uint8_t>(c)));
 
 		m_impl->reg_proto(scheme, proto);
 	}
@@ -115,7 +115,7 @@ namespace tangle::nav {
 	}
 
 	tangle::cache::document navigator::open(const request& req,
-	                                        cookie::time_point when) {
+	                                        cookie::time_point) {
 		auto& addr = req.address();
 
 		if (!addr.has_authority()) return {};

@@ -23,6 +23,7 @@ set_target_properties(cookie PROPERTIES
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
 target_include_directories(cookie PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_options(cookie PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
 if (TANGLE_INSTALL)
 install(TARGETS cookie

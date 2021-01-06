@@ -7,7 +7,7 @@
 namespace tangle::cache {
 	cache::file::file() = default;
 	bool cache::file::is_active() const { return false; }
-	bool cache::file::is_fresh(cookie::time_point when) const { return false; }
-	std::string cache::file::meta(const std::string& key) { return {}; }
+	bool cache::file::is_fresh(cookie::time_point) const { return false; }
+	std::string cache::file::meta(const std::string&) { return {}; }
 	loader cache::file::get_loader() { return {}; }
 }  // namespace tangle::cache

@@ -90,14 +90,15 @@ namespace tangle::msg {
 
 		std::string str() const { return {data(), length()}; }
 		operator std::string_view() const { return {data(), length()}; }
+		std::string_view view() const { return {data(), length()}; }
 
 		bool operator==(const combined_string& rhs) const {
-			return (std::string_view) * this == (std::string_view)rhs;
+			return view() == rhs.view();
 		}
 
 		friend inline std::ostream& operator<<(std::ostream& o,
 		                                       const combined_string& cs) {
-			return o << (std::string_view)cs;
+			return o << cs.view();
 		}
 
 	private:

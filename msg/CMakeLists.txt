@@ -23,6 +23,7 @@ set_target_properties(msg PROPERTIES
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
 target_include_directories(msg PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_options(msg PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
 if (TANGLE_INSTALL)
 install(TARGETS msg

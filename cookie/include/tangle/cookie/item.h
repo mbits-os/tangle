@@ -51,13 +51,13 @@ namespace tangle::cookie {
 
 #ifndef USING_DOXYGEN
 	inline flags operator|(flags lhs, flags rhs) {
-		return flags((int)lhs | (int)rhs);
+		return flags(static_cast<int>(lhs) | static_cast<int>(rhs));
 	}
 	inline flags operator&(flags lhs, flags rhs) {
-		return flags((int)lhs & (int)rhs);
+		return flags(static_cast<int>(lhs) & static_cast<int>(rhs));
 	}
 	// for cleaning bits:
-	inline flags operator~(flags lhs) { return flags(~(int)lhs); }
+	inline flags operator~(flags lhs) { return flags(~static_cast<int>(lhs)); }
 #endif  // USING_DOXYGEN
 
 	/**
@@ -83,19 +83,21 @@ namespace tangle::cookie {
 #ifndef USING_DOXYGEN
 	// hide the boring details from the doygen
 	inline match operator|(match lhs, match rhs) {
-		return match((int)lhs | (int)rhs);
+		return match(static_cast<int>(lhs) | static_cast<int>(rhs));
 	}
 	inline match operator&(match lhs, match rhs) {
-		return match((int)lhs & (int)rhs);
+		return match(static_cast<int>(lhs) & static_cast<int>(rhs));
 	}
 	inline match& operator|=(match& lhs, match rhs) {
-		return (match&)((int&)lhs |= (int)rhs);
+		return reinterpret_cast<match&>(reinterpret_cast<int&>(lhs) |=
+		                                static_cast<int>(rhs));
 	}
 	inline match& operator&=(match& lhs, match rhs) {
-		return (match&)((int&)lhs &= (int)rhs);
+		return reinterpret_cast<match&>(reinterpret_cast<int&>(lhs) &=
+		                                static_cast<int>(rhs));
 	}
 	// for cleaning bits:
-	inline match operator~(match lhs) { return match(~(int)lhs); }
+	inline match operator~(match lhs) { return match(~static_cast<int>(lhs)); }
 #endif  // USING_DOXYGEN
 
 	/**

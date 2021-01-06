@@ -15,9 +15,8 @@ set(TANGLE_WALL_FLAGS ON CACHE BOOL "Compile with -Wall/-W4 warning levels")
 if (TANGLE_WALL_FLAGS)
   if (MSVC)
     set(ADDITIONAL_WALL_FLAGS
-        /std:c++latest
         /permissive-
-        /D_CRT_SECURE_NO_WARNINGS
+        /Zc:__cplusplus
         /W4
         /w14242
         /w14254
@@ -41,7 +40,6 @@ if (TANGLE_WALL_FLAGS)
         /w14946)
   else()
     set(ADDITIONAL_WALL_FLAGS
-        -std=c++17
         -Wall -Wextra
         -Wnon-virtual-dtor
         -Wold-style-cast
@@ -55,7 +53,7 @@ if (TANGLE_WALL_FLAGS)
         -Wdouble-promotion
         -Wformat=2
     )
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
       list(APPEND ADDITIONAL_WALL_FLAGS -fcolor-diagnostics) # -Wlifetime
     else()
       list(APPEND ADDITIONAL_WALL_FLAGS

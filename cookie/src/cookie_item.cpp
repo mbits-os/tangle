@@ -13,17 +13,17 @@ namespace tangle::cookie {
 	item::item(const std::string& name,
 	           const std::string& value,
 	           const scope_type& scope)
-	    : m_name(name), m_value(value), m_scope(scope) {}
+	    : m_scope(scope), m_name(name), m_value(value) {}
 
 	item::item(const std::string& name,
 	           const std::string& value,
 	           const scope_type& scope,
 	           cookie::flags flags,
 	           time_point exp)
-	    : m_name(name)
-	    , m_value(value)
+	    : m_flags(flags)
 	    , m_scope(scope)
-	    , m_flags(flags)
+	    , m_name(name)
+	    , m_value(value)
 	    , m_expires(exp) {}
 
 	item::item(const std::string& name,
@@ -32,10 +32,10 @@ namespace tangle::cookie {
 	           cookie::flags flags,
 	           time_point exp,
 	           time_point created)
-	    : m_name(name)
-	    , m_value(value)
+	    : m_flags(flags)
 	    , m_scope(scope)
-	    , m_flags(flags)
+	    , m_name(name)
+	    , m_value(value)
 	    , m_expires(exp)
 	    , m_creation_time(created) {}
 
@@ -70,47 +70,13 @@ namespace tangle::cookie {
 	}
 
 	namespace {
-		bool parse_pair(std::string_view pair,
-		                std::string& name,
-		                std::string& value) {
-			name.clear();
-			value.clear();
-			auto last = pair.length();
-			decltype(last) cur = 0;
-
-			while (cur != last && std::isspace((uint8_t)pair[cur]))
-				++cur;
-			auto nstart = cur;
-
-			while (cur != last && pair[cur] != '=')
-				++cur;
-			bool result = cur != last;
-			auto nstop = cur;
-
-			while (nstop > nstart && std::isspace((uint8_t)pair[nstop - 1]))
-				--nstop;
-			auto nspan = pair.substr(nstart, nstop - nstart);
-			name.assign(nspan.data(), nspan.length());
-
-			if (!result) return false;
-			++cur;
-
-			while (cur != last && std::isspace((uint8_t)pair[cur]))
-				++cur;
-			while (cur < last && std::isspace((uint8_t)pair[last - 1]))
-				--last;
-			auto vspan = pair.substr(cur, last - cur);
-			value.assign(vspan.data(), vspan.length());
-
-			return true;
-		}
-
 		template <typename offset_t, typename chars_t, typename pred_t>
 		bool next_chunk(const chars_t& header,
 		                offset_t& cur,
 		                offset_t last,
 		                pred_t pred) {
-			while (cur != last && std::isspace((uint8_t)header[cur]))
+			while (cur != last &&
+			       std::isspace(static_cast<uint8_t>(header[cur])))
 				++cur;
 			auto nstart = cur;
 
@@ -119,7 +85,8 @@ namespace tangle::cookie {
 			bool has_value = cur != last && header[cur] == '=';
 			auto nstop = cur;
 
-			while (nstop > nstart && std::isspace((uint8_t)header[nstop - 1]))
+			while (nstop > nstart &&
+			       std::isspace(static_cast<uint8_t>(header[nstop - 1])))
 				--nstop;
 			auto name = header.substr(nstart, nstop - nstart);
 
@@ -129,7 +96,8 @@ namespace tangle::cookie {
 			auto vstop = cur;
 			auto one_more = cur != last;
 			if (has_value) {
-				while (cur != last && std::isspace((uint8_t)header[cur]))
+				while (cur != last &&
+				       std::isspace(static_cast<uint8_t>(header[cur])))
 					++cur;
 				vstart = cur;
 
@@ -137,7 +105,7 @@ namespace tangle::cookie {
 					++cur;
 				vstop = cur;
 				while (vstop > vstart &&
-				       std::isspace((uint8_t)header[vstop - 1]))
+				       std::isspace(static_cast<uint8_t>(header[vstop - 1])))
 					--vstop;
 
 				one_more = cur != last;
@@ -152,8 +120,9 @@ namespace tangle::cookie {
 		std::string lower(std::string_view span) {
 			std::string out;
 			out.reserve(span.length() + 1);
-			for (uint8_t c : span)
-				out.push_back(std::tolower(c));
+			for (auto c : span)
+				out.push_back(
+				    static_cast<char>(std::tolower(static_cast<uint8_t>(c))));
 			return out;
 		}
 
@@ -174,14 +143,17 @@ namespace tangle::cookie {
 
 			return (delims[(c >> 5) & 0x7] & (1 << (c & 0x1F))) != 0;
 		}
+		inline bool is_delim(char c) {
+			return is_delim(static_cast<uint8_t>(c));
+		}
 
 		bool cookie_date_int(std::string_view tok, int& value) {
-			for (uint8_t c : tok) {
-				if (!std::isdigit(c)) return false;
+			for (auto c : tok) {
+				if (!std::isdigit(static_cast<uint8_t>(c))) return false;
 			}
 
 			char* pos = nullptr;
-			auto ret = std::strtol(tok.data(), &pos, 10);
+			auto ret = static_cast<int>(std::strtol(tok.data(), &pos, 10));
 			if (pos != tok.length() + tok.data()) return false;
 			value = ret;
 			return true;
@@ -208,33 +180,33 @@ namespace tangle::cookie {
 		                      int& minute,
 		                      int& second) {
 			if (date.length() < 8) return false;
-			if (!std::isdigit((uint8_t)date[0])) return false;
-			if (!std::isdigit((uint8_t)date[1])) return false;
+			if (!std::isdigit(static_cast<uint8_t>(date[0]))) return false;
+			if (!std::isdigit(static_cast<uint8_t>(date[1]))) return false;
 			if (date[2] != ':') return false;
-			if (!std::isdigit((uint8_t)date[3])) return false;
-			if (!std::isdigit((uint8_t)date[4])) return false;
+			if (!std::isdigit(static_cast<uint8_t>(date[3]))) return false;
+			if (!std::isdigit(static_cast<uint8_t>(date[4]))) return false;
 			if (date[5] != ':') return false;
-			if (!std::isdigit((uint8_t)date[6])) return false;
-			if (!std::isdigit((uint8_t)date[7])) return false;
+			if (!std::isdigit(static_cast<uint8_t>(date[6]))) return false;
+			if (!std::isdigit(static_cast<uint8_t>(date[7]))) return false;
 
 			char* pos = nullptr;
 			char buf[3] = {0, 0, 0};
 
 			buf[0] = date[0];
 			buf[1] = date[1];
-			auto vhour = std::strtol(buf, &pos, 10);
+			auto vhour = static_cast<int>(std::strtol(buf, &pos, 10));
 			if (pos != buf + 2) return false;
 
 			pos = nullptr;
 			buf[0] = date[3];
 			buf[1] = date[4];
-			auto vminute = std::strtol(buf, &pos, 10);
+			auto vminute = static_cast<int>(std::strtol(buf, &pos, 10));
 			if (pos != buf + 2) return false;
 
 			pos = nullptr;
 			buf[0] = date[6];
 			buf[1] = date[7];
-			auto vsecond = std::strtol(buf, &pos, 10);
+			auto vsecond = static_cast<int>(std::strtol(buf, &pos, 10));
 			if (pos != buf + 2) return false;
 
 			hour = vhour;
@@ -334,12 +306,11 @@ namespace tangle::cookie {
 
 		auto last = header.length();
 		decltype(last) cur = 0;
-		bool cont =
-		    next_chunk(header, cur, last, [&](auto n, auto v, bool has_value) {
-			    if (!has_value) return;
-			    name = to_string(n);
-			    value = to_string(v);
-		    });
+		next_chunk(header, cur, last, [&](auto n, auto v, bool has_value) {
+			if (!has_value) return;
+			name = to_string(n);
+			value = to_string(v);
+		});
 
 		if (name.empty()) return {};
 

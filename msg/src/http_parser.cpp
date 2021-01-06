@@ -69,7 +69,7 @@ namespace tangle::msg {
 			}
 			if (it[1] != '\n') return {(it - data), parsing::error};
 			m_resource.append(data, it + 1);
-			len += it - data + 1;
+			len += static_cast<size_t>(it - data + 1);
 		} else if (!length)
 			return {0, parsing::reading};
 		else if (*data != '\n')
@@ -83,7 +83,8 @@ namespace tangle::msg {
 		if (proto_pos == method_pos) return {len, parsing::error};
 
 		http_version ver;
-		if (!parse_proto(std::next(m_resource.begin(), proto_pos + 1),
+		if (!parse_proto(std::next(m_resource.begin(),
+		                           static_cast<ptrdiff_t>(proto_pos + 1)),
 		                 m_resource.end(), ver)) {
 			return {len, parsing::error};
 		}
@@ -118,7 +119,7 @@ namespace tangle::msg {
 			}
 			if (it[1] != '\n') return {(it - data), parsing::error};
 			m_reason.append(data, it + 1);
-			len += it - data + 1;
+			len += static_cast<size_t>(it - data + 1);
 		} else if (!length)
 			return {0, parsing::reading};
 		else if (*data != '\n')
@@ -131,7 +132,7 @@ namespace tangle::msg {
 
 		http_version ver;
 		if (!parse_proto(m_reason.begin(),
-		                 std::next(m_reason.begin(), status_pos), ver)) {
+		                 std::next(m_reason.begin(), static_cast<ptrdiff_t>(status_pos)), ver)) {
 			return {len, parsing::error};
 		}
 
@@ -149,7 +150,8 @@ namespace tangle::msg {
 
 			while (msg != end && *msg == ' ')
 				++msg;
-			m_reason = m_reason.substr(std::distance(m_reason.begin(), msg));
+			m_reason = m_reason.substr(
+			    static_cast<size_t>(std::distance(m_reason.begin(), msg)));
 		}
 
 		return {len, parsing::separator};

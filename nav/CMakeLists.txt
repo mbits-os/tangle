@@ -21,6 +21,7 @@ set_target_properties(nav PROPERTIES
 	FOLDER libs)
 target_include_directories(nav PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(nav PUBLIC uri cookie cache msg)
+target_compile_options(nav PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
 if (TANGLE_INSTALL)
 install(TARGETS nav

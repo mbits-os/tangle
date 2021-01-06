@@ -77,7 +77,7 @@ namespace tangle::http {
 		};
 
 		for (auto& c : hdr)
-			c = std::tolower((uint8_t)c);
+			c = static_cast<char>(std::tolower(static_cast<uint8_t>(c)));
 
 		auto it = std::lower_bound(
 		    std::begin(headers), std::end(headers), hdr,
@@ -89,7 +89,7 @@ namespace tangle::http {
 			}
 		}
 
-		return std::move(hdr);
+		return header_key{std::move(hdr)};
 	}
 
 	const char* header_key::name(header h) noexcept {

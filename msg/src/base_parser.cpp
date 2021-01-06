@@ -33,7 +33,7 @@ namespace tangle::msg {
 
 	std::string printable(std::string&& s) {
 		for (auto& c : s)
-			c = isprint((uint8_t)c) ? c : '.';
+			c = isprint(static_cast<uint8_t>(c)) ? c : '.';
 		return s;
 	}
 
@@ -45,7 +45,7 @@ namespace tangle::msg {
 		m_contents.insert(m_contents.end(), data, data + length);
 
 		auto begin = std::begin(m_contents);
-		auto cur = std::next(begin, m_last_line_end);
+		auto cur = std::next(begin, static_cast<ptrdiff_t>(m_last_line_end));
 		auto end = std::end(m_contents);
 
 		while (cur != end) {
@@ -54,37 +54,44 @@ namespace tangle::msg {
 			if (std::next(it) == end) break;
 			if (*std::next(it) !=
 			    '\n')  // mid-line \r? - check with RFC if ignore, or error
-				return {report_read(prev, std::distance(begin, it)),
+				return {report_read(prev, static_cast<size_t>(
+				                              std::distance(begin, it))),
 				        parsing::error};
 
 			if (it == cur) {  // empty line
 				if (!rearrange())
-					return {report_read(prev, std::distance(begin, it)),
+					return {report_read(prev, static_cast<size_t>(
+					                              std::distance(begin, it))),
 					        parsing::error};
-				return {report_read(prev, std::distance(begin, it)) + 2,
+				return {report_read(prev, static_cast<size_t>(
+				                              std::distance(begin, it))) +
+				            2,
 				        parsing::separator};
 			}
 
 			std::advance(it, 2);
-			if (isspace((uint8_t)*cur)) {
+			if (isspace(static_cast<uint8_t>(*cur))) {
 				if (m_field_list.empty())
-					return {report_read(prev, std::distance(begin, it)),
+					return {report_read(prev, static_cast<size_t>(
+					                              std::distance(begin, it))),
 					        parsing::error};
 
-				m_last_line_end = std::distance(begin, it);
+				m_last_line_end = static_cast<size_t>(std::distance(begin, it));
 				auto& fld = std::get<1>(m_field_list.back());
 				fld = span(fld.offset(), m_last_line_end - fld.offset());
 			} else {
 				auto colon = std::find(cur, it, ':');
 				if (colon == it)  // no colon in field's first line
-					return {report_read(prev, std::distance(begin, it)),
+					return {report_read(prev, static_cast<size_t>(
+					                              std::distance(begin, it))),
 					        parsing::error};
 
-				m_last_line_end = std::distance(begin, it);
+				m_last_line_end = static_cast<size_t>(std::distance(begin, it));
 				m_field_list.emplace_back(
-				    span(std::distance(begin, cur), std::distance(cur, colon)),
-				    span(std::distance(begin, colon) + 1,
-				         std::distance(colon, it) - 1));
+				    span(static_cast<size_t>(std::distance(begin, cur)),
+				         static_cast<size_t>(std::distance(cur, colon))),
+				    span(static_cast<size_t>(std::distance(begin, colon) + 1),
+				         static_cast<size_t>(std::distance(colon, it) - 1)));
 			}
 
 			cur = it;
@@ -97,11 +104,11 @@ namespace tangle::msg {
 		auto len = cs.length();
 		auto end = ptr + len;
 
-		while (ptr != end && std::isspace((uint8_t)*ptr)) {
+		while (ptr != end && std::isspace(static_cast<uint8_t>(*ptr))) {
 			++ptr;
 			--len;
 		}
-		while (ptr != end && std::isspace((uint8_t)end[-1])) {
+		while (ptr != end && std::isspace(static_cast<uint8_t>(end[-1]))) {
 			--end;
 			--len;
 		}
@@ -109,7 +116,7 @@ namespace tangle::msg {
 
 		bool in_cont = false;
 		for (auto cur = ptr; cur != end; ++cur) {
-			uint8_t uc = *cur;
+			auto const uc = static_cast<uint8_t>(*cur);
 			if (in_cont) {
 				in_cont = !!std::isspace(uc);
 				if (in_cont) --len;
@@ -126,25 +133,26 @@ namespace tangle::msg {
 
 		in_cont = false;
 		for (auto cur = ptr; cur != end; ++cur) {
-			uint8_t uc = *cur;
+			auto const uc = static_cast<uint8_t>(*cur);
 			if (in_cont) {
 				in_cont = !!std::isspace(uc);
 				if (in_cont)
 					--len;
 				else
-					out.push_back(uc);
+					out.push_back(static_cast<char>(uc));
 				continue;
 			}
 			if (uc == '\r') {
 				in_cont = true;
-				while (ptr != cur && std::isspace((uint8_t)cur[-1])) {
+				while (ptr != cur &&
+				       std::isspace(static_cast<uint8_t>(cur[-1]))) {
 					--cur;
 					out.pop_back();
 				}
 				out.push_back(' ');
 				continue;
 			}
-			out.push_back(uc);
+			out.push_back(static_cast<char>(uc));
 		}
 
 		out.shrink_to_fit();
@@ -153,7 +161,7 @@ namespace tangle::msg {
 
 	std::string lower(std::string&& in) {
 		for (auto& c : in)
-			c = std::tolower((uint8_t)c);
+			c = static_cast<char>(std::tolower(static_cast<uint8_t>(c)));
 		return in;
 	}
 

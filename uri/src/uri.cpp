@@ -26,7 +26,7 @@ namespace tangle {
 
 		std::string tolower(std::string s) {
 			for (auto& c : s)
-				c = (char)std::tolower((uint8_t)c);
+				c = static_cast<char>(std::tolower(static_cast<uint8_t>(c)));
 
 			return s;
 		}
@@ -36,7 +36,7 @@ namespace tangle {
 		}
 
 		std::vector<std::string_view> path_split(std::string_view path) {
-			auto length = 1;
+			size_t length = 1;
 			for (auto c : path) {
 				if (c == '/') ++length;
 			}
@@ -98,7 +98,7 @@ namespace tangle {
 			auto e = b + in_len;
 
 			for (auto it = b; it != e; ++it) {
-				if (!safe(*it)) length += 2;
+				if (!safe(static_cast<unsigned char>(*it))) length += 2;
 			}
 
 			static constexpr char hexes[] = "0123456789ABCDEF";
@@ -107,7 +107,7 @@ namespace tangle {
 
 			for (auto it = b; it != e; ++it) {
 				auto c = *it;
-				if (safe(c)) {
+				if (safe(static_cast<unsigned char>(c))) {
 					out += c;
 					continue;
 				}
@@ -118,7 +118,7 @@ namespace tangle {
 			return out;
 		}
 
-		inline char hex(char c) {
+		inline int hex(char c) {
 			switch (c) {
 				case '0':
 				case '1':
@@ -130,7 +130,7 @@ namespace tangle {
 				case '7':
 				case '8':
 				case '9':
-					return c - '0';
+					return static_cast<unsigned char>(c - '0');
 				case 'a':
 				case 'b':
 				case 'c':
@@ -170,8 +170,8 @@ namespace tangle {
 			// go inside only, if there is enough space
 			if (in[i] == '%' && (i < in_len - 2) && isxdigit(in[i + 1]) &&
 			    isxdigit(in[i + 2])) {
-				unsigned char c = (hex(in[i + 1]) << 4) | hex(in[i + 2]);
-				out += c;
+				auto c = (hex(in[i + 1]) << 4) | hex(in[i + 2]);
+				out.push_back(static_cast<char>(c));
 				i += 2;
 				continue;
 			}
@@ -286,8 +286,7 @@ namespace tangle {
 		return out;
 	}
 
-	std::vector<std::pair<std::string, std::string>> uri::params::list()
-	    const {
+	std::vector<std::pair<std::string, std::string>> uri::params::list() const {
 		size_t length = 0;
 		for (auto& pair : m_values) {
 			length += pair.second.size();
@@ -304,21 +303,22 @@ namespace tangle {
 		return out;
 	}
 
-#define WS()                                          \
-	do {                                              \
-		while (isspace((unsigned char)*c) && c < end) \
-			++c;                                      \
+#define WS()                                                       \
+	do {                                                           \
+		while (isspace(static_cast<unsigned char>(*c)) && c < end) \
+			++c;                                                   \
 	} while (0)
-#define LOOK_FOR(ch)                                                 \
-	do {                                                             \
-		while (!isspace((unsigned char)*c) && *c != (ch) && c < end) \
-			++c;                                                     \
+#define LOOK_FOR(ch)                                                     \
+	do {                                                                 \
+		while (!isspace(static_cast<unsigned char>(*c)) && *c != (ch) && \
+		       c < end)                                                  \
+			++c;                                                         \
 	} while (0)
-#define LOOK_FOR2(ch1, ch2)                                                 \
-	do {                                                                    \
-		while (!isspace((unsigned char)*c) && *c != (ch1) && *c != (ch2) && \
-		       c < end)                                                     \
-			++c;                                                            \
+#define LOOK_FOR2(ch1, ch2)                                               \
+	do {                                                                  \
+		while (!isspace(static_cast<unsigned char>(*c)) && *c != (ch1) && \
+		       *c != (ch2) && c < end)                                    \
+			++c;                                                          \
 	} while (0)
 #define IS(ch) (c < end && *c == (ch))
 
@@ -331,7 +331,8 @@ namespace tangle {
 			WS();
 			const char* name_start = c;
 			LOOK_FOR2('=', '&');
-			std::string name = urldecode(name_start, c - name_start);
+			std::string name =
+			    urldecode(name_start, static_cast<size_t>(c - name_start));
 			WS();
 
 			if (IS('=')) {
@@ -339,7 +340,8 @@ namespace tangle {
 				WS();
 				const char* value_start = c;
 				LOOK_FOR('&');
-				out.add(name, urldecode(value_start, c - value_start));
+				out.add(name, urldecode(value_start,
+				                        static_cast<size_t>(c - value_start)));
 				WS();
 			} else
 				out.add(name, {});
@@ -393,17 +395,17 @@ namespace tangle {
 			return;
 		}
 
-		if (c == e || !isalpha((unsigned char)*c)) return;
+		if (c == e || !isalpha(static_cast<unsigned char>(*c))) return;
 
 		++c;
-		while (c != e && (isalnum((unsigned char)*c) || *c == '+' ||
-		                  *c == '-' || *c == '.'))
+		while (c != e && (isalnum(static_cast<unsigned char>(*c)) ||
+		                  *c == '+' || *c == '-' || *c == '.'))
 			++c;
 
 		if (c == e || *c != ':') return;
 		++c;
 
-		m_scheme = c - b;
+		m_scheme = static_cast<size_type>(c - b);
 	}
 
 	void uri::ensure_path() const {
@@ -538,9 +540,7 @@ namespace tangle {
 		return substr(m_uri, m_query, m_part - m_query);
 	}
 
-	uri::params uri::parsed_query() const {
-		return params::parse(query());
-	}
+	uri::params uri::parsed_query() const { return params::parse(query()); }
 
 	std::string_view uri::resource() const {
 		ensure_fragment();
@@ -668,8 +668,8 @@ namespace tangle {
 
 			// is IPv4, IPv6 or reg-name?
 			for (auto c : auth.host) {
-				if (!isalnum((uint8_t)c) && c != '-' && c != '.' && c != '[' &&
-				    c != ']' && c != ':')
+				if (!isalnum(static_cast<uint8_t>(c)) && c != '-' && c != '.' &&
+				    c != '[' && c != ']' && c != ':')
 					return {};
 			}
 
@@ -677,7 +677,7 @@ namespace tangle {
 			// =======================================================================================
 			// empty or digits
 			for (auto c : auth.port) {
-				if (!isdigit((uint8_t)c)) return {};
+				if (!isdigit(static_cast<uint8_t>(c))) return {};
 			}
 
 			// if default for the scheme, remove

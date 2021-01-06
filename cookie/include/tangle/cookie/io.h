@@ -111,7 +111,7 @@ namespace tangle::cookie::io {
 			 */
 			std::uint32_t strings = 0;
 		};
-	};  // namespace v1
+	}  // namespace v1
 
 	/**
 	File header for CJAR file
@@ -284,16 +284,35 @@ namespace tangle::cookie::io {
 		and after the `fseek`.
 		 */
 		static size_t skipraw(FILE* readable, size_t length) {
-			auto told = ftell(readable);
-			fseek(readable, length, SEEK_CUR);
-			auto newpos = ftell(readable);
+			auto told = static_cast<size_t>(ftell(readable));
+			if constexpr (sizeof(size_t) >= sizeof(long)) {
+				static constexpr auto max_long =
+				    std::numeric_limits<long>::max();
+				static constexpr auto max_long_sz =
+				    static_cast<size_t>(max_long);
+				while (max_long_sz < length) {
+					fseek(readable, max_long, SEEK_CUR);
+					length -= max_long_sz;
+				}
+				fseek(readable, static_cast<long>(length), SEEK_CUR);
+			} else {
+				fseek(readable, static_cast<long>(length), SEEK_CUR);
+			}
+			auto newpos = static_cast<size_t>(ftell(readable));
 			return newpos - told;
 		}
 	};
 
 	inline static void timestamp(uint32_t& lo, uint32_t& hi, uint64_t time) {
-		hi = (time >> 32) & 0xFFFF'FFFFul;
+		hi = static_cast<uint32_t>((time >> 32) & 0xFFFF'FFFFul);
 		lo = (time)&0xFFFF'FFFFul;
+	}
+
+	inline static void timestamp(uint32_t& lo,
+	                             uint32_t& hi,
+	                             cookie::time_point const& time) {
+		timestamp(lo, hi,
+		          static_cast<uint64_t>(time.time_since_epoch().count()));
 	}
 
 	inline static clock::time_point make_timepoint(uint64_t lo, uint64_t hi) {
@@ -350,20 +369,20 @@ namespace tangle::cookie::io {
 
 				io::item out{};
 				out.name = strings;
-				strings += item.name().length() + 1;
+				strings += static_cast<uint32_t>(item.name().length() + 1);
 				out.value = strings;
-				strings += item.value().length() + 1;
+				strings += static_cast<uint32_t>(item.value().length() + 1);
 				out.domain = strings;
-				strings += item.scope().domain.length() + 1;
+				strings +=
+				    static_cast<uint32_t>(item.scope().domain.length() + 1);
 				out.path = strings;
-				strings += item.scope().path.length() + 1;
-				out.flags = (int32_t)item.flags();
-				timestamp(out.expires_lo, out.expires_hi,
-				          item.expires().time_since_epoch().count());
-				timestamp(out.created_lo, out.created_hi,
-				          item.creation_time().time_since_epoch().count());
+				strings +=
+				    static_cast<uint32_t>(item.scope().path.length() + 1);
+				out.flags = static_cast<uint32_t>(item.flags());
+				timestamp(out.expires_lo, out.expires_hi, item.expires());
+				timestamp(out.created_lo, out.created_hi, item.creation_time());
 				timestamp(out.access_lo, out.access_hi,
-				          item.last_access_time().time_since_epoch().count());
+				          item.last_access_time());
 				if (!io::io_impl<IO>::write(writable, out)) return false;
 			}
 
@@ -475,7 +494,7 @@ namespace tangle::cookie::io {
 				    buffer.get() + raw.name,
 				    buffer.get() + raw.value,
 				    {buffer.get() + raw.domain, buffer.get() + raw.path},
-				    (cookie::flags)raw.flags,
+				    static_cast<cookie::flags>(raw.flags),
 				    make_timepoint(raw.expires_lo, raw.expires_hi)};
 				item.creation_time(
 				    make_timepoint(raw.created_lo, raw.created_hi));
@@ -495,5 +514,5 @@ namespace tangle::cookie::io {
 			std::swap(jar, out);
 			return true;
 		}
-	};  // namespace v1
+	}  // namespace v1
 }  // namespace tangle::cookie::io
