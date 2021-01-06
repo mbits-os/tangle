@@ -20,7 +20,7 @@ set_target_properties(nav PROPERTIES
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
 target_include_directories(nav PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(nav uri cookie cache msg)
+target_link_libraries(nav PUBLIC uri cookie cache msg)
 
 if (TANGLE_INSTALL)
 install(TARGETS nav
@@ -57,14 +57,8 @@ if (MSVC)
 list(APPEND TEST_SRCS ${NATVIS})
 endif()
 
-add_executable(nav-test ../googletest.cpp ${TEST_SRCS})
+add_executable(nav-test ${TEST_SRCS})
 set_target_properties(nav-test PROPERTIES FOLDER tests)
-add_dependencies(nav-test nav gtest gmock)
-target_link_libraries(nav-test $<TARGET_FILE:nav> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-foreach(DEP ${DEPS})
-	add_dependencies(nav-test ${DEP})
-	target_link_libraries(nav-test $<TARGET_FILE:${DEP}>)
-endforeach()
+target_link_libraries(nav-test nav GTest::gmock_main)
 
-enable_testing()
 endif()

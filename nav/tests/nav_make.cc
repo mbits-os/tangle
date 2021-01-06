@@ -109,7 +109,7 @@ namespace tangle { namespace nav { namespace testing {
 	}
 
 	struct ProtocolMock : public protocol {
-		MOCK_METHOD2(open, tangle::cache::loader(const request&, navigator&));
+		MOCK_METHOD2(open, tangle::cache::document(const request&, navigator&));
 	};
 
 	TEST(navigator_base, create_proto) {
@@ -119,11 +119,11 @@ namespace tangle { namespace nav { namespace testing {
 		auto proto = std::make_shared<ProtocolMock>();
 		EXPECT_CALL(*proto, open(_, _))
 			.Times(2)
-			.WillRepeatedly(Return(tangle::cache::loader{}));
+			.WillRepeatedly(Return(tangle::cache::document{}));
 		nav.reg_proto("bar", proto);
-		nav.open(request{ "foo://example.com/" }, true);
-		nav.open(request{ "bar://example.com/" }, true);
-		nav.open(request{ "bar://example.com/" }, true);
-		nav.open(request{ "baz://example.com/" }, true);
+		nav.open(request{ "foo://example.com/" });
+		nav.open(request{ "bar://example.com/" });
+		nav.open(request{ "bar://example.com/" });
+		nav.open(request{ "baz://example.com/" });
 	}
 }}}

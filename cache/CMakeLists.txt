@@ -55,11 +55,8 @@ if (MSVC)
 list(APPEND TEST_SRCS ${NATVIS})
 endif()
 
-add_executable(cache-test ../googletest.cpp ${TEST_SRCS})
-set_target_properties(cache-test PROPERTIES FOLDER tests)
-add_dependencies(cache-test cache gtest gmock)
-target_link_libraries(cache-test $<TARGET_FILE:cache> ${GOOGLETEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-
-enable_testing()
+# add_executable(cache-test ${TEST_SRCS})
+# set_target_properties(cache-test PROPERTIES FOLDER tests)
+# target_link_libraries(cache-test cache GTest::gtest_main)
 
 endif()

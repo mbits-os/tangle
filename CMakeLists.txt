@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4)
-project( tangle VERSION 0.1.0 LANGUAGES CXX )
+project(tangle VERSION 0.1.0 LANGUAGES CXX)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
@@ -122,8 +122,10 @@ endif()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if (TANGLE_TESTING)
-	enable_testing()
-	include( ${CMAKE_CURRENT_SOURCE_DIR}/googletest.cmake )
+  enable_testing()
+  if (NOT TARGET GTest::gtest)
+    find_package(GTest REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
+  endif()
 endif()
 
 ##################################################################

@@ -64,8 +64,8 @@ namespace {
 			++pex;
 			ASSERT_EQ(ex.name(), act.name());
 			ASSERT_EQ(ex.value(), act.value());
-			ASSERT_EQ(ex.scope().domain(), act.scope().domain());
-			ASSERT_EQ(ex.scope().path(), act.scope().path());
+			ASSERT_EQ(ex.scope().domain, act.scope().domain);
+			ASSERT_EQ(ex.scope().path, act.scope().path);
 			ASSERT_EQ(ex.flags(), act.flags());
 			ASSERT_EQ(ex.expires(), act.expires());
 		}

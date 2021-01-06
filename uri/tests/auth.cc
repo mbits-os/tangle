@@ -55,7 +55,7 @@ namespace tangle { namespace testing {
 	{
 		auto param = GetParam();
 		auto& expected = param.expected;
-		auto auth = uri{"dummy://" + param.auth + "/"}.parsed_authority();
+		auto auth = uri{"dummy://" + std::string{param.auth.data(), param.auth.size()} + "/"}.parsed_authority();
 		ASSERT_EQ(expected.user, auth.user);
 		ASSERT_EQ(expected.pass, auth.password);
 		ASSERT_EQ(expected.host, auth.host);

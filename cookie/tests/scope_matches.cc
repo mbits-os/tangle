@@ -34,7 +34,7 @@ struct scope_info {
 
 std::ostream& operator << (std::ostream& o, const scope_info& nfo)
 {
-	o << "(" << nfo.out.domain() << nfo.out.path() << " =~ " << nfo.in.domain() << nfo.in.path();
+	o << "(" << nfo.out.domain << nfo.out.path << " =~ " << nfo.in.domain << nfo.in.path;
 	if (nfo.host_only) o << " [host-only]";
 	return o << ")";
 }

@@ -47,7 +47,7 @@ namespace {
 		if ((nfo.options & match::secure) == match::secure)
 			o << 's';
 
-		return o << "://" << nfo.scope.domain() << nfo.scope.path();
+		return o << "://" << nfo.scope.domain << nfo.scope.path;
 	}
 
 	class cookie_jar_str : public ::testing::TestWithParam<jar_info> {

@@ -72,8 +72,8 @@ namespace {
 			return;
 
 		ASSERT_EQ(expected.value(), actual.value());
-		ASSERT_EQ(expected.scope().domain(), actual.scope().domain());
-		ASSERT_EQ(expected.scope().path(), actual.scope().path());
+		ASSERT_EQ(expected.scope().domain, actual.scope().domain);
+		ASSERT_EQ(expected.scope().path, actual.scope().path);
 		ASSERT_EQ(expected.flags(), actual.flags());
 		if ((actual.flags() & flags::persistent) == flags::persistent)
 			ASSERT_EQ(expected.expires(), actual.expires());
