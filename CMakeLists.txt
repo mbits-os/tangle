@@ -10,6 +10,8 @@ find_package(OpenSSL REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
 find_package(CURL REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
 endif()
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
 set(TANGLE_WALL_FLAGS ON CACHE BOOL "Compile with -Wall/-W4 warning levels")
 
 if (TANGLE_WALL_FLAGS)
@@ -81,14 +83,14 @@ set(MODULES
   http
 )
 
+set(COVERALLS_PREFIX TANGLE_)
 foreach(MODULE ${MODULES})
-	list(APPEND COVERALLS_DIRS ${MODULE}/include)
-	list(APPEND COVERALLS_DIRS ${MODULE}/src)
+	list(APPEND TANGLE_COVERALLS_DIRS ${MODULE}/include ${MODULE}/src)
 endforeach()
 
-include(Coveralls.cmake)
+include(tools/coveralls/Coveralls.cmake)
 
-if (COVERALLS AND NOT TANGLE_TESTING)
+if (TANGLE_COVERALLS AND NOT TANGLE_TESTING)
 	message(FATAL_ERROR "Coveralls are useless without -DTANGLE_TESTING=ON")
 endif()
 
