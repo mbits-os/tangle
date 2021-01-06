@@ -1,26 +1,5 @@
-/*
- * Copyright (C) 2016 midnightBITS
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+// Copyright (c) 2016 midnightBITS
+// This code is licensed under MIT license (see LICENSE for details)
 
 /**
 Navigation cookie jar.
@@ -29,10 +8,10 @@ Navigation cookie jar.
 */
 
 #pragma once
-#include <tangle/uri.h>
 #include <tangle/cookie/jar.h>
+#include <tangle/uri.h>
 
-namespace tangle { namespace nav {
+namespace tangle::nav {
 
 	/**
 	Navigation cookie jar.
@@ -44,10 +23,15 @@ namespace tangle { namespace nav {
 		void path(const std::string& path);
 		const std::string& path() const { return m_path; }
 		void store(cookie::time_point when = cookie::clock::now()) const;
-		bool append(const uri& address, std::string_view header, cookie::time_point created = cookie::clock::now());
-		std::string get(const uri& address, bool https, cookie::time_point when = cookie::clock::now());
+		bool append(const uri& address,
+		            std::string_view header,
+		            cookie::time_point created = cookie::clock::now());
+		std::string get(const uri& address,
+		                bool https,
+		                cookie::time_point when = cookie::clock::now());
+
 	private:
 		std::string m_path;
 		cookie::jar m_cookies;
 	};
-}}
+}  // namespace tangle::nav

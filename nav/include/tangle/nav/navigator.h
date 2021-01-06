@@ -1,26 +1,5 @@
-/*
- * Copyright (C) 2017 midnightBITS
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+// Copyright (c) 2016 midnightBITS
+// This code is licensed under MIT license (see LICENSE for details)
 
 /**
 Navigation cache.
@@ -33,12 +12,12 @@ over any wire, should do so over the cache.
 */
 
 #pragma once
-#include <memory>
-#include <tangle/nav/request.h>
 #include <tangle/cache/cache.h>
 #include <tangle/cookie/chrono.h>
+#include <tangle/nav/request.h>
+#include <memory>
 
-namespace tangle { namespace nav {
+namespace tangle::nav {
 	struct protocol;
 
 	struct config {
@@ -61,7 +40,7 @@ namespace tangle { namespace nav {
 		navigator& operator=(navigator&&) noexcept;
 
 		void reg_proto(const std::string& scheme,
-			const std::shared_ptr<protocol>& proto);
+		               const std::shared_ptr<protocol>& proto);
 
 		const std::string& user_agent() const noexcept;
 		jar& cookies() noexcept;
@@ -70,9 +49,11 @@ namespace tangle { namespace nav {
 		const tangle::cache::cache& cache() const noexcept;
 		const std::vector<std::string>& languages() const noexcept;
 
-		tangle::cache::document open(const request& req,
-			cookie::time_point when = cookie::clock::now());
+		tangle::cache::document open(
+		    const request& req,
+		    cookie::time_point when = cookie::clock::now());
+
 	private:
 		std::shared_ptr<backend> m_impl;
 	};
-}}
+}  // namespace tangle::nav
