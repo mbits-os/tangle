@@ -8,6 +8,8 @@
 #include <tangle/nav/navigator.hpp>
 #include <tangle/nav/protocol.hpp>
 
+using namespace std::literals;
+
 namespace tangle::nav::testing {
 	class navigator_base : public ::testing::Test {};
 
@@ -95,9 +97,9 @@ namespace tangle::nav::testing {
 		    .Times(2)
 		    .WillRepeatedly(Return(tangle::cache::document{}));
 		nav.reg_proto("bar", proto);
-		nav.open(request{"foo://example.com/"});
-		nav.open(request{"bar://example.com/"});
-		nav.open(request{"bar://example.com/"});
-		nav.open(request{"baz://example.com/"});
+		nav.open(request{"foo://example.com/"sv});
+		nav.open(request{"bar://example.com/"sv});
+		nav.open(request{"bar://example.com/"sv});
+		nav.open(request{"baz://example.com/"sv});
 	}
 }  // namespace tangle::nav::testing

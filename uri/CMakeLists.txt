@@ -68,5 +68,6 @@ add_test(NAME uri.query COMMAND uri-test --gtest_filter=Query/*)
 add_test(NAME uri.makeBase COMMAND uri-test --gtest_filter=MakeBase/*)
 add_test(NAME uri.parts COMMAND uri-test --gtest_filter=samples/uri_parts.*)
 add_test(NAME uri.auth-parts COMMAND uri-test --gtest_filter=samples/uri_auth.*)
+add_test(NAME uri.queries COMMAND uri-test --gtest_filter=samples/query.*)
 
 endif()

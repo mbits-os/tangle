@@ -31,10 +31,6 @@ namespace tangle {
 			return s;
 		}
 
-		std::string tolower(std::string_view s) {
-			return tolower(to_string(s));
-		}
-
 		std::vector<std::string_view> path_split(std::string_view path) {
 			size_t length = 1;
 			for (auto c : path) {
@@ -270,13 +266,13 @@ namespace tangle {
 				out.push_back('&');
 		};
 		for (auto& pair : m_values) {
-			auto name = urlencode(pair.first) + "=";
 			if (pair.second.empty()) {
 				add_prefix();
 				out += urlencode(pair.first);
 				continue;
 			}
 
+			auto name = urlencode(pair.first) + "=";
 			for (auto& value : pair.second) {
 				add_prefix();
 
@@ -286,16 +282,22 @@ namespace tangle {
 		return out;
 	}
 
-	std::vector<std::pair<std::string, std::string>> uri::params::list() const {
+	uri::params::list_type
+	uri::params::list() const {
 		size_t length = 0;
 		for (auto& pair : m_values) {
-			length += pair.second.size();
+			if (pair.second.empty())
+				++length;
+			else
+				length += pair.second.size();
 		}
 
-		std::vector<std::pair<std::string, std::string>> out;
+		uri::params::list_type out;
 		out.reserve(length);
 
 		for (auto& pair : m_values) {
+			if (pair.second.empty())
+			out.emplace_back(pair.first, std::nullopt);
 			for (auto& value : pair.second)
 				out.emplace_back(pair.first, value);
 		}
@@ -344,7 +346,7 @@ namespace tangle {
 				                        static_cast<size_t>(c - value_start)));
 				WS();
 			} else
-				out.add(name, {});
+				out.set(name);
 
 			if (!IS('&')) break;
 
@@ -363,11 +365,13 @@ namespace tangle {
 	uri& uri::operator=(const uri&) = default;
 
 	uri::uri(std::string_view ident) : m_uri{ident.data(), ident.length()} {}
-	uri::uri(const std::string& ident) : m_uri{ident} {}
 
 	uri::uri(std::string&& ident) : m_uri{std::move(ident)} {}
 
-	uri::uri(const char* ident) : m_uri{ident} {}
+	uri& uri::operator=(const std::string_view& ident) {
+		m_uri.assign(ident);
+		return *this;
+	}
 
 	uri::uri(uri&& other) : m_uri{std::move(other.m_uri)} {
 		other.invalidate_scheme();
@@ -629,8 +633,8 @@ namespace tangle {
 		}
 
 		if (identifier.has_scheme()) {
-			if (!base.has_scheme() ||
-			    tolower(identifier.scheme()) != tolower(base.scheme()))
+			if (!base.has_scheme() || tolower(to_string(identifier.scheme())) !=
+			                              tolower(to_string(base.scheme())))
 				return normal(identifier, flag);
 		}
 

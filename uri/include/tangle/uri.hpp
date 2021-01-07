@@ -13,6 +13,7 @@ manipulation of resource addresses, with some helper
 utilities.
 */
 
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -185,19 +186,13 @@ namespace tangle {
 		Constructs an uri from the identifier.
 		\param ident a string representing the uri
 		*/
-		uri(const std::string& ident);
-
-		/**
-		Constructs an uri from the identifier.
-		\param ident a string representing the uri
-		*/
 		uri(std::string&& ident);
 
 		/**
-		Constructs an uri from the identifier.
+		Copies an uri from the identifier.
 		\param ident a string representing the uri
 		*/
-		uri(const char* ident);
+		uri& operator=(const std::string_view& ident);
 
 		/** Flags for auth_parts::string */
 		enum auth_flag {
@@ -277,8 +272,7 @@ namespace tangle {
 			\param value a value of the field
 			\result a builder reference to chain the calls together
 			*/
-			params& add(const std::string& name,
-			                   const std::string& value) {
+			params& add(const std::string& name, const std::string& value) {
 				m_values[name].push_back(value);
 				return *this;
 			}
@@ -313,10 +307,24 @@ namespace tangle {
 			std::string string(query_flag flag = start_with_qmark) const;
 
 			/**
+			 Represents a pair on param list. The optional value will be set, if
+			 corresponding param had value.
+			*/
+			using param_type =
+			    std::pair<std::string, std::optional<std::string>>;
+
+			/**
+			 Represents a flat list of all the parameters on a query string. The
+			 order of the params is unspecified, except for params with the same
+			 name preserve the order of values.
+			*/
+			using list_type = std::vector<param_type>;
+
+			/**
 			Creates a list of all fields for individual access.
 			\result a vector of name/value pairs
 			*/
-			std::vector<std::pair<std::string, std::string>> list() const;
+			list_type list() const;
 
 			std::unordered_map<std::string, std::vector<std::string>> const&
 			values() const noexcept {

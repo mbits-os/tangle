@@ -58,6 +58,11 @@ namespace tangle::testing {
 		ASSERT_EQ(expected.path, address.path());
 		ASSERT_EQ(expected.query, address.query());
 		ASSERT_EQ(expected.fragment, address.fragment());
+
+		std::string resource;
+		resource.append(expected.path);
+		resource.append(expected.query);
+		ASSERT_EQ(resource, address.resource());
 	}
 
 	static const uri_parts_info parts[] = {
