@@ -9,7 +9,7 @@ namespace {
 	struct cookie_info {
 		const char* header;
 		tangle::cookie::item cookie;
-		bool prefer_maxage;
+		bool prefer_maxage{false};
 	};
 
 	std::ostream& operator<<(std::ostream& o, const cookie_info& nfo) {
@@ -95,8 +95,10 @@ namespace {
 	        "name=value; Domain=www.example.com",
 	        {"name", "value", {"www.example.com", {}}},
 	    },
-	    {"name=value; Domain=example.com; Path=/res/ource",
-	     {"name", "value", {"example.com", "/res/ource"}}},
+	    {
+	        "name=value; Domain=example.com; Path=/res/ource",
+	        {"name", "value", {"example.com", "/res/ource"}},
+	    },
 	};
 
 	static cookie_info expires[] = {

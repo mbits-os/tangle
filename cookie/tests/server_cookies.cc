@@ -124,6 +124,10 @@ namespace {
 	        {"name", "value", {"www.example.com", "/"}},
 	    },
 	    {
+	        "name=value; Domain=www.example.com; NoSuchField=/res/ource"sv,
+	        {"name", "value", {"www.example.com", "/"}},
+	    },
+	    {
 	        "name=value; Path=/res/ource; Domain=example.com"sv,
 	        {"name", "value", {"example.com", "/res/ource"}},
 	    },

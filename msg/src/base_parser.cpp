@@ -31,12 +31,6 @@ namespace tangle::msg {
 		}
 	}  // namespace
 
-	std::string printable(std::string&& s) {
-		for (auto& c : s)
-			c = isprint(static_cast<uint8_t>(c)) ? c : '.';
-		return s;
-	}
-
 	std::pair<size_t, parsing> base_parser::append(const char* data,
 	                                               size_t length) {
 		if (!length) return {0, parsing::reading};
@@ -59,10 +53,7 @@ namespace tangle::msg {
 				        parsing::error};
 
 			if (it == cur) {  // empty line
-				if (!rearrange())
-					return {report_read(prev, static_cast<size_t>(
-					                              std::distance(begin, it))),
-					        parsing::error};
+				rearrange();
 				return {report_read(prev, static_cast<size_t>(
 				                              std::distance(begin, it))) +
 				            2,
@@ -165,7 +156,7 @@ namespace tangle::msg {
 		return in;
 	}
 
-	bool base_parser::rearrange() {
+	void base_parser::rearrange() {
 		m_dict.clear();
 
 		for (auto& pair : m_field_list) {
@@ -177,6 +168,5 @@ namespace tangle::msg {
 		m_field_list.clear();
 		m_contents.clear();
 		m_contents.shrink_to_fit();
-		return true;
 	}
 }  // namespace tangle::msg

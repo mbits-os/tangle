@@ -78,6 +78,6 @@ add_test(NAME flags.header COMMAND cookie-test --gtest_filter=flags/SetCookie_he
 add_test(NAME scope.header COMMAND cookie-test --gtest_filter=scope/SetCookie_header.*)
 add_test(NAME expires.header COMMAND cookie-test --gtest_filter=expires/SetCookie_header.*)
 add_test(NAME max_age.header COMMAND cookie-test --gtest_filter=max_age/SetCookie_header.*)
-add_test(NAME cookie.jar COMMAND cookie-test --gtest_filter=*/cookie_jar_*)
+add_test(NAME cookie.jar COMMAND cookie-test --gtest_filter=*/cookie_jar_*:cookie_jar_*)
 
 endif()

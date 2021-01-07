@@ -45,6 +45,8 @@ namespace {
 		auto& expected = par.after;
 
 		actual.add(par.cookie, par.from_http);
+		auto moveable_copy = par.cookie;
+		actual.add(std::move(moveable_copy), par.from_http);
 		ASSERT_EQ(expected.size(), actual.size());
 		auto pex = std::begin(expected);
 		for (auto& act : actual) {

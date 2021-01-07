@@ -40,7 +40,7 @@ namespace tangle::msg {
 		dict_t m_dict;
 		size_t m_last_line_end = 0;
 
-		bool rearrange();
+		void rearrange();
 		std::string_view get(span s) {
 			return {m_contents.data() + s.offset(), s.length()};
 		}

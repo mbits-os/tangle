@@ -54,56 +54,72 @@ namespace {
 	}
 
 	static jar_info empty[] = {
-	    {// empty jar
-	     {},
-	     {"example.com", "/"},
-	     match::secure,
-	     ""},
-	    {// flags mismatch
-	     {{"https_only", "value", {"example.com", "/"}, flags::secure},
-	      {"no_subdomains", "value", {"example.com", "/"}, flags::host_only},
-	      {"no_js", "value", {"example.com", "/"}, flags::http_only}},
-	     {"www.example.com", "/"},
-	     match::none,
-	     ""},
-	    {// expired
-	     {
-	         {"5_seconds_ago",
-	          "value",
-	          {"example.com", "/"},
-	          flags::persistent,
-	          now() - 5s},
-	         {"begining_of_time",
-	          "value",
-	          {"example.com", "/"},
-	          flags::persistent,
-	          make_time(1601, 1, 1, 0, 0, 0)},
-	     },
-	     {"example.com", "/"},
-	     match::none,
-	     ""},
+	    {
+	        // empty jar
+	        {},
+	        {"example.com", "/"},
+	        match::secure,
+	        "",
+	    },
+	    {
+	        // flags mismatch
+	        {
+	            {"https_only", "value", {"example.com", "/"}, flags::secure},
+	            {"no_subdoms", "value", {"example.com", "/"}, flags::host_only},
+	            {"no_js", "value", {"example.com", "/"}, flags::http_only},
+	        },
+	        {"www.example.com", "/"},
+	        match::none,
+	        "",
+	    },
+	    {
+	        // expired
+	        {
+	            {"5_seconds_ago",
+	             "value",
+	             {"example.com", "/"},
+	             flags::persistent,
+	             now() - 5s},
+	            {"begining_of_time",
+	             "value",
+	             {"example.com", "/"},
+	             flags::persistent,
+	             make_time(1601, 1, 1, 0, 0, 0)},
+	        },
+	        {"example.com", "/"},
+	        match::none,
+	        "",
+	    },
 	};
 
 	static const jar jar_contents{
 	    {"password", "123456", {"example.com", "/"}, flags::http_only},
 	    {"settings", "some", {"example.com", "/"}, flags::none},
 	    {"password", "password", {"example.net", "/"}, flags::http_only},
-	    {"weak",
-	     "value",
-	     {"example.net", "/"},
-	     flags::http_only | flags::secure},
-	    {"weakNone",
-	     "value",
-	     {"example.net", "/sub"},
-	     flags::http_only | flags::secure},
-	    {"main",
-	     "value",
-	     {"example.net", "/"},
-	     flags::http_only | flags::host_only},
-	    {"www",
-	     "value",
-	     {"www.example.net", "/"},
-	     flags::http_only | flags::host_only},
+	    {
+	        "weak",
+	        "value",
+	        {"example.net", "/"},
+	        flags::http_only | flags::secure,
+	    },
+	    {
+	        "weakNone",
+	        "value",
+	        {"example.net", "/sub"},
+	        flags::http_only | flags::secure,
+	    },
+	    {
+	        "main",
+	        "value",
+	        {"example.net", "/"},
+	        flags::http_only | flags::host_only,
+	    },
+	    {
+	        "www",
+	        "value",
+	        {"www.example.net", "/"},
+	        flags::http_only | flags::host_only,
+	    },
 	    {"wwwSubDom", "value", {"www.example.net", "/"}, flags::http_only},
 	    {"wwwSubPath", "value", {"www.example.net", "/sub"}, flags::http_only},
 	};
