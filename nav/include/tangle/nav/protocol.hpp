@@ -13,8 +13,7 @@ over any wire, should do so over the cache.
 
 #pragma once
 #include <memory>
-#include <tangle/cache/cache.hpp>
-#include <tangle/cache/loader.hpp>
+#include <tangle/nav/document.hpp>
 #include <tangle/nav/jar.hpp>
 #include <tangle/nav/request.hpp>
 #include <unordered_map>
@@ -23,7 +22,6 @@ namespace tangle::nav {
 	struct navigator;
 	struct protocol {
 		virtual ~protocol() {}
-		virtual tangle::cache::document open(const request& req,
-		                                     navigator& nav) = 0;
+		virtual document open(const request& req, navigator& nav) = 0;
 	};
 }  // namespace tangle::nav

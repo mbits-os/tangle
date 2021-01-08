@@ -78,7 +78,6 @@ set(MODULES
 	cookie
 	uri
 	msg
-	cache
   nav
   http
 )

@@ -13,8 +13,8 @@ over any wire, should do so over the cache.
 
 #pragma once
 #include <memory>
-#include <tangle/cache/cache.hpp>
 #include <tangle/cookie/chrono.hpp>
+#include <tangle/nav/document.hpp>
 #include <tangle/nav/request.hpp>
 
 namespace tangle::nav {
@@ -23,7 +23,6 @@ namespace tangle::nav {
 	struct config {
 		std::string app_version{};
 		std::string jar_file{};
-		std::string cache_dir{};
 		std::vector<std::string> languages{};
 	};
 
@@ -44,14 +43,10 @@ namespace tangle::nav {
 
 		const std::string& user_agent() const noexcept;
 		jar& cookies() noexcept;
-		const jar& cookies() const noexcept;
-		tangle::cache::cache& cache() noexcept;
-		const tangle::cache::cache& cache() const noexcept;
 		const std::vector<std::string>& languages() const noexcept;
 
-		tangle::cache::document open(
-		    const request& req,
-		    cookie::time_point when = cookie::clock::now());
+		document open(const request& req,
+		              cookie::time_point when = cookie::clock::now());
 
 	private:
 		std::shared_ptr<backend> m_impl;

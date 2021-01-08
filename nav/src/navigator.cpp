@@ -3,35 +3,14 @@
 
 #include <cctype>
 #include <map>
-#include <tangle/cache/cache.hpp>
 #include <tangle/nav/jar.hpp>
 #include <tangle/nav/navigator.hpp>
 #include <tangle/nav/protocol.hpp>
 
 namespace tangle::nav {
-	namespace impl {
-		struct empty_cache : tangle::cache::cache {
-			bool storage_backed() const noexcept override { return false; }
-			std::shared_ptr<file> get(const uri&) override { return {}; }
-
-			std::shared_ptr<file> create(const uri&) override { return {}; }
-		};
-
-		struct dummy_cache : tangle::cache::cache {
-			bool storage_backed() const noexcept override { return true; }
-			std::shared_ptr<file> get(const uri&) override { return {}; }
-
-			std::shared_ptr<file> create(const uri&) override { return {}; }
-		};
-	}  // namespace impl
-
 	struct navigator::backend {
 		backend(const std::string& user_agent);
 		~backend();
-
-		void set_cache(std::unique_ptr<tangle::cache::cache> cache) {
-			m_cache = std::move(cache);
-		}
 
 		void reg_proto(const std::string& scheme,
 		               const std::shared_ptr<protocol>& proto);
@@ -39,9 +18,6 @@ namespace tangle::nav {
 
 		const std::string& user_agent() const noexcept { return m_user_agent; }
 		jar& cookies() noexcept { return m_jar; }
-		const jar& cookies() const noexcept { return m_jar; }
-		tangle::cache::cache& cache() noexcept { return *m_cache; }
-		const tangle::cache::cache& cache() const noexcept { return *m_cache; }
 		const std::vector<std::string>& languages() const noexcept {
 			return m_languages;
 		}
@@ -50,7 +26,6 @@ namespace tangle::nav {
 	private:
 		std::string m_user_agent;
 		jar m_jar;
-		std::unique_ptr<tangle::cache::cache> m_cache;
 		std::vector<std::string> m_languages;
 		std::map<std::string, std::shared_ptr<protocol>, std::less<>>
 		    m_protocols;
@@ -63,21 +38,11 @@ namespace tangle::nav {
 	navigator& navigator::operator=(navigator&&) noexcept = default;
 
 	navigator::navigator()
-	    : m_impl{std::make_shared<backend, std::string>({})} {
-		m_impl->set_cache(std::make_unique<impl::empty_cache>());
-	}
+	    : m_impl{std::make_shared<backend, std::string>({})} {}
 
 	navigator::navigator(const config& cfg)
 	    : m_impl{std::make_shared<backend>(cfg.app_version)} {
 		cookies().path(cfg.jar_file);
-
-		if (cfg.cache_dir.empty())
-			m_impl->set_cache(std::make_unique<impl::empty_cache>());
-		else {
-			// TODO: missing cache implementation
-			m_impl->set_cache(std::make_unique<impl::dummy_cache>());
-		}
-
 		m_impl->languages() = cfg.languages;
 	}
 
@@ -94,20 +59,12 @@ namespace tangle::nav {
 		return m_impl->user_agent();
 	}
 	jar& navigator::cookies() noexcept { return m_impl->cookies(); }
-	const jar& navigator::cookies() const noexcept { return m_impl->cookies(); }
-	tangle::cache::cache& navigator::cache() noexcept {
-		return m_impl->cache();
-	}
-	const tangle::cache::cache& navigator::cache() const noexcept {
-		return m_impl->cache();
-	}
 
 	const std::vector<std::string>& navigator::languages() const noexcept {
 		return m_impl->languages();
 	}
 
-	tangle::cache::document navigator::open(const request& req,
-	                                        cookie::time_point) {
+	document navigator::open(const request& req, cookie::time_point) {
 		auto& addr = req.address();
 
 		if (!addr.has_authority()) return {};

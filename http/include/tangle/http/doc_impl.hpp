@@ -9,7 +9,7 @@ Navigation HTTP document backend.
 
 #pragma once
 
-#include <tangle/cache/impl/loader_impl.hpp>
+#include <tangle/nav/document.hpp>
 #include <tangle/cookie/item.hpp>
 #include <tangle/msg/http_parser.hpp>
 #include <tangle/nav/jar.hpp>
@@ -17,7 +17,7 @@ Navigation HTTP document backend.
 #include <tangle/uri.hpp>
 
 namespace tangle::http {
-	struct doc_impl : cache::doc_impl {
+	struct doc_impl : nav::doc_impl {
 		static inline bool is_redirect(int status) {
 			/*
 			 * 01
@@ -86,7 +86,7 @@ namespace tangle::http {
 			}
 		}
 
-		cache::document open(uri const& loc) override {
+		nav::document open(uri const& loc) override {
 			if (!exists()) return {};
 			return nav_->open(nav::request{loc}.referrer(location_));
 		}

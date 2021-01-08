@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.4)
 project(nav VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
+	src/document.cpp
 	src/nav_jar.cpp
 	src/navigator.cpp
 
+	include/tangle/nav/document.hpp
 	include/tangle/nav/jar.hpp
 	include/tangle/nav/request.hpp
 	include/tangle/nav/navigator.hpp
@@ -19,7 +21,7 @@ set_target_properties(nav PROPERTIES
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER libs)
 target_include_directories(nav PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(nav PUBLIC uri cookie cache msg)
+target_link_libraries(nav PUBLIC uri cookie msg)
 target_compile_options(nav PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
 if (TANGLE_INSTALL)
@@ -60,5 +62,7 @@ endif()
 add_executable(nav-test ${TEST_SRCS})
 set_target_properties(nav-test PROPERTIES FOLDER tests)
 target_link_libraries(nav-test nav GTest::gmock_main)
+
+add_test(NAME nav COMMAND nav-test)
 
 endif()

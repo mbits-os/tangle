@@ -13,39 +13,7 @@ Cache content.
 #include <memory>
 #include <tangle/uri.hpp>
 
-namespace tangle::cache {
-	struct loader_impl;
-	/**
-	Content loader.
-
-	Content interface for cache object clients.
-	*/
-	struct loader {
-		loader();
-		loader(const loader&);
-		loader& operator=(const loader&);
-		loader(loader&&);
-		loader& operator=(loader&&);
-
-		loader& on_opened(const std::function<bool(loader&)>&);
-		loader& on_data(
-		    const std::function<void(loader&, const void*, size_t)>&);
-
-		// false, when file couldn't be opened, e.g. 4xx and 5xx on HTTP
-		bool exists() const;
-		// unsatisfied link, e.g. 3xx on HTTP
-		bool is_link() const;
-
-		static loader wrap(std::shared_ptr<loader_impl> impl) {
-			return loader{std::move(impl)};
-		}
-
-	private:
-		std::shared_ptr<loader_impl> m_impl;
-
-		explicit loader(std::shared_ptr<loader_impl> impl);
-	};
-
+namespace tangle::nav {
 	struct doc_impl;
 	struct document {
 		document();
@@ -76,4 +44,19 @@ namespace tangle::cache {
 
 		explicit document(std::shared_ptr<doc_impl> impl);
 	};
-}  // namespace tangle::cache
+
+	struct doc_impl {
+		virtual ~doc_impl() {}
+		virtual document open(uri const& loc) = 0;
+		virtual uri const& location() const noexcept = 0;
+		virtual std::string const& text() const noexcept = 0;
+		virtual std::string&& moveable_text() noexcept = 0;
+		virtual int status() const noexcept = 0;
+		virtual std::string const& status_text() const noexcept = 0;
+		virtual bool exists() const noexcept = 0;
+		virtual bool is_link() const noexcept = 0;
+		virtual std::vector<std::pair<std::string, std::string>> const&
+		headers() const noexcept = 0;
+	};
+
+}  // namespace tangle::nav

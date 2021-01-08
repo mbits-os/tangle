@@ -1,36 +1,9 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/cache/impl/loader_impl.hpp>
-#include <tangle/cache/loader.hpp>
+#include <tangle/nav/document.hpp>
 
-namespace tangle::cache {
-	loader::loader(std::shared_ptr<loader_impl> impl) : m_impl(impl) {}
-
-	loader::loader() = default;
-	loader::loader(const loader&) = default;
-	loader& loader::operator=(const loader&) = default;
-	loader::loader(loader&&) = default;
-	loader& loader::operator=(loader&&) = default;
-
-	loader& loader::on_opened(const std::function<bool(loader&)>&) {
-		return *this;
-	}
-	loader& loader::on_data(
-	    const std::function<void(loader&, const void*, size_t)>&) {
-		return *this;
-	}
-
-	bool loader::exists() const {
-		if (!m_impl) return false;
-		return m_impl->exists();
-	}
-
-	bool loader::is_link() const {
-		if (!m_impl) return false;
-		return m_impl->is_link();
-	}
-
+namespace tangle::nav {
 	document::document(std::shared_ptr<doc_impl> impl) : m_impl(impl) {}
 
 	document::document() = default;
@@ -89,4 +62,4 @@ namespace tangle::cache {
 		if (!m_impl) return empty;
 		return m_impl->headers();
 	}
-}  // namespace tangle::cache
+}  // namespace tangle::nav

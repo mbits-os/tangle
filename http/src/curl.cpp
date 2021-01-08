@@ -336,8 +336,8 @@ namespace tangle::http::curl {
 	}
 
 	struct protocol : nav::protocol {
-		cache::document open(const nav::request& req,
-		                     nav::navigator& nav) override {
+		nav::document open(const nav::request& req,
+		                   nav::navigator& nav) override {
 			auto const addr = [](uri addr) {
 				addr.fragment({});
 				return addr;
@@ -375,8 +375,8 @@ namespace tangle::http::curl {
 			}
 
 			StringList headers{};
-			if (!req.headers().empty()) {
-				for (auto const& [name, value] : req.headers()) {
+			if (!req.meta().empty()) {
+				for (auto const& [name, value] : req.meta()) {
 					std::string combined{};
 					combined.reserve(name.size() + value.size() + 1);
 					combined.append(name);
@@ -411,7 +411,7 @@ namespace tangle::http::curl {
 			if (ret != CURLE_OK)
 				document->on_library_error(ret, curl_easy_strerror(ret));
 
-			return cache::document::wrap(document);
+			return nav::document::wrap(document);
 		};
 	};
 }  // namespace tangle::http::curl

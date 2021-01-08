@@ -29,7 +29,7 @@ namespace tangle::nav {
 		request(nav::method mth, const uri& address)
 		    : m_address(normalized(address)), m_method(mth) {}
 
-		using header_list = std::vector<std::pair<std::string, std::string>>;
+		using meta_list = std::vector<std::pair<std::string, std::string>>;
 
 		request& method(nav::method value) {
 			m_method = value;
@@ -39,12 +39,8 @@ namespace tangle::nav {
 			m_address = normalized(value);
 			return *this;
 		}
-		request& headers(header_list const& hdrs) {
-			m_headers = hdrs;
-			return *this;
-		}
-		request& headers(header_list&& hdrs) {
-			m_headers = std::move(hdrs);
+		request& meta(meta_list&& hdrs) {
+			m_meta = std::move(hdrs);
 			return *this;
 		}
 		request& follow_redirects(bool value) {
@@ -78,7 +74,7 @@ namespace tangle::nav {
 		}
 
 		const uri& address() const noexcept { return m_address; }
-		header_list const& headers() const noexcept { return m_headers; }
+		meta_list const& meta() const noexcept { return m_meta; }
 		nav::method method() const noexcept { return m_method; }
 		bool follow_redirects() const noexcept { return m_follow_redirects; }
 		int max_redir() const noexcept { return m_max_redir; }
@@ -110,6 +106,6 @@ namespace tangle::nav {
 		std::string m_content_type;
 		std::string m_content;
 		std::string m_form_fields;
-		header_list m_headers;
+		meta_list m_meta;
 	};
 }  // namespace tangle::nav

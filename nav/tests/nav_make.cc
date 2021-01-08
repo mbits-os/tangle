@@ -3,7 +3,6 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tangle/cache/cache.hpp>
 #include <tangle/nav/jar.hpp>
 #include <tangle/nav/navigator.hpp>
 #include <tangle/nav/protocol.hpp>
@@ -30,7 +29,6 @@ namespace tangle::nav::testing {
 		    << "user agent: \"" << nav.user_agent() << "\"";
 		ASSERT_TRUE(nav.cookies().path().empty())
 		    << "cookie path: \"" << nav.cookies().path() << "\"";
-		ASSERT_FALSE(nav.cache().storage_backed());
 		ASSERT_TRUE(nav.languages().empty());
 	}
 
@@ -40,7 +38,6 @@ namespace tangle::nav::testing {
 		ASSERT_EQ(nav.user_agent(), cfg.app_version);
 		ASSERT_TRUE(nav.cookies().path().empty())
 		    << "cookie path: \"" << nav.cookies().path() << "\"";
-		ASSERT_FALSE(nav.cache().storage_backed());
 		ASSERT_TRUE(nav.languages().empty());
 	}
 
@@ -50,24 +47,21 @@ namespace tangle::nav::testing {
 		ASSERT_TRUE(nav.user_agent().empty())
 		    << "user agent: \"" << nav.user_agent() << "\"";
 		ASSERT_EQ(nav.cookies().path(), cfg.jar_file);
-		ASSERT_FALSE(nav.cache().storage_backed());
 		ASSERT_TRUE(nav.languages().empty());
 	}
 
 	TEST(navigator_base, create_cache) {
-		config cfg{{}, {}, "tangle.cache"};
+		config cfg{};
 		navigator nav{cfg};
 		ASSERT_TRUE(nav.user_agent().empty())
 		    << "user agent: \"" << nav.user_agent() << "\"";
 		ASSERT_TRUE(nav.cookies().path().empty())
 		    << "cookie path: \"" << nav.cookies().path() << "\"";
-		ASSERT_TRUE(nav.cache().storage_backed());
 		ASSERT_TRUE(nav.languages().empty());
 	}
 
 	TEST(navigator_base, create_languages) {
 		config cfg{{},
-		           {},
 		           {},
 		           {
 		               "first",
@@ -80,12 +74,11 @@ namespace tangle::nav::testing {
 		ASSERT_TRUE(nav.cookies().path().empty())
 		    << "cookie path: \"" << nav.cookies().path() << "\"";
 		ASSERT_EQ(nav.languages().size(), cfg.languages.size());
-		ASSERT_FALSE(nav.cache().storage_backed());
 		ASSERT_TRUE(langs_equal(nav.languages(), cfg.languages));
 	}
 
 	struct ProtocolMock : public protocol {
-		MOCK_METHOD2(open, tangle::cache::document(const request&, navigator&));
+		MOCK_METHOD2(open, tangle::nav::document(const request&, navigator&));
 	};
 
 	TEST(navigator_base, create_proto) {
@@ -95,11 +88,12 @@ namespace tangle::nav::testing {
 		auto proto = std::make_shared<ProtocolMock>();
 		EXPECT_CALL(*proto, open(_, _))
 		    .Times(2)
-		    .WillRepeatedly(Return(tangle::cache::document{}));
+		    .WillRepeatedly(Return(tangle::nav::document{}));
 		nav.reg_proto("bar", proto);
 		nav.open(request{"foo://example.com/"sv});
 		nav.open(request{"bar://example.com/"sv});
 		nav.open(request{"bar://example.com/"sv});
 		nav.open(request{"baz://example.com/"sv});
+		nav.reg_proto("bar", nullptr);
 	}
 }  // namespace tangle::nav::testing
