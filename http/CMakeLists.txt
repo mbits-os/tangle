@@ -7,6 +7,7 @@ set(SOURCES
 	src/headers.cpp
 	include/tangle/http/client.hpp
 	include/tangle/http/headers.hpp
+	include/tangle/http/doc_impl.hpp
 	include/tangle/http/proto.hpp
 )
 

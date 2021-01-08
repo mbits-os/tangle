@@ -5,7 +5,6 @@ set(SOURCES
 	src/nav_jar.cpp
 	src/navigator.cpp
 
-	include/tangle/nav/http_doc_impl.hpp
 	include/tangle/nav/jar.hpp
 	include/tangle/nav/request.hpp
 	include/tangle/nav/navigator.hpp

@@ -4,15 +4,15 @@
 #include <curl/curl.h>
 #undef min
 #undef max
+#include <tangle/http/doc_impl.hpp>
 #include <tangle/http/proto.hpp>
 #include <tangle/msg/http_parser.hpp>
-#include <tangle/nav/http_doc_impl.hpp>
 #include <tangle/nav/protocol.hpp>
 
 using namespace std::literals;
 
 namespace tangle::http::curl {
-	using DocumentPtr = std::shared_ptr<nav::http_doc_impl>;
+	using DocumentPtr = std::shared_ptr<http::doc_impl>;
 
 	struct StringList {
 		void append(char const* value) {
@@ -184,7 +184,7 @@ namespace tangle::http::curl {
 		bool m_wasRedirected;
 		std::string m_finalLocation;
 		msg::http_response m_inParser;
-		std::weak_ptr<nav::http_doc_impl> m_callback;
+		std::weak_ptr<http::doc_impl> m_callback;
 
 	public:
 		explicit Curl() : m_headersLocked(true), m_wasRedirected(false) {}
@@ -260,7 +260,7 @@ namespace tangle::http::curl {
 	}  // namespace Transfer
 
 	inline bool Curl::isRedirect() const {
-		return nav::http_doc_impl::is_redirect(m_inParser.status());
+		return http::doc_impl::is_redirect(m_inParser.status());
 	}
 
 	Curl::size_type Curl::onData(const char* data, size_type length) {
@@ -345,7 +345,7 @@ namespace tangle::http::curl {
 
 			auto cookies = nav.cookies().get(addr, addr.scheme() == "https"sv);
 
-			auto document = std::make_shared<nav::http_doc_impl>(addr, &nav);
+			auto document = std::make_shared<http::doc_impl>(addr, &nav);
 
 			Curl curl{};
 
@@ -408,7 +408,8 @@ namespace tangle::http::curl {
 			if (curl.isRedirect())
 				curl.sendHeaders();  // we must have hit max or a circular
 
-			if (ret != CURLE_OK) document->on_error(ret);
+			if (ret != CURLE_OK)
+				document->on_library_error(ret, curl_easy_strerror(ret));
 
 			return cache::document::wrap(document);
 		};
