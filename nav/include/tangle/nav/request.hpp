@@ -36,7 +36,7 @@ namespace tangle::nav {
 			return *this;
 		}
 		request& address(const uri& value) {
-			if (m_referrer.string().empty())
+			if (m_referrer.empty())
 				m_address = normalized(value);
 			else
 				m_address = normalized(value, m_referrer);

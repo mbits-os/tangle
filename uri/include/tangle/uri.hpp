@@ -436,11 +436,32 @@ namespace tangle {
 		void fragment(std::string_view value);
 
 		/**
+		Checks if the uri has no characters.
+		\returns true, if the underlying objects is empty.
+		*/
+		bool empty() const noexcept { return m_uri.empty(); }
+
+		/**
 		Getter for the underlying object
-		\returns an immutable reference to
-		         the underlying string
+		\returns an immutable reference to the underlying string
 		*/
 		const std::string& string() const { return m_uri; }
+
+		bool operator==(uri const& rhs) const noexcept {
+			return m_uri == rhs.m_uri;
+		}
+
+		bool operator==(std::string_view const& rhs) const noexcept {
+			return m_uri == rhs;
+		}
+
+		bool operator!=(uri const& rhs) const noexcept {
+			return !(*this == rhs);
+		}
+
+		bool operator!=(std::string_view const& rhs) const noexcept {
+			return !(*this == rhs);
+		}
 
 		/**
 		Removes the last component of the path.
@@ -498,4 +519,14 @@ namespace tangle {
 		*/
 		static uri normal(uri identifier, auth_flag flag = ui_safe);
 	};
+
+	inline bool operator==(std::string_view const& lhs,
+	                       uri const& rhs) noexcept {
+		return rhs == lhs;
+	}
+
+	inline bool operator!=(std::string_view const& lhs,
+	                       uri const& rhs) noexcept {
+		return rhs != lhs;
+	}
 }  // namespace tangle

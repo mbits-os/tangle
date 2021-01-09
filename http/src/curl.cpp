@@ -310,12 +310,10 @@ namespace tangle::http::curl {
 			}
 
 			curl.setUrl(addr.string());
-			if (!req.referrer().string().empty())
+			if (!req.referrer().empty())
 				curl.setReferrer(req.referrer().string());
-			if (!cookies.empty()) {
-				// std::cerr << addr.string() << " --> " << cookies << "\n";
+			if (!cookies.empty())
 				curl.setCookie(cookies);
-			}
 
 			StringList headers{};
 			if (!req.meta().empty()) {

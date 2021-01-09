@@ -608,7 +608,7 @@ namespace tangle {
 	}
 
 	uri uri::make_base(const uri& document) {
-		if (document.string().empty()) return document;
+		if (document.empty()) return document;
 
 		auto tmp = document;
 		if (!tmp.has_scheme()) tmp = uri{"http://" + tmp.string()};

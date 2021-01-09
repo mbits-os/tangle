@@ -9,7 +9,7 @@ using namespace std::literals;
 namespace tangle::http::client::testing {
     TEST(request, empty) {
         request req{};
-        EXPECT_TRUE(req.address().string().empty());
+        EXPECT_TRUE(req.address().empty());
         EXPECT_TRUE(req.headers().empty());
     }
 

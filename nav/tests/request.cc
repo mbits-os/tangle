@@ -12,12 +12,12 @@ namespace tangle::nav::testing {
 	TEST(req_tests, empty) {
 		request req{};
 
-		ASSERT_TRUE(req.address().string().empty());
+		ASSERT_TRUE(req.address().empty());
 		ASSERT_TRUE(req.meta().empty());
 		ASSERT_EQ(req.method(), method::get);
 		ASSERT_TRUE(req.follow_redirects());
 		ASSERT_EQ(req.max_redir(), 10);
-		ASSERT_TRUE(req.referrer().string().empty());
+		ASSERT_TRUE(req.referrer().empty());
 		ASSERT_TRUE(req.custom_agent().empty());
 		ASSERT_TRUE(req.content_type().empty());
 		ASSERT_TRUE(req.content().empty());
@@ -34,24 +34,24 @@ namespace tangle::nav::testing {
 	TEST(req_test, referrer) {
 		tangle::uri const dir_file{"dir/file.ext"sv};
 		request req{dir_file};
-		ASSERT_TRUE(req.referrer().string().empty());
-		ASSERT_EQ(req.address().string(), dir_file.string());
+		ASSERT_TRUE(req.referrer().empty());
+		ASSERT_EQ(req.address(), dir_file);
 
 		req.referrer("scheme://host/app/source.ext"sv);
-		ASSERT_EQ(req.address().string(), "scheme://host/app/dir/file.ext"sv);
+		ASSERT_EQ(req.address(), "scheme://host/app/dir/file.ext"sv);
 	}
 
 	TEST(req_test, referrer2) {
 		request req{method::get, "dir/file.ext"sv};
-		ASSERT_TRUE(req.referrer().string().empty());
+		ASSERT_TRUE(req.referrer().empty());
         req.address("dir/file2.ext"sv);
-		ASSERT_EQ(req.address().string(), "dir/file2.ext"sv);
+		ASSERT_EQ(req.address(), "dir/file2.ext"sv);
 
 		req.referrer("scheme://host/app/source.ext"sv);
-		ASSERT_EQ(req.address().string(), "scheme://host/app/dir/file2.ext"sv);
+		ASSERT_EQ(req.address(), "scheme://host/app/dir/file2.ext"sv);
 
         req.address("../app2/file2.ext"sv);
-		ASSERT_EQ(req.address().string(), "scheme://host/app2/file2.ext"sv);
+		ASSERT_EQ(req.address(), "scheme://host/app2/file2.ext"sv);
 	}
 
     TEST(req_test, redir) {

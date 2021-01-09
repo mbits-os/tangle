@@ -39,19 +39,19 @@ namespace tangle::testing {
 
 	TEST_P(UriCannonicalHref, HrefAttr) {
 		auto param = GetParam();
-		auto result = uri::canonical(param.href, param.base).string();
+		auto result = uri::canonical(param.href, param.base);
 		ASSERT_EQ(param.expected, result);
 	}
 
 	TEST_P(UriCannonicalHex, URLDecode) {
 		auto param = GetParam();
-		auto result = uri::canonical(param.url, {}).string();
+		auto result = uri::canonical(param.url, {});
 		ASSERT_EQ(param.expected, result);
 	}
 
 	TEST_P(UriCannonicalBase, MakeBase) {
 		auto param = GetParam();
-		auto result = uri::make_base(param.url).string();
+		auto result = uri::make_base(param.url);
 		ASSERT_EQ(param.expected, result);
 	}
 

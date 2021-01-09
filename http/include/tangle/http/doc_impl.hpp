@@ -89,7 +89,7 @@ namespace tangle::http {
 		using nav::doc_impl::open;
 		nav::document open(nav::request const& req) override {
 			if (!exists()) return {};
-			if (req.referrer().string().empty()) {
+			if (req.referrer().empty()) {
 				auto copy = req;
 				copy.referrer(location_);
 				return nav_->open(copy);
