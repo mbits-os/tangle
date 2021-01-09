@@ -112,10 +112,10 @@ namespace tangle::msg::testing {
 		for (auto chunk : par.stream) {
 			size_t length = strlen(chunk);
 			std::tie(read, result) = parser.append(chunk, length);
-			ASSERT_EQ(parsing::reading, result);
+			ASSERT_NE(parsing::error, result);
 			ASSERT_EQ(length, read);
 		}
-		std::tie(read, result) = parser.append("\r\n\r\n", 4);
+		std::tie(read, result) = parser.append("\r\n", 2);
 		ASSERT_EQ(parsing::separator, result);
 		ASSERT_EQ(2, read);
 
@@ -217,6 +217,22 @@ namespace tangle::msg::testing {
 	            {"field2", {"value"}},
 	        },
 	    },
+	    {
+	        {
+	            "GET / HTTP/1.1\r\nField:value\r\nField2:value\r\n\r\n",
+	            "GET /res HTTP/1.1\r\nField3:value\r\nField4:value\r\n\r\n",
+	            "GET /ource HTTP/1.1\r\nField5:value\r\nField6:value\r\n\r\n",
+	            "GET /res/ource HTTP/1.0\r\nField7:value\r\nField8:value\r\n",
+	        },
+	        "GET",
+	        "/res/ource",
+	        1,
+	        0,
+	        {
+	            {"field7", {"value"}},
+	            {"field8", {"value"}},
+	        },
+	    },
 	    {{"POST /res/ource HTTP/0.99\r\n"}, "POST", "/res/ource", 0, 99, {}},
 	    {{"OPTI", "ONS * HTTP/", "1.1\r\nFie", "ld:value\r\nField2:value\r\n"},
 	     "OPTIONS",
@@ -254,6 +270,13 @@ namespace tangle::msg::testing {
 	         {"field", {"value"}},
 	         {"field2", {"value"}},
 	     }},
+	    {{"HT", "TP/1.1 20", "0 OK\r\nField:va", "lue\r\nField2:value\r\n",
+	      "\r\n", "HTTP/314.99 500 I don't know\r\n"},
+	     314,
+	     99,
+	     500,
+	     "I don't know",
+	     {}},
 	};
 
 	const char* error_requests[] = {

@@ -62,4 +62,11 @@ namespace tangle::nav {
 		if (!m_impl) return empty;
 		return m_impl->headers();
 	}
+
+	doc_impl::~doc_impl() = default;
+
+	document doc_impl::open(uri const& loc) {
+		if (!exists()) return {};
+		return open(request{loc}.referrer(location()));
+	}
 }  // namespace tangle::nav

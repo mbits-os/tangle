@@ -2,7 +2,7 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #pragma once
-#include <tangle/msg/base_parser.hpp>
+#include <tangle/msg/field_parser.hpp>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
@@ -18,7 +18,7 @@ namespace tangle::msg {
 	template <typename Final>
 	class http_parser_base {
 	public:
-		using dict_t = base_parser::dict_t;
+		using dict_t = field_parser::dict_t;
 		std::pair<size_t, parsing> append(const char* data, size_t length);
 		const http_version& proto() const { return m_proto; }
 		dict_t const& dict() const { return m_fields.dict(); }
@@ -29,7 +29,7 @@ namespace tangle::msg {
 		}
 
 	private:
-		base_parser m_fields;
+		field_parser m_fields;
 		http_version m_proto;
 		bool m_needs_first_line = true;
 	};
@@ -38,6 +38,14 @@ namespace tangle::msg {
 	inline std::pair<size_t, parsing> http_parser_base<Final>::append(
 	    const char* data,
 	    size_t length) {
+		if (!m_needs_first_line && m_fields.headers_seen()) {
+			auto& thiz = static_cast<Final&>(*this);
+			thiz.reset_first_line();
+
+			m_needs_first_line = true;
+			m_fields.reset_parser();
+		}
+
 		if (m_needs_first_line) {
 			auto& thiz = static_cast<Final&>(*this);
 			auto ret = thiz.first_line(data, length);
@@ -56,6 +64,7 @@ namespace tangle::msg {
 	class http_request : public http_parser_base<http_request> {
 		friend class http_parser_base<http_request>;
 		std::pair<size_t, parsing> first_line(const char* data, size_t length);
+		void reset_first_line();
 
 	public:
 		const std::string& method() const { return m_method; }
@@ -69,6 +78,7 @@ namespace tangle::msg {
 	class http_response : public http_parser_base<http_response> {
 		friend class http_parser_base<http_response>;
 		std::pair<size_t, parsing> first_line(const char* data, size_t length);
+		void reset_first_line();
 
 	public:
 		int status() const { return m_status; }

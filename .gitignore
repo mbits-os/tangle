@@ -31,3 +31,4 @@ build.*
 
 docs/html
 .vs
+__pychache__/

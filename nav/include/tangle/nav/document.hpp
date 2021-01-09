@@ -12,6 +12,7 @@ Cache content.
 #include <functional>
 #include <memory>
 #include <tangle/uri.hpp>
+#include <tangle/nav/request.hpp>
 
 namespace tangle::nav {
 	struct doc_impl;
@@ -46,8 +47,9 @@ namespace tangle::nav {
 	};
 
 	struct doc_impl {
-		virtual ~doc_impl() {}
-		virtual document open(uri const& loc) = 0;
+		virtual ~doc_impl();
+		virtual document open(uri const& loc);
+		virtual document open(request const& req) = 0;
 		virtual uri const& location() const noexcept = 0;
 		virtual std::string const& text() const noexcept = 0;
 		virtual std::string&& moveable_text() noexcept = 0;

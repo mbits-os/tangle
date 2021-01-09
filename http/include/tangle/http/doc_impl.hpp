@@ -86,9 +86,15 @@ namespace tangle::http {
 			}
 		}
 
-		nav::document open(uri const& loc) override {
+		using nav::doc_impl::open;
+		nav::document open(nav::request const& req) override {
 			if (!exists()) return {};
-			return nav_->open(nav::request{loc}.referrer(location_));
+			if (req.referrer().string().empty()) {
+				auto copy = req;
+				copy.referrer(location_);
+				return nav_->open(copy);
+			}
+			return nav_->open(req);
 		}
 
 		uri const& location() const noexcept override { return location_; }

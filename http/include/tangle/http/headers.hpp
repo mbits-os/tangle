@@ -92,6 +92,7 @@ namespace tangle::http {
 
 	class header_key {
 	public:
+		header_key() = default;
 		header_key(header h) noexcept : header_(h) {}
 
 		header value() const noexcept { return header_; }
@@ -126,7 +127,7 @@ namespace tangle::http {
 
 	private:
 		header header_ = header::empty;
-		std::string extension_;
+		std::string extension_{};
 		header_key(std::string&& ex) noexcept
 		    : header_(header::extension_header), extension_(std::move(ex)) {}
 	};

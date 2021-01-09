@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstring>
-#include <tangle/msg/base_parser.hpp>
+#include <tangle/msg/field_parser.hpp>
 
 namespace tangle::msg {
 	namespace {
@@ -27,12 +27,12 @@ namespace tangle::msg {
 		}
 
 		inline size_t report_read(size_t prev, size_t position) {
-			return (position > prev) ? prev - position : 0;
+			return (position > prev) ? position - prev : 0;
 		}
 	}  // namespace
 
-	std::pair<size_t, parsing> base_parser::append(const char* data,
-	                                               size_t length) {
+	std::pair<size_t, parsing> field_parser::append(const char* data,
+	                                                size_t length) {
 		if (!length) return {0, parsing::reading};
 
 		auto prev = m_contents.size();
@@ -46,11 +46,12 @@ namespace tangle::msg {
 			auto it = std::find(cur, end, '\r');
 			if (it == end) break;
 			if (std::next(it) == end) break;
-			if (*std::next(it) !=
-			    '\n')  // mid-line \r? - check with RFC if ignore, or error
+			if (*std::next(it) != '\n') {
+				// mid-line \r? - check with RFC if ignore, or error
 				return {report_read(prev, static_cast<size_t>(
 				                              std::distance(begin, it))),
 				        parsing::error};
+			}
 
 			if (it == cur) {  // empty line
 				rearrange();
@@ -62,20 +63,23 @@ namespace tangle::msg {
 
 			std::advance(it, 2);
 			if (isspace(static_cast<uint8_t>(*cur))) {
-				if (m_field_list.empty())
+				if (m_field_list.empty()) {
 					return {report_read(prev, static_cast<size_t>(
 					                              std::distance(begin, it))),
 					        parsing::error};
+				}
 
 				m_last_line_end = static_cast<size_t>(std::distance(begin, it));
 				auto& fld = std::get<1>(m_field_list.back());
 				fld = span(fld.offset(), m_last_line_end - fld.offset());
 			} else {
 				auto colon = std::find(cur, it, ':');
-				if (colon == it)  // no colon in field's first line
+				if (colon == it) {
+					// no colon in field's first line
 					return {report_read(prev, static_cast<size_t>(
 					                              std::distance(begin, it))),
 					        parsing::error};
+				}
 
 				m_last_line_end = static_cast<size_t>(std::distance(begin, it));
 				m_field_list.emplace_back(
@@ -87,6 +91,7 @@ namespace tangle::msg {
 
 			cur = it;
 		}
+
 		return {length, parsing::reading};
 	}
 
@@ -156,7 +161,7 @@ namespace tangle::msg {
 		return in;
 	}
 
-	void base_parser::rearrange() {
+	void field_parser::rearrange() {
 		m_dict.clear();
 
 		for (auto& pair : m_field_list) {
@@ -168,5 +173,7 @@ namespace tangle::msg {
 		m_field_list.clear();
 		m_contents.clear();
 		m_contents.shrink_to_fit();
+		m_headers_seen = true;
+		m_last_line_end = 0;
 	}
 }  // namespace tangle::msg

@@ -56,7 +56,7 @@ namespace tangle::msg {
 
 	std::pair<size_t, parsing> http_request::first_line(const char* data,
 	                                                    size_t length) {
-		// Method SP Request-URI SP HTTP-Verson CRLF
+		// Method SP Request-URI SP HTTP-Version CRLF
 		auto cur = data;
 		auto end = data + length;
 		size_t len = 1;
@@ -102,6 +102,11 @@ namespace tangle::msg {
 
 		m_resource = m_resource.substr(method_pos, proto_pos - method_pos);
 		return {len, parsing::separator};
+	}
+
+	void http_request::reset_first_line() {
+		m_method.clear();
+		m_resource.clear();
 	}
 
 	std::pair<size_t, parsing> http_response::first_line(const char* data,
@@ -157,5 +162,10 @@ namespace tangle::msg {
 		}
 
 		return {len, parsing::separator};
+	}
+
+	void http_response::reset_first_line() {
+		m_status = 0;
+		m_reason.clear();
 	}
 }  // namespace tangle::msg

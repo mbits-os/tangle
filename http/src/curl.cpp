@@ -1,10 +1,7 @@
 // Copyright (c) 2020 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <curl/curl.h>
-#undef min
-#undef max
-#include <tangle/http/doc_impl.hpp>
+#include <tangle/http/curl.hpp>
 #include <tangle/http/proto.hpp>
 #include <tangle/msg/http_parser.hpp>
 #include <tangle/nav/protocol.hpp>
@@ -12,252 +9,187 @@
 using namespace std::literals;
 
 namespace tangle::http::curl {
-	using DocumentPtr = std::shared_ptr<http::doc_impl>;
+	Curl::Curl() : m_curl(curl_easy_init()) {}
 
-	struct StringList {
-		void append(char const* value) {
-			auto val = curl_slist_append(slist_.release(), value);
-			slist_.reset(val);
-		}
-
-		operator curl_slist*() { return slist_.get(); }
-
-	private:
-		struct free_all {
-			void operator()(curl_slist* slist) { ::curl_slist_free_all(slist); }
-		};
-		using ptr = std::unique_ptr<curl_slist, free_all>;
-		ptr slist_{};
-	};
-
-	template <typename Final>
-	struct CurlBase {
-		typedef unsigned long long size_type;
-
-		CURL* m_curl;
-
-		CurlBase() : m_curl(nullptr) { m_curl = curl_easy_init(); }
-		virtual ~CurlBase() {
-			if (m_curl) curl_easy_cleanup(m_curl);
-			m_curl = nullptr;
-		}
-		explicit operator bool() const { return m_curl != nullptr; }
-
-		void followLocation() {
-			curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, 1L);
-			curl_easy_setopt(m_curl, CURLOPT_AUTOREFERER, 1L);
-		}
-
-		void dontFollowLocation() {
-			curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, 0L);
-			curl_easy_setopt(m_curl, CURLOPT_AUTOREFERER, 0L);
-			curl_easy_setopt(m_curl, CURLOPT_MAXREDIRS, -1L);
-		}
-
-		void setMaxRedirs(long redirs) {
-			curl_easy_setopt(m_curl, CURLOPT_MAXREDIRS, redirs);
-		}
-
-		void setConnectTimeout(long timeout) {
-			curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, timeout);
-		}
-
-		void setUrl(const std::string& url) {
-			curl_easy_setopt(m_curl, CURLOPT_URL, url.c_str());
-		}
-
-		void setUA(const std::string& userAgent) {
-			curl_easy_setopt(m_curl, CURLOPT_USERAGENT, userAgent.c_str());
-		}
-
-		void setReferrer(std::string const& url) {
-			curl_easy_setopt(m_curl, CURLOPT_REFERER, url.c_str());
-		}
-
-		void setCookie(std::string const& cookie) {
-			curl_easy_setopt(m_curl, CURLOPT_COOKIE, cookie.c_str());
-		}
-
-		void postForm(std::string const& form) {
-			curl_easy_setopt(m_curl, CURLOPT_POST, 1L);
-			curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, form.c_str());
-		}
-
-		void setHeaders(curl_slist* headers) {
-			curl_easy_setopt(m_curl, CURLOPT_HTTPHEADER, headers);
-		}
-
-		void setPostData(const void* data, size_t length) {
-			curl_easy_setopt(m_curl, CURLOPT_POSTFIELDSIZE, length);
-			curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, data);
-		}
-
-		void setSSLVerify(bool verify = true) {
-			long val = verify ? 1 : 0;
-			curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, val);
-			curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, val);
-			// curl_easy_setopt(m_curl, CURLOPT_CERTINFO, 1L);
-			// curl_easy_setopt(m_curl, CURLOPT_SSL_CTX_FUNCTION,
-			// curl_ssl_ctx_callback);
-		}
-
-		void setWrite() {
-			auto _this = static_cast<Final*>(this);
-			curl_easy_setopt(m_curl, CURLOPT_WRITEHEADER, _this);
-			curl_easy_setopt(m_curl, CURLOPT_HEADERFUNCTION, curl_onHeader);
-			curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, _this);
-			curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, curl_onData);
-		}
-
-		void setProgress() {
-			curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 0L);
-			curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, curl_onProgress);
-			curl_easy_setopt(m_curl, CURLOPT_PROGRESSDATA,
-			                 static_cast<Final*>(this));
-		}
-
-		void setDebug(bool debug = true) {
-			curl_easy_setopt(m_curl, CURLOPT_VERBOSE, debug ? 1L : 0L);
-			if (debug) {
-				curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, curl_onTrace);
-				curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA,
-				                 static_cast<Final*>(this));
-			} else {
-				curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, nullptr);
-				curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, nullptr);
-			}
-		}
-
-		CURLcode fetch() { return curl_easy_perform(m_curl); }
-
-	protected:
-		size_type onData(const char* data, size_type length) { return 0; }
-		size_type onHeader(const char* data, size_type length) { return 0; }
-		size_type onUnderflow(void* data, size_type length) { return 0; }
-		bool onProgress(double dltotal,
-		                double dlnow,
-		                double ultotal,
-		                double ulnow) {
-			return true;
-		}
-		int onTrace(curl_infotype type, char* data, size_t size) { return 0; }
-
-	private:
-#define CURL_(name)                                                          \
-	static size_t curl_##name(const void* _Str, size_t _Size, size_t _Count, \
-	                          Final* _this) {                                \
-		return static_cast<size_t>(                                          \
-		    _this->name(reinterpret_cast<const char*>(_Str),                 \
-		                static_cast<size_type>(_Size) * _Count) /            \
-		    _Size);                                                          \
-	}
-		CURL_(onData);
-		CURL_(onHeader);
-#undef CURL_
-		static size_t curl_onUnderflow(void* _Str,
-		                               size_t _Size,
-		                               size_t _Count,
-		                               Final* _this) {
-			return static_cast<size_t>(
-			    _this->onUnderflow(_Str,
-			                       static_cast<size_type>(_Size) * _Count) /
-			    _Size);
-		}
-		static int curl_onProgress(Final* _this,
-		                           double dltotal,
-		                           double dlnow,
-		                           double ultotal,
-		                           double ulnow) {
-			return _this->onProgress(dltotal, dlnow, ultotal, ulnow) ? 1 : 0;
-		}
-		static int curl_onTrace(CURL*,
-		                        curl_infotype type,
-		                        char* data,
-		                        size_t size,
-		                        Final* _this) {
-			return _this->onTrace(type, data, size);
-		}
-	};
-
-	class Curl : public CurlBase<Curl> {
-		bool m_headersLocked;
-		bool m_wasRedirected;
-		std::string m_finalLocation;
-		msg::http_response m_inParser;
-		std::weak_ptr<http::doc_impl> m_callback;
-
-	public:
-		explicit Curl() : m_headersLocked(true), m_wasRedirected(false) {}
-
-		DocumentPtr getCallback() const { return m_callback.lock(); }
-		void setCallback(const DocumentPtr& callback) { m_callback = callback; }
-
-		void setUrl(const std::string& url) {
-			m_finalLocation = url;
-			CurlBase<Curl>::setUrl(url);
-		}
-
-		inline bool isRedirect() const;
-		void sendHeaders() const;
-
-		size_type onData(const char* data, size_type length);
-		size_type onHeader(const char* data, size_type length);
-		// still not implemented:
-		size_type onUnderflow(void*, size_type) { return 0; }
-		inline bool onProgress(double, double, double, double);
-		int onTrace(curl_infotype type, char* data, size_t size);
-	};
-
-	inline bool Curl::onProgress(double, double, double, double) {
-		return false;
+	Curl::~Curl() {
+		if (m_curl) curl_easy_cleanup(m_curl);
+		m_curl = nullptr;
 	}
 
-	namespace Transfer {
-		template <bool equal>
-		struct Data {
-			static Curl::size_type onData(const DocumentPtr& http_callback,
-			                              const char* data,
-			                              Curl::size_type length);
-		};
+	Curl::operator bool() const { return m_curl != nullptr; }
 
-		template <>
-		struct Data<true> {
-			static Curl::size_type onData(const DocumentPtr& http_callback,
-			                              const char* data,
-			                              Curl::size_type length) {
-				return http_callback->on_data(data,
-				                              static_cast<size_t>(length));
-			}
-		};
+	DocumentPtr Curl::getCallback() const { return m_callback.lock(); }
+	void Curl::setCallback(const DocumentPtr& callback) {
+		m_callback = callback;
+	}
 
-		template <>
-		struct Data<false> {
-			static Curl::size_type onData(const DocumentPtr& http_callback,
-			                              const char* data,
-			                              Curl::size_type length) {
-				Curl::size_type written = 0;
-				while (length) {
-					Curl::size_type chunk = static_cast<size_t>(-1);
-					if (chunk > length) chunk = length;
-					length -= chunk;
-					size_t st_chunk = static_cast<size_t>(chunk);
-					size_t ret = http_callback->on_data(data, st_chunk);
-					data += st_chunk;
-					written += ret;
-					if (ret != st_chunk) break;
+	void Curl::followLocation() {
+		curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, 1L);
+		curl_easy_setopt(m_curl, CURLOPT_AUTOREFERER, 1L);
+	}
+
+	void Curl::dontFollowLocation() {
+		curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, 0L);
+		curl_easy_setopt(m_curl, CURLOPT_AUTOREFERER, 0L);
+		curl_easy_setopt(m_curl, CURLOPT_MAXREDIRS, -1L);
+	}
+
+	void Curl::setMaxRedirs(long redirs) {
+		curl_easy_setopt(m_curl, CURLOPT_MAXREDIRS, redirs);
+	}
+
+	void Curl::setConnectTimeout(long timeout) {
+		curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, timeout);
+	}
+
+	void Curl::setUrl(const std::string& url) {
+		m_finalLocation = url;
+		curl_easy_setopt(m_curl, CURLOPT_URL, url.c_str());
+	}
+
+	void Curl::setUA(const std::string& userAgent) {
+		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, userAgent.c_str());
+	}
+
+	void Curl::setReferrer(std::string const& url) {
+		curl_easy_setopt(m_curl, CURLOPT_REFERER, url.c_str());
+	}
+
+	void Curl::setCookie(std::string const& cookie) {
+		curl_easy_setopt(m_curl, CURLOPT_COOKIE, cookie.c_str());
+	}
+
+	void Curl::postForm(std::string const& form) {
+		curl_easy_setopt(m_curl, CURLOPT_POST, 1L);
+		curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, form.c_str());
+	}
+
+	void Curl::setHeaders(curl_slist* headers) {
+		curl_easy_setopt(m_curl, CURLOPT_HTTPHEADER, headers);
+	}
+
+	void Curl::setPostData(const void* data, size_t length) {
+		curl_easy_setopt(m_curl, CURLOPT_POSTFIELDSIZE, length);
+		curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, data);
+	}
+
+	void Curl::setSSLVerify(bool verify) {
+		long val = verify ? 1 : 0;
+		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, val);
+		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, val);
+		// curl_easy_setopt(m_curl, CURLOPT_CERTINFO, 1L);
+		// curl_easy_setopt(m_curl, CURLOPT_SSL_CTX_FUNCTION,
+		// curl_ssl_ctx_callback);
+	}
+
+	void Curl::setWrite() {
+		curl_easy_setopt(m_curl, CURLOPT_WRITEHEADER, this);
+		curl_easy_setopt(m_curl, CURLOPT_HEADERFUNCTION, curl_onHeader);
+		curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, this);
+		curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, curl_onData);
+	}
+
+	void Curl::setProgress() {
+		curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 0L);
+		curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, curl_onProgress);
+		curl_easy_setopt(m_curl, CURLOPT_PROGRESSDATA, this);
+	}
+
+	void Curl::setDebug(bool debug) {
+		curl_easy_setopt(m_curl, CURLOPT_VERBOSE, debug ? 1L : 0L);
+		if (debug) {
+			curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, curl_onTrace);
+			curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, this);
+		} else {
+			curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, nullptr);
+			curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, nullptr);
+		}
+	}
+
+	CURLcode Curl::fetch() { return curl_easy_perform(m_curl); }
+
+	static void dbghex(const void* str, size_t size, size_t count) {
+		constexpr size_t length = 32;
+		static constexpr char alphabet[] = "0123456789abcdef";
+		char line[length * 4 + 2];
+		memset(line, ' ', sizeof(line));
+		size_t ch = 0;
+		auto chars = static_cast<char const*>(str);
+		for (size_t i = 0; i < size; ++i) {
+			for (size_t j = 0; j < count; ++j) {
+				auto c = *chars++;
+				line[ch * 3] = alphabet[(c >> 4) & 0xF];
+				line[ch * 3 + 1] = alphabet[(c)&0xF];
+				line[ch * 3 + 2] = ' ';
+				line[length * 3 + ch] =
+				    std::isprint(static_cast<unsigned char>(c)) ? c : '.';
+
+				++ch;
+				if (ch == length) {
+					ch = 0;
+					line[length * 4] = '\n';
+					line[length * 4 + 1] = 0;
+					fputs(line, stderr);
 				}
-
-				return written;
 			}
-		};
-
-		static Curl::size_type onData(const DocumentPtr& http_callback,
-		                              const char* data,
-		                              Curl::size_type length) {
-			return Data<sizeof(Curl::size_type) == sizeof(size_t)>::onData(
-			    http_callback, data, length);
 		}
-	}  // namespace Transfer
+
+		if (ch != 0) {
+			for (size_t i = ch; i < length; ++i) {
+				line[i * 3] = line[i * 3 + 1] = line[i * 3 + 2] =
+				    line[length * 3 + i] = ' ';
+			}
+
+			line[length * 4] = '\n';
+			line[length * 4 + 1] = 0;
+			fputs(line, stderr);
+		}
+	}
+
+	size_t Curl::curl_onData(const void* str,
+	                         size_t size,
+	                         size_t count,
+	                         Curl* self) {
+		return static_cast<size_t>(
+		    self->onData(reinterpret_cast<const char*>(str),
+		                 static_cast<size_type>(size) * count) /
+		    size);
+	}
+
+	size_t Curl::curl_onHeader(const void* str,
+	                           size_t size,
+	                           size_t count,
+	                           Curl* self) {
+		return static_cast<size_t>(
+		    self->onHeader(reinterpret_cast<const char*>(str),
+		                   static_cast<size_type>(size) * count) /
+		    size);
+	}
+
+	size_t Curl::curl_onUnderflow(void* str,
+	                              size_t size,
+	                              size_t count,
+	                              Curl* self) {
+		return static_cast<size_t>(
+		    self->onUnderflow(str, static_cast<size_type>(size) * count) /
+		    size);
+	}
+
+	int Curl::curl_onProgress(Curl* self,
+	                          double dltotal,
+	                          double dlnow,
+	                          double ultotal,
+	                          double ulnow) {
+		return self->onProgress(dltotal, dlnow, ultotal, ulnow) ? 1 : 0;
+	}
+
+	int Curl::curl_onTrace(CURL*,
+	                       curl_infotype type,
+	                       char* data,
+	                       size_t size,
+	                       Curl* self) {
+		return self->onTrace(type, data, size);
+	}
 
 	inline bool Curl::isRedirect() const {
 		return http::doc_impl::is_redirect(m_inParser.status());
@@ -277,12 +209,12 @@ namespace tangle::http::curl {
 		auto const [size, status] = m_inParser.append(data, length);
 		if (status == msg::parsing::separator) {
 			m_headersLocked = true;
-			if (!isRedirect()) sendHeaders();
+			if (!isRedirect()) readResponseHeaders();
 		}
 		return size;
 	}
 
-	void Curl::sendHeaders() const {
+	void Curl::readResponseHeaders() const {
 		auto callback = getCallback();
 		if (!callback) return;
 
@@ -335,6 +267,9 @@ namespace tangle::http::curl {
 		return 0;
 	}
 
+	Curl::size_type Curl::onUnderflow(void*, size_type) { return 0; }
+	bool Curl::onProgress(double, double, double, double) { return false; }
+
 	struct protocol : nav::protocol {
 		nav::document open(const nav::request& req,
 		                   nav::navigator& nav) override {
@@ -359,9 +294,8 @@ namespace tangle::http::curl {
 
 			if (req.follow_redirects()) {
 				curl.followLocation();
-				curl.setMaxRedirs(req.max_redir());
 				auto const redirs = req.max_redir();
-				if (redirs != 0) curl.setMaxRedirs(redirs);
+				if (redirs > 0) curl.setMaxRedirs(redirs);
 			} else {
 				curl.dontFollowLocation();
 			}
@@ -405,8 +339,10 @@ namespace tangle::http::curl {
 			curl.setDebug(false);
 
 			CURLcode ret = curl.fetch();
-			if (curl.isRedirect())
-				curl.sendHeaders();  // we must have hit max or a circular
+			if (curl.isRedirect()) {
+				// we must have hit max or a circular
+				curl.readResponseHeaders();
+			}
 
 			if (ret != CURLE_OK)
 				document->on_library_error(ret, curl_easy_strerror(ret));

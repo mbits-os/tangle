@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.4)
 project(msg VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
-	src/base_parser.cpp
+	src/field_parser.cpp
 	src/http_parser.cpp
 	src/hasher.cpp
 
-	include/tangle/msg/base_parser.hpp
+	include/tangle/msg/field_parser.hpp
 	include/tangle/msg/http_parser.hpp
 	include/tangle/msg/hasher.hpp
 	)

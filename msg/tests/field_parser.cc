@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 #include <cctype>
-#include <tangle/msg/base_parser.hpp>
+#include <tangle/msg/field_parser.hpp>
 
 static std::ostream& operator<<(std::ostream& o, tangle::msg::parsing p) {
 	switch (p) {
@@ -72,28 +72,28 @@ namespace tangle::msg::testing {
 		return o << ' ' << '}';
 	}
 
-	class base_parser : public ::testing::TestWithParam<header_info> {};
+	class field_parser : public ::testing::TestWithParam<header_info> {};
 
-	TEST_P(base_parser, append) {
+	TEST_P(field_parser, append) {
 		auto& par = GetParam();
 
 		using tangle::msg::parsing;
 
-		tangle::msg::base_parser base_parser;
+		tangle::msg::field_parser field_parser;
 
 		size_t read = 0;
 		parsing result = parsing::error;
 		for (auto chunk : par.stream) {
 			size_t length = strlen(chunk);
-			std::tie(read, result) = base_parser.append(chunk, length);
+			std::tie(read, result) = field_parser.append(chunk, length);
 			ASSERT_EQ(parsing::reading, result);
 			ASSERT_EQ(length, read);
 		}
-		std::tie(read, result) = base_parser.append("\r\n\r\n", 4);
+		std::tie(read, result) = field_parser.append("\r\n\r\n", 4);
 		ASSERT_EQ(parsing::separator, result);
 		ASSERT_EQ(2, read);
 
-		auto headers = base_parser.dict();
+		auto headers = field_parser.dict();
 
 		for (auto& header : headers) {
 			auto it = par.headers.find(header.first);
@@ -140,5 +140,5 @@ namespace tangle::msg::testing {
 	      {"accept-language", {"pl-PL, en-US"}}}},
 	};
 
-	INSTANTIATE_TEST_CASE_P(samples, base_parser, ::testing::ValuesIn(samples));
+	INSTANTIATE_TEST_CASE_P(samples, field_parser, ::testing::ValuesIn(samples));
 }  // namespace tangle::msg::testing

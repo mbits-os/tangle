@@ -36,15 +36,14 @@ namespace tangle::nav {
 			return *this;
 		}
 		request& address(const uri& value) {
-			m_address = normalized(value);
+			if (m_referrer.string().empty())
+				m_address = normalized(value);
+			else
+				m_address = normalized(value, m_referrer);
 			return *this;
 		}
 		request& meta(meta_list&& hdrs) {
 			m_meta = std::move(hdrs);
-			return *this;
-		}
-		request& follow_redirects(bool value) {
-			m_follow_redirects = value;
 			return *this;
 		}
 		request& max_redir(int value) {
@@ -76,7 +75,7 @@ namespace tangle::nav {
 		const uri& address() const noexcept { return m_address; }
 		meta_list const& meta() const noexcept { return m_meta; }
 		nav::method method() const noexcept { return m_method; }
-		bool follow_redirects() const noexcept { return m_follow_redirects; }
+		bool follow_redirects() const noexcept { return m_max_redir > 0; }
 		int max_redir() const noexcept { return m_max_redir; }
 		const uri& referrer() const noexcept { return m_referrer; }
 		const std::string& custom_agent() const noexcept {
@@ -99,7 +98,6 @@ namespace tangle::nav {
 		}
 		uri m_address;
 		nav::method m_method = nav::method::get;
-		bool m_follow_redirects = true;
 		int m_max_redir = 10;
 		uri m_referrer;
 		std::string m_custom_agent;

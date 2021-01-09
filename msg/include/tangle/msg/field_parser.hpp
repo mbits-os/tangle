@@ -10,7 +10,7 @@
 namespace tangle::msg {
 	enum class parsing { reading, separator, error };
 
-	class base_parser {
+	class field_parser {
 	public:
 		class span {
 		public:
@@ -34,11 +34,15 @@ namespace tangle::msg {
 
 		dict_t const& dict() const { return m_dict; }
 
+		bool headers_seen() const noexcept { return m_headers_seen; }
+		void reset_parser() { m_headers_seen = false; }
+
 	private:
 		std::vector<char> m_contents;
 		std::vector<std::tuple<span, span>> m_field_list;
 		dict_t m_dict;
 		size_t m_last_line_end = 0;
+		bool m_headers_seen{false};
 
 		void rearrange();
 		std::string_view get(span s) {
