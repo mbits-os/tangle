@@ -32,3 +32,6 @@ build.*
 docs/html
 .vs
 __pycache__/
+
+/web.log
+/.vscode/settings.json
