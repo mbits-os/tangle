@@ -76,5 +76,6 @@ X-Hdr: header value
 		    << "\nStatus text: " << doc.status_text();
 
 		EXPECT_EQ(doc.text(), "URL: /loop/fourth");
+		EXPECT_EQ(doc.location().string(), "http://127.0.0.1:5000/loop/fourth"sv);
 	}
 }  // namespace tangle::http::curl::testing

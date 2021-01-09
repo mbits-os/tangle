@@ -56,6 +56,7 @@ namespace tangle::http::curl {
 		void setProgress();
 		void setDebug(bool debug = true);
 		CURLcode fetch();
+		char const* effectiveLocation() const;
 
 		bool isRedirect() const;
 		void readResponseHeaders() const;

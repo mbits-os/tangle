@@ -108,6 +108,14 @@ namespace tangle::http::curl {
 
 	CURLcode Curl::fetch() { return curl_easy_perform(m_curl); }
 
+	char const* Curl::effectiveLocation() const {
+		char* url = nullptr;
+		if (curl_easy_getinfo(m_curl, CURLINFO_EFFECTIVE_URL, &url) != CURLE_OK)
+			url = nullptr;
+		return url;
+	}
+
+#if 0
 	static void dbghex(const void* str, size_t size, size_t count) {
 		constexpr size_t length = 32;
 		static constexpr char alphabet[] = "0123456789abcdef";
@@ -145,6 +153,7 @@ namespace tangle::http::curl {
 			fputs(line, stderr);
 		}
 	}
+#endif
 
 	size_t Curl::curl_onData(const void* str,
 	                         size_t size,
@@ -346,6 +355,9 @@ namespace tangle::http::curl {
 
 			if (ret != CURLE_OK)
 				document->on_library_error(ret, curl_easy_strerror(ret));
+
+			if (auto const effective = curl.effectiveLocation())
+				document->on_final_location(effective);
 
 			return nav::document::wrap(document);
 		};
