@@ -31,4 +31,4 @@ build.*
 
 docs/html
 .vs
-__pychache__/
+__pycache__/
