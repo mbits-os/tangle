@@ -23,8 +23,8 @@ namespace tangle::http::flask {
 
 		std::thread th_{};
 		std::unique_ptr<Process> process_{};
-        std::mutex m_{};
-        std::condition_variable cv_{};
-        int stage_{0};
+		std::mutex m_{};
+		std::condition_variable cv_{};
+		int stage_{0};
 	};
 }  // namespace tangle::http::flask

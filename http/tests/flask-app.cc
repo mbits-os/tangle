@@ -16,12 +16,12 @@ namespace tangle::http::flask {
 	void app::start() {
 		stop();
 		th_ = std::thread{[](app* self) { self->run(); }, this};
-        stage_ = 2;
-        cv_.notify_one();
+		stage_ = 2;
+		cv_.notify_one();
 
-        std::unique_lock lck{m_};
-        auto self = this;
-        cv_.wait(lck, [&] { return self->stage_ == 3; });
+		std::unique_lock lck{m_};
+		auto self = this;
+		cv_.wait(lck, [&] { return self->stage_ == 3; });
 	}
 
 	void app::stop() {
@@ -42,11 +42,11 @@ namespace tangle::http::flask {
 		process_ = std::make_unique<Process>("flask run", std::string{});
 		fprintf(stderr, "Started flask\n");
 		std::this_thread::sleep_for(1s);
-        {
-            std::unique_lock lck{m_};
-            auto self = this;
-            cv_.wait(lck, [&] { return self->stage_ == 2; });
-        }
+		{
+			std::unique_lock lck{m_};
+			auto self = this;
+			cv_.wait(lck, [&] { return self->stage_ == 2; });
+		}
 		stage_ = 3;
 		cv_.notify_one();
 

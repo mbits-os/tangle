@@ -2,7 +2,7 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <gtest/gtest.h>
-#include "testing_io.hpp"
+#include <tangle/cookie/jar.hpp>
 
 namespace {
 	using namespace std::literals;

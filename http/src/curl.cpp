@@ -95,9 +95,10 @@ namespace tangle::http::curl {
 		curl_easy_setopt(m_curl, CURLOPT_PROGRESSDATA, this);
 	}
 
-	void Curl::setDebug(bool debug) {
-		curl_easy_setopt(m_curl, CURLOPT_VERBOSE, debug ? 1L : 0L);
-		if (debug) {
+	void Curl::setDebug(std::shared_ptr<nav::request_trace> trace) {
+		m_trace = std::move(trace);
+		curl_easy_setopt(m_curl, CURLOPT_VERBOSE, m_trace ? 1L : 0L);
+		if (m_trace) {
 			curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, curl_onTrace);
 			curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, this);
 		} else {
@@ -112,6 +113,7 @@ namespace tangle::http::curl {
 		char* url = nullptr;
 		if (curl_easy_getinfo(m_curl, CURLINFO_EFFECTIVE_URL, &url) != CURLE_OK)
 			url = nullptr;
+		if (url && !*url) url = nullptr;
 		return url;
 	}
 
@@ -175,15 +177,6 @@ namespace tangle::http::curl {
 		    size);
 	}
 
-	size_t Curl::curl_onUnderflow(void* str,
-	                              size_t size,
-	                              size_t count,
-	                              Curl* self) {
-		return static_cast<size_t>(
-		    self->onUnderflow(str, static_cast<size_type>(size) * count) /
-		    size);
-	}
-
 	int Curl::curl_onProgress(Curl* self,
 	                          double dltotal,
 	                          double dlnow,
@@ -234,49 +227,41 @@ namespace tangle::http::curl {
 	}
 
 	int Curl::onTrace(curl_infotype type, char* data, size_t size) {
-		const char* text = nullptr;
+		auto ptr = m_trace;
+		if (!ptr) return 0;
+		auto& ref = *ptr;
+
+		auto chars = std::string_view{data, size};
 
 		switch (type) {
-			case CURLINFO_TEXT:
-				// text = "TEXT";
-				fprintf(stderr, "# %s", data);
-				return 0;
-			default: /* in case a new one is introduced to shock us */
-				fprintf(stderr, "trace(%d)\n", type);
-				return 0;
-
-			case CURLINFO_HEADER_OUT:
-				// text = "HEADER_OUT";
-				break;
-			case CURLINFO_DATA_OUT:
-				// text = "DATA_OUT";
+			case CURLINFO_SSL_DATA_IN:
+				ref.ssl_data_out(chars);
 				break;
 			case CURLINFO_SSL_DATA_OUT:
-				text = "=> Send SSL data";
-				return 0;
+				ref.ssl_data_in(chars);
+				break;
+			case CURLINFO_HEADER_OUT:
+				ref.req_header(chars);
+				break;
+			case CURLINFO_DATA_OUT:
+				ref.req_data(chars);
 				break;
 			case CURLINFO_HEADER_IN:
-				// text = "HEADER_IN";
+				ref.resp_header(chars);
 				break;
 			case CURLINFO_DATA_IN:
-				// text = "DATA_IN";
+				ref.resp_data(chars);
 				break;
-			case CURLINFO_SSL_DATA_IN:
-				text = "<= Recv SSL data";
-				return 0;
+			case CURLINFO_TEXT:
+				ref.message(chars);
+				[[fallthrough]];
+			default:
 				break;
 		}
-
-		if (text) {
-			fprintf(stderr, "%s, %ld bytes (0x%lx)\n", text,
-			        static_cast<long>(size), static_cast<long>(size));
-		}
-		// fwrite(data, 1, size, stderr);
 
 		return 0;
 	}
 
-	Curl::size_type Curl::onUnderflow(void*, size_type) { return 0; }
 	bool Curl::onProgress(double, double, double, double) { return false; }
 
 	struct protocol : nav::protocol {
@@ -312,10 +297,10 @@ namespace tangle::http::curl {
 			curl.setUrl(addr.string());
 			if (!req.referrer().empty())
 				curl.setReferrer(req.referrer().string());
-			if (!cookies.empty())
-				curl.setCookie(cookies);
+			if (!cookies.empty()) curl.setCookie(cookies);
 
 			StringList headers{};
+			auto set_headers{false};
 			if (!req.meta().empty()) {
 				for (auto const& [name, value] : req.meta()) {
 					std::string combined{};
@@ -325,25 +310,27 @@ namespace tangle::http::curl {
 					combined.append(value);
 					headers.append(combined.c_str());
 				}
-				curl.setHeaders(headers);
+				set_headers = true;
 			}
+			if (!req.content_type().empty()) {
+				auto combined = "Content-Type: " + req.content_type();
+				headers.append(combined.c_str());
+				set_headers = true;
+			}
+			if (set_headers) curl.setHeaders(headers);
 
 			if (req.method() == nav::method::post) {
 				if (!req.form_fields().empty()) {
 					curl.postForm(req.form_fields());
 				}
 
-				/*size_t length;
-				void* content = http_callback->getContent(length);
-
-				if (content && length)
-				{
-				    //curl_httppost; HTTPPOST_CALLBACK;
-				    curl.setPostData(content, length);
-				}*/
+				auto const& content = req.content();
+				if (!content.empty()) {
+					curl.setPostData(content.c_str(), content.size());
+				}
 			}
 
-			curl.setDebug(false);
+			curl.setDebug(req.trace());
 
 			CURLcode ret = curl.fetch();
 			if (curl.isRedirect()) {

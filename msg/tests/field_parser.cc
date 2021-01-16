@@ -140,5 +140,7 @@ namespace tangle::msg::testing {
 	      {"accept-language", {"pl-PL, en-US"}}}},
 	};
 
-	INSTANTIATE_TEST_CASE_P(samples, field_parser, ::testing::ValuesIn(samples));
+	INSTANTIATE_TEST_CASE_P(samples,
+	                        field_parser,
+	                        ::testing::ValuesIn(samples));
 }  // namespace tangle::msg::testing

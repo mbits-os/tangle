@@ -282,8 +282,7 @@ namespace tangle {
 		return out;
 	}
 
-	uri::params::list_type
-	uri::params::list() const {
+	uri::params::list_type uri::params::list() const {
 		size_t length = 0;
 		for (auto& pair : m_values) {
 			if (pair.second.empty())
@@ -296,8 +295,7 @@ namespace tangle {
 		out.reserve(length);
 
 		for (auto& pair : m_values) {
-			if (pair.second.empty())
-			out.emplace_back(pair.first, std::nullopt);
+			if (pair.second.empty()) out.emplace_back(pair.first, std::nullopt);
 			for (auto& value : pair.second)
 				out.emplace_back(pair.first, value);
 		}

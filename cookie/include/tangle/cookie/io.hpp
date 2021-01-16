@@ -19,6 +19,7 @@ I/O.
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <map>
 #include <memory>
 #include <tangle/cookie/item.hpp>
 
@@ -177,24 +178,6 @@ namespace tangle::cookie::io {
 		}
 
 		/**
-		Writes a C-style string into writable.
-		\param writable the I/O object
-		\param s pointer to a C-style string
-		\return true, if s in nullptr or entire string was written, including
-		        terminating NIL
-		*/
-		static bool writestr(IO writable, const char* s) {
-			if (!s) {
-				// not writing non-string is, well, exactly the side-effect we
-				// would expect
-				return true;
-			}
-
-			auto len = std::strlen(s) + 1;
-			return Final::writeraw(writable, s, len) == len;
-		}
-
-		/**
 		Writes a string into writable.
 		\param writable the I/O object
 		\param s string to write
@@ -326,6 +309,60 @@ namespace tangle::cookie::io {
 
 	inline namespace v1 {
 		/**
+		Keeps all the strings in all the cookies to be written into a writeble.
+		*/
+		struct string_bag {
+			std::map<std::string, uint32_t> strings{{{}, 0}};
+			uint32_t length = 1;
+
+			/**
+			Adds a single string to this string bag. If the string is missing
+			from this object, it is addded and the offset of that string is
+			returned. Otherwise, offset of previous string is returned.
+
+			\param value the string to add to this bag
+			\return offset of the string
+			*/
+			uint32_t add(std::string const& value);
+			/**
+			Adds all the strings from a cookie and returns offsets to them.
+
+			\param item the cookie object, whose strings should be added to this
+			            bag.
+			\return a new I/O cookie with strings set to offsets from this
+			        bag.
+			*/
+			io::item add(cookie::item const& item);
+
+			/**
+			Stores all the strings from this bag into a writeable.
+
+			\tparam IO the type of the I/O class. Should be in form of a pointer
+			(e.g. `FILE*`) or reference (e.g. `iostream&`)
+
+			\param writable the I/O object
+
+			\return true, if the strings structure was written into I/O
+			*/
+			template <typename IO>
+			inline bool store_raw(IO writable) {
+				if (!io::io_impl<IO>::write(writable, length)) return false;
+
+				for (auto const& [_, value] : sorted_strings()) {
+					if (!io::io_impl<IO>::writestr(writable, value))
+						return false;
+				}
+				return true;
+			}
+
+		private:
+#ifndef USING_DOXYGEN
+			using reversed = std::pair<uint32_t, std::string>;
+			std::vector<reversed> sorted_strings();
+#endif
+		};
+
+		/**
 		Stores qualified cookies from the jar into the writable I/O object.
 
 		Enumerates the persistent cookies from the jar vector and if the cookie
@@ -361,23 +398,14 @@ namespace tangle::cookie::io {
 				return false;
 			if (!io::io_impl<IO>::write(writable, header)) return false;
 
-			uint32_t strings = 1;
+			string_bag bag{};
+
 			for (auto& item : jar) {
 				if ((item.flags() & flags::persistent) != flags::persistent ||
 				    (item.expires() <= when))
 					continue;
 
-				io::item out{};
-				out.name = strings;
-				strings += static_cast<uint32_t>(item.name().length() + 1);
-				out.value = strings;
-				strings += static_cast<uint32_t>(item.value().length() + 1);
-				out.domain = strings;
-				strings +=
-				    static_cast<uint32_t>(item.scope().domain.length() + 1);
-				out.path = strings;
-				strings +=
-				    static_cast<uint32_t>(item.scope().path.length() + 1);
+				io::item out = bag.add(item);
 				out.flags = static_cast<uint32_t>(item.flags());
 				timestamp(out.expires_lo, out.expires_hi, item.expires());
 				timestamp(out.created_lo, out.created_hi, item.creation_time());
@@ -386,26 +414,7 @@ namespace tangle::cookie::io {
 				if (!io::io_impl<IO>::write(writable, out)) return false;
 			}
 
-			if (!io::io_impl<IO>::write(writable, strings)) return false;
-
-			if (!io::io_impl<IO>::writestr(writable, "")) return false;
-
-			for (auto& item : jar) {
-				if ((item.flags() & flags::persistent) != flags::persistent ||
-				    (item.expires() <= when))
-					continue;
-
-				if (!io::io_impl<IO>::writestr(writable, item.name()))
-					return false;
-				if (!io::io_impl<IO>::writestr(writable, item.value()))
-					return false;
-				if (!io::io_impl<IO>::writestr(writable, item.scope().domain))
-					return false;
-				if (!io::io_impl<IO>::writestr(writable, item.scope().path))
-					return false;
-			}
-
-			return true;
+			return bag.store_raw<IO>(writable);
 		}
 
 		/**

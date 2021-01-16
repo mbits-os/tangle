@@ -18,6 +18,17 @@ over any wire, should do so over the cache.
 namespace tangle::nav {
 	enum class method { get, post };
 
+	struct request_trace {
+		virtual ~request_trace();
+		virtual void message(std::string_view text) = 0;
+		virtual void req_header(std::string_view text) = 0;
+		virtual void resp_header(std::string_view text) = 0;
+		virtual void req_data(std::string_view text) = 0;
+		virtual void resp_data(std::string_view text) = 0;
+		virtual void ssl_data_in(std::string_view text) = 0;
+		virtual void ssl_data_out(std::string_view text) = 0;
+	};
+
 	class request {
 	public:
 		request() = default;
@@ -71,6 +82,10 @@ namespace tangle::nav {
 			m_form_fields = std::move(value);
 			return *this;
 		}
+		request& trace(std::shared_ptr<request_trace> callback) {
+			m_trace = callback;
+			return *this;
+		}
 
 		const uri& address() const noexcept { return m_address; }
 		meta_list const& meta() const noexcept { return m_meta; }
@@ -88,6 +103,7 @@ namespace tangle::nav {
 		const std::string& form_fields() const noexcept {
 			return m_form_fields;
 		}
+		std::shared_ptr<request_trace> trace() const { return m_trace; }
 
 	private:
 		uri normalized(uri const& input, uri const& doc) {
@@ -98,12 +114,13 @@ namespace tangle::nav {
 		}
 		uri m_address;
 		nav::method m_method = nav::method::get;
-		int m_max_redir = 10;
+		int m_max_redir = 50;
 		uri m_referrer;
 		std::string m_custom_agent;
 		std::string m_content_type;
 		std::string m_content;
 		std::string m_form_fields;
 		meta_list m_meta;
+		std::shared_ptr<request_trace> m_trace{};
 	};
 }  // namespace tangle::nav

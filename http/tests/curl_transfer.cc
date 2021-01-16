@@ -34,7 +34,7 @@ namespace tangle::http::curl::Transfer::testing {
 		}
 
 		EXPECT_EQ(doc->text(), expected);
-        auto wrapped = nav::document::wrap(std::move(doc));
+		auto wrapped = nav::document::wrap(std::move(doc));
 		EXPECT_EQ(wrapped.text(), expected);
 		EXPECT_EQ(wrapped.moveable_text(), expected);
 	}

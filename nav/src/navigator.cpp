@@ -8,6 +8,8 @@
 #include <tangle/nav/protocol.hpp>
 
 namespace tangle::nav {
+	request_trace::~request_trace() = default;
+
 	struct navigator::backend {
 		backend(const std::string& user_agent);
 		~backend();

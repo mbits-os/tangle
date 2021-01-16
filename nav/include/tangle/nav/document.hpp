@@ -11,8 +11,8 @@ Cache content.
 
 #include <functional>
 #include <memory>
-#include <tangle/uri.hpp>
 #include <tangle/nav/request.hpp>
+#include <tangle/uri.hpp>
 
 namespace tangle::nav {
 	struct doc_impl;
@@ -24,11 +24,14 @@ namespace tangle::nav {
 		document& operator=(document&&);
 
 		document open(uri const& loc);
+		document open(request const& req);
 		uri const& location() const noexcept;
 		std::string const& text() const noexcept;
 		std::string&& moveable_text() noexcept;
 		int status() const noexcept;
 		std::string const& status_text() const noexcept;
+		int conn_status() const noexcept;
+		std::string const& conn_status_text() const noexcept;
 		// false, when file couldn't be opened, e.g. 4xx and 5xx on HTTP
 		bool exists() const noexcept;
 		// unsatisfied link, e.g. 3xx on HTTP
@@ -55,6 +58,8 @@ namespace tangle::nav {
 		virtual std::string&& moveable_text() noexcept = 0;
 		virtual int status() const noexcept = 0;
 		virtual std::string const& status_text() const noexcept = 0;
+		virtual int conn_status() const noexcept = 0;
+		virtual std::string const& conn_status_text() const noexcept = 0;
 		virtual bool exists() const noexcept = 0;
 		virtual bool is_link() const noexcept = 0;
 		virtual std::vector<std::pair<std::string, std::string>> const&

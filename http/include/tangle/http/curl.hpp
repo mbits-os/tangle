@@ -7,6 +7,7 @@
 #undef min
 #undef max
 #include <tangle/http/doc_impl.hpp>
+#include <tangle/nav/request.hpp>
 
 namespace tangle::http::curl {
 	using DocumentPtr = std::shared_ptr<http::doc_impl>;
@@ -14,8 +15,7 @@ namespace tangle::http::curl {
 	struct StringList {
 		void append(char const* value) {
 			auto val = curl_slist_append(slist_.get(), value);
-            if (!slist_)
-			    slist_.reset(val);
+			if (!slist_) slist_.reset(val);
 		}
 
 		operator curl_slist*() { return slist_.get(); }
@@ -54,16 +54,17 @@ namespace tangle::http::curl {
 		void setSSLVerify(bool verify = true);
 		void setWrite();
 		void setProgress();
-		void setDebug(bool debug = true);
+		void setDebug(std::shared_ptr<nav::request_trace> trace = {});
 		CURLcode fetch();
 		char const* effectiveLocation() const;
 
 		bool isRedirect() const;
 		void readResponseHeaders() const;
 
-        class Tester;
+		class Tester;
+
 	private:
-        friend class Tester;
+		friend class Tester;
 
 		static size_t curl_onData(const void* str,
 		                          size_t size,
@@ -73,10 +74,6 @@ namespace tangle::http::curl {
 		                            size_t size,
 		                            size_t count,
 		                            Curl* self);
-		static size_t curl_onUnderflow(void* str,
-		                               size_t size,
-		                               size_t count,
-		                               Curl* self);
 		static int curl_onProgress(Curl* self,
 		                           double dltotal,
 		                           double dlnow,
@@ -90,7 +87,6 @@ namespace tangle::http::curl {
 
 		size_type onData(const char* data, size_type length);
 		size_type onHeader(const char* data, size_type length);
-		size_type onUnderflow(void*, size_type);
 		bool onProgress(double, double, double, double);
 		int onTrace(curl_infotype type, char* data, size_t size);
 
@@ -100,6 +96,7 @@ namespace tangle::http::curl {
 		std::string m_finalLocation{};
 		msg::http_response m_inParser{};
 		std::weak_ptr<http::doc_impl> m_callback{};
+		std::shared_ptr<nav::request_trace> m_trace{};
 	};
 
 	namespace Transfer {

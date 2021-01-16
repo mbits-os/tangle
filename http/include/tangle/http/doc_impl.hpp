@@ -9,9 +9,9 @@ Navigation HTTP document backend.
 
 #pragma once
 
-#include <tangle/nav/document.hpp>
 #include <tangle/cookie/item.hpp>
 #include <tangle/msg/http_parser.hpp>
+#include <tangle/nav/document.hpp>
 #include <tangle/nav/jar.hpp>
 #include <tangle/nav/navigator.hpp>
 #include <tangle/uri.hpp>
@@ -40,86 +40,35 @@ namespace tangle::http {
 			           : false;
 		}
 
-		doc_impl(uri const& location, nav::navigator* nav)
-		    : location_{location}, nav_{nav} {}
-
-		void on_library_error(int code, char const* msg) {
-			status_ = 1000 + code;
-			status_text_ = msg;
-		}
-
-		size_t on_data(const void* data, size_t count) {
-			text_.append(static_cast<char const*>(data), count);
-			return count;
-		}
-
-		void on_final_location(const std::string& location) {
-			location_ = location;
-		}
-
+		doc_impl(uri const& location, nav::navigator* nav);
+		void on_library_error(int code, char const* msg);
+		size_t on_data(const void* data, size_t count);
+		void on_final_location(const std::string& location);
 		void on_headers(std::string const& status_text,
 		                int status,
-		                msg::http_response::dict_t const& headers) {
-			status_ = status;
-			status_text_ = status_text;
-			auto it = headers.find("set-cookie");
-			if (it != headers.end()) {
-				auto& jar = nav_->cookies();
-				auto created = cookie::chrono::clock::now();
-				for (auto& header : it->second) {
-					jar.append(location_, header, created);
-				}
-			}
-
-			size_t count = 0;
-			for (auto const& pair : headers)
-				count += pair.second.size();
-
-			headers_.clear();
-			headers_.reserve(count);
-
-			for (auto const& [hdr, values] : headers) {
-				std::string header = hdr.str();
-				for (auto const& value : values) {
-					headers_.emplace_back(header, value);
-				}
-			}
-		}
-
+		                msg::http_response::dict_t const& headers);
 		using nav::doc_impl::open;
-		nav::document open(nav::request const& req) override {
-			if (!exists()) return {};
-			if (req.referrer().empty()) {
-				auto copy = req;
-				copy.referrer(location_);
-				return nav_->open(copy);
-			}
-			return nav_->open(req);
-		}
-
-		uri const& location() const noexcept override { return location_; }
-		std::string const& text() const noexcept override { return text_; }
-		std::string&& moveable_text() noexcept override {
-			return std::move(text_);
-		}
-		int status() const noexcept override { return status_; }
-		std::string const& status_text() const noexcept override {
-			return status_text_;
-		}
-
-		bool exists() const noexcept override { return (status_ / 100) == 2; }
-		bool is_link() const noexcept override { return is_redirect(status_); }
+		nav::document open(nav::request const& req) override;
+		uri const& location() const noexcept override;
+		std::string const& text() const noexcept override;
+		std::string&& moveable_text() noexcept override;
+		int status() const noexcept override;
+		std::string const& status_text() const noexcept override;
+		int conn_status() const noexcept override;
+		std::string const& conn_status_text() const noexcept override;
+		bool exists() const noexcept override;
+		bool is_link() const noexcept override;
 		std::vector<std::pair<std::string, std::string>> const& headers()
-		    const noexcept override {
-			return headers_;
-		}
+		    const noexcept override;
 
 	private:
 		uri location_{};
 		std::string text_{};
 		int status_{0};
+		int conn_status_{0};
 		std::string status_text_{};
+		std::string conn_status_text_{};
 		nav::navigator* nav_{};
 		std::vector<std::pair<std::string, std::string>> headers_{};
 	};
-}  // namespace tangle::nav
+}  // namespace tangle::http

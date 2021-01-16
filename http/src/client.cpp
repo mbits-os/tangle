@@ -40,4 +40,4 @@ namespace tangle::http::client {
 
 		return set(header::Authorization, "Basic " + auth);
 	}
-}
+}  // namespace tangle::http::client

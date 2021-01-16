@@ -2,17 +2,18 @@ cmake_minimum_required(VERSION 3.4)
 project(cookie VERSION 1.0.0 LANGUAGES CXX )
 
 set(SOURCES
-	src/cookie_item.cpp
-	src/cookie_scope.cpp
-	src/cookie_jar.cpp
 	src/cookie_chrono.cpp
+	src/cookie_io.cpp
+	src/cookie_item.cpp
+	src/cookie_jar.cpp
+	src/cookie_scope.cpp
 
 	include/tangle/cookie.hpp
-	include/tangle/cookie/item.hpp
-	include/tangle/cookie/scope.hpp
-	include/tangle/cookie/jar.hpp
-	include/tangle/cookie/io.hpp
 	include/tangle/cookie/chrono.hpp
+	include/tangle/cookie/io.hpp
+	include/tangle/cookie/item.hpp
+	include/tangle/cookie/jar.hpp
+	include/tangle/cookie/scope.hpp
 	)
 
 WRAP_SOURCELIST(${SOURCES})
@@ -54,7 +55,9 @@ endif()
 
 if (TANGLE_TESTING)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests ${CMAKE_CURRENT_BINARY_DIR}/tests)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/tests/cookie-dir.in.hh ${CMAKE_CURRENT_BINARY_DIR}/tests/cookie-dir.hh @ONLY)
 
 file(GLOB TEST_SRCS tests/*.cc)
 list(APPEND TEST_SRCS tests/testing_io.hpp)

@@ -17,6 +17,11 @@ namespace tangle::nav {
 		return m_impl->open(loc);
 	}
 
+	document document::open(request const& req) {
+		if (!m_impl) return {};
+		return m_impl->open(req);
+	}
+
 	uri const& document::location() const noexcept {
 		static uri const empty;
 		if (!m_impl) return empty;
@@ -44,6 +49,17 @@ namespace tangle::nav {
 		static std::string empty;
 		if (!m_impl) return empty;
 		return m_impl->status_text();
+	}
+
+	int document::conn_status() const noexcept {
+		if (!m_impl) return false;
+		return m_impl->conn_status();
+	}
+
+	std::string const& document::conn_status_text() const noexcept {
+		static std::string empty;
+		if (!m_impl) return empty;
+		return m_impl->conn_status_text();
 	}
 
 	bool document::exists() const noexcept {

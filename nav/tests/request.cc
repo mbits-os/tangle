@@ -16,7 +16,7 @@ namespace tangle::nav::testing {
 		ASSERT_TRUE(req.meta().empty());
 		ASSERT_EQ(req.method(), method::get);
 		ASSERT_TRUE(req.follow_redirects());
-		ASSERT_EQ(req.max_redir(), 10);
+		ASSERT_EQ(req.max_redir(), 50);
 		ASSERT_TRUE(req.referrer().empty());
 		ASSERT_TRUE(req.custom_agent().empty());
 		ASSERT_TRUE(req.content_type().empty());
@@ -27,7 +27,7 @@ namespace tangle::nav::testing {
 	TEST(req_test, method) {
 		request req{method::post};
 		ASSERT_EQ(req.method(), method::post);
-        req.method(method::get);
+		req.method(method::get);
 		ASSERT_EQ(req.method(), method::get);
 	}
 
@@ -44,32 +44,32 @@ namespace tangle::nav::testing {
 	TEST(req_test, referrer2) {
 		request req{method::get, "dir/file.ext"sv};
 		ASSERT_TRUE(req.referrer().empty());
-        req.address("dir/file2.ext"sv);
+		req.address("dir/file2.ext"sv);
 		ASSERT_EQ(req.address(), "dir/file2.ext"sv);
 
 		req.referrer("scheme://host/app/source.ext"sv);
 		ASSERT_EQ(req.address(), "scheme://host/app/dir/file2.ext"sv);
 
-        req.address("../app2/file2.ext"sv);
+		req.address("../app2/file2.ext"sv);
 		ASSERT_EQ(req.address(), "scheme://host/app2/file2.ext"sv);
 	}
 
-    TEST(req_test, redir) {
-        request req{};
+	TEST(req_test, redir) {
+		request req{};
 
-        ASSERT_TRUE(req.follow_redirects());
-        ASSERT_EQ(req.max_redir(), 10);
+		ASSERT_TRUE(req.follow_redirects());
+		ASSERT_EQ(req.max_redir(), 50);
 
-        req.max_redir(-1);
-        ASSERT_FALSE(req.follow_redirects());
-        ASSERT_EQ(req.max_redir(), -1);
+		req.max_redir(-1);
+		ASSERT_FALSE(req.follow_redirects());
+		ASSERT_EQ(req.max_redir(), -1);
 
-        req.max_redir(30);
-        ASSERT_TRUE(req.follow_redirects());
-        ASSERT_EQ(req.max_redir(), 30);
+		req.max_redir(30);
+		ASSERT_TRUE(req.follow_redirects());
+		ASSERT_EQ(req.max_redir(), 30);
 
-        req.max_redir(0);
-        ASSERT_FALSE(req.follow_redirects());
-        ASSERT_EQ(req.max_redir(), 0);
-    }
+		req.max_redir(0);
+		ASSERT_FALSE(req.follow_redirects());
+		ASSERT_EQ(req.max_redir(), 0);
+	}
 }  // namespace tangle::nav::testing

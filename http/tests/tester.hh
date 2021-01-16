@@ -24,13 +24,6 @@ namespace tangle::http::curl {
 			return Curl::curl_onHeader(str, size, count, self);
 		}
 
-		static size_t curl_onUnderflow(void* str,
-		                               size_t size,
-		                               size_t count,
-		                               Curl* self) {
-			return Curl::curl_onUnderflow(str, size, count, self);
-		}
-
 		static int curl_onProgress(Curl* self,
 		                           double dltotal,
 		                           double dlnow,
@@ -57,10 +50,6 @@ namespace tangle::http::curl {
 		                          const char* data,
 		                          size_type length) {
 			return self->onHeader(data, length);
-		}
-
-		static size_type onUnderflow(Curl* self, void* data, size_type length) {
-			return self->onUnderflow(data, length);
 		}
 
 		static bool onProgress(Curl* self,

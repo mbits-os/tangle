@@ -4,6 +4,7 @@ project(http VERSION 0.1.0 LANGUAGES CXX )
 set(SOURCES
 	src/client.cpp
 	src/curl.cpp
+	src/doc_impl.cpp
 	src/headers.cpp
 	include/tangle/http/client.hpp
 	include/tangle/http/curl.hpp
@@ -54,7 +55,7 @@ endif()
 
 add_executable(http-test ${TEST_SRCS})
 set_target_properties(http-test PROPERTIES FOLDER tests)
-target_link_libraries(http-test http GTest::gtest_main tiny-process-library)
+target_link_libraries(http-test http GTest::gmock_main tiny-process-library)
 
 add_test(NAME http COMMAND http-test)
 

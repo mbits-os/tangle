@@ -115,10 +115,10 @@ namespace tangle::testing {
 			auto it = verbose.values().find(name);
 			if (it == verbose.values().end()) {
 				ASSERT(::testing::AssertionFailure()
-				       << "Unexpected param " << name << " in uri::parsed_query");
+				       << "Unexpected param " << name
+				       << " in uri::parsed_query");
 			}
 		}
-
 
 		for (auto const& [name, values] : from_uri.values()) {
 			auto verbose_it = verbose.values().find(name);
@@ -264,7 +264,7 @@ namespace tangle::testing {
 	        "?A=1&A=2&A=3&B",
 	        {
 	            {"A", {"1", "2", "3"}},
-				{"B", {}},
+	            {"B", {}},
 	        },
 	    },
 	    {

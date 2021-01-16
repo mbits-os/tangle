@@ -31,8 +31,8 @@ namespace tangle::http::curl::testing {
 				break;
 			}
 
-            EXPECT_EQ(verse, node->data);
-            node = node->next;
+			EXPECT_EQ(verse, node->data);
+			node = node->next;
 		}
 	}
 }  // namespace tangle::http::curl::testing

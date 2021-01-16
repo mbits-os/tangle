@@ -8,7 +8,10 @@
 namespace tangle::cookie::chrono {
 
 	// gmtime/timegm doesn't work nice with the 1601-1970 range, required by RFC
-	// most of this is taken from boost/chrono/io/time_point_io.hpp
+	// most of this is taken from boost/chrono/io/time_point_io.hpp; that file
+	// is covered by Boost Software License, Version 1.0; a copy of that license
+	// may be found either in BSL_1.0.txt in this directory or at
+	// http://www.boost.org/LICENSE_1_0.txt
 	namespace {
 		constexpr inline int days_from_0(int year) {
 			return 365 * (year - 1) + ((year - 1) / 400) - ((year - 1) / 100) +
