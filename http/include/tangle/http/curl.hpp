@@ -35,8 +35,6 @@ namespace tangle::http::curl {
 		Curl();
 		~Curl();
 
-		explicit operator bool() const;
-
 		DocumentPtr getCallback() const;
 		void setCallback(const DocumentPtr& callback);
 

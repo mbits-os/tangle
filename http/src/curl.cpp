@@ -16,8 +16,6 @@ namespace tangle::http::curl {
 		m_curl = nullptr;
 	}
 
-	Curl::operator bool() const { return m_curl != nullptr; }
-
 	DocumentPtr Curl::getCallback() const { return m_callback.lock(); }
 	void Curl::setCallback(const DocumentPtr& callback) {
 		m_callback = callback;
@@ -299,7 +297,7 @@ namespace tangle::http::curl {
 				curl.setReferrer(req.referrer().string());
 			if (!cookies.empty()) curl.setCookie(cookies);
 
-			StringList headers{};
+			auto headers = StringList{};
 			auto set_headers{false};
 			if (!req.meta().empty()) {
 				for (auto const& [name, value] : req.meta()) {

@@ -3,12 +3,14 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <filesystem>
 #include <tangle/http/curl.hpp>
 #include <tangle/http/proto.hpp>
 #include <tangle/nav/protocol.hpp>
 #include "flask-app.hh"
 
 using namespace std::literals;
+namespace fs = std::filesystem;
 
 namespace tangle::http::curl::testing {
 
@@ -121,6 +123,138 @@ namespace tangle::http::curl::testing {
 
 		EXPECT_EQ(doc.text(), "Hello world!");
 		EXPECT_FALSE(doc.is_link());
+		EXPECT_TRUE(doc.exists());
+	}
+
+	TEST_F(curl_test, copy_and_move) {
+		nav::request req{"http://127.0.0.1:5000/"sv};
+		nav::document doc;
+		{
+			nav::document doc1;
+			{
+				auto doc2 = browser.open(req);
+				doc1 = doc2;
+			}
+			doc = std::move(doc1);
+		}
+
+		{
+			auto copy = browser;
+			auto moved = std::move(copy);
+			nav::navigator copy2, moved2;
+			copy2 = moved;
+			moved2 = std::move(moved);
+		}
+
+		EXPECT_EQ(doc.status() / 100, 2)
+		    << "Status: " << doc.status()
+		    << "\nStatus text: " << doc.status_text();
+		EXPECT_FALSE(doc.status_text().empty());
+
+		EXPECT_EQ(doc.conn_status(), 0)
+		    << "Connection status: " << doc.conn_status()
+		    << "\nConnection status text: " << doc.conn_status_text();
+		EXPECT_TRUE(doc.conn_status_text().empty());
+
+		EXPECT_EQ(doc.text(), "Hello world!");
+		EXPECT_FALSE(doc.is_link());
+		EXPECT_TRUE(doc.exists());
+	}
+
+	TEST_F(curl_test, hello_world_header) {
+		nav::request req{"http://127.0.0.1:5000/"sv};
+		auto doc = browser.open(req);
+
+		EXPECT_EQ(doc.status() / 100, 2)
+		    << "Status: " << doc.status()
+		    << "\nStatus text: " << doc.status_text();
+		EXPECT_FALSE(doc.status_text().empty());
+
+		EXPECT_EQ(doc.conn_status(), 0)
+		    << "Connection status: " << doc.conn_status()
+		    << "\nConnection status text: " << doc.conn_status_text();
+		EXPECT_TRUE(doc.conn_status_text().empty());
+
+		EXPECT_EQ(doc.text(), "Hello world!");
+		EXPECT_FALSE(doc.is_link());
+		EXPECT_TRUE(doc.exists());
+
+		auto headers = doc.headers();
+		std::sort(headers.begin(), headers.end());
+		std::string actual;
+		static constexpr auto npos = std::string_view::npos;
+		for (auto const& [name, value] : headers) {
+			if (name == "date"sv) {
+				actual += "date: <today>\n";
+				continue;
+			}
+			if (name == "server"sv) {
+				std::string server;
+				std::string_view value_view{value};
+				std::string_view::size_type pos = 0;
+				std::string_view::size_type prev = 0;
+				while (pos != npos) {
+					pos = value_view.find('/', prev);
+					if (pos == npos) {
+						server.append(value_view.substr(prev));
+						break;
+					}
+					server.append(value_view.substr(prev, pos + 1 - prev));
+					server.append("<version>"sv);
+					prev = pos + 1;
+					prev = pos = value_view.find(' ', prev);
+				}
+				actual += "server: ";
+				actual += server;
+				actual.push_back('\n');
+				continue;
+			}
+			if (name == "set-cookie") {
+				static constexpr auto expires = "Expires="sv;
+				auto pos = value.find(expires);
+				if (pos != npos) {
+					std::string cookie = value.substr(0, pos + expires.size());
+					cookie.append("<date>"sv);
+					pos = value.find(';', pos + expires.size());
+					if (pos != npos) cookie.append(value.substr(pos));
+
+					actual += "set-cookie: ";
+					actual += cookie;
+					actual.push_back('\n');
+					continue;
+				}
+			}
+
+			actual += name;
+			actual += ": ";
+			actual += value;
+			actual.push_back('\n');
+		}
+		std::string expected = R"(content-length: 12
+content-type: text/plain; charset=UTF-8
+date: <today>
+server: Werkzeug/<version> Python/<version>
+set-cookie: cookie=gaderypoluki; Expires=<date>; Max-Age=36000; Path=/
+)";
+		EXPECT_EQ(expected, actual);
+	}
+
+	TEST_F(curl_test, non_existent) {
+		nav::request req{"http://127.0.0.1:5000/404"sv};
+		auto doc = browser.open(req);
+
+		EXPECT_EQ(doc.status() / 100, 4)
+		    << "Status: " << doc.status()
+		    << "\nStatus text: " << doc.status_text();
+		EXPECT_FALSE(doc.status_text().empty());
+
+		EXPECT_EQ(doc.conn_status(), 0)
+		    << "Connection status: " << doc.conn_status()
+		    << "\nConnection status text: " << doc.conn_status_text();
+		EXPECT_TRUE(doc.conn_status_text().empty());
+
+		EXPECT_FALSE(doc.is_link());
+		EXPECT_FALSE(doc.exists());
 	}
 
 	TEST_F(curl_test, debug_get) {
@@ -216,6 +350,66 @@ User-Agent: custom-agent/1.0
 X-Hdr: header value
 )");
 		EXPECT_FALSE(doc.is_link());
+	}
+
+	TEST_F(curl_test, echo_configured) {
+		std::error_code ec;
+		auto temp = fs::temp_directory_path(ec);
+		ASSERT_FALSE(ec);
+
+		struct deleter {
+			fs::path const path;
+			~deleter() {
+				std::error_code ec;
+				fs::remove(path, ec);
+			}
+		};
+
+		deleter clean{temp / "tests.jar"};
+		nav::navigator local{{
+		    "test/1.2.3",
+		    clean.path.string(),
+		    {"pl-PL", "en-US", "en-GB"},
+		}};
+		local.reg_proto("http", proto);
+		local.reg_proto("https", proto);
+
+		auto root = local.open(nav::request{"http://127.0.0.1:5000/"sv});
+		EXPECT_EQ(root.status() / 100, 2)
+		    << "Status: " << root.status()
+		    << "\nStatus text: " << root.status_text();
+		EXPECT_FALSE(root.status_text().empty());
+
+		EXPECT_EQ(root.conn_status(), 0)
+		    << "Connection status: " << root.conn_status()
+		    << "\nConnection status text: " << root.conn_status_text();
+		EXPECT_TRUE(root.conn_status_text().empty());
+
+		EXPECT_EQ(root.text(), "Hello world!");
+		EXPECT_FALSE(root.is_link());
+		EXPECT_TRUE(root.exists());
+
+		nav::request::meta_list hdrs{
+		    {"X-hdr", "header value"},
+		};
+
+		nav::request req{"echo"sv};
+		req.meta(std::move(hdrs));
+		auto doc = root.open(req);
+
+		EXPECT_EQ(doc.status() / 100, 2)
+		    << "Status: " << doc.status()
+		    << "\nStatus text: " << doc.status_text();
+
+		EXPECT_EQ(doc.text(), R"(Accept: */*
+Cookie: cookie=gaderypoluki
+Host: 127.0.0.1:5000
+Referer: http://127.0.0.1:5000/
+User-Agent: test/1.2.3
+X-Hdr: header value
+)");
+		EXPECT_FALSE(doc.is_link());
+		EXPECT_TRUE(doc.exists());
 	}
 
 	TEST_F(curl_test, loop) {
