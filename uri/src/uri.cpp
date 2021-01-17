@@ -633,6 +633,8 @@ namespace tangle {
 		}
 
 		if (identifier.has_scheme()) {
+			if (!base.has_authority()) return normal(identifier, flag);
+
 			if (!base.has_scheme() || tolower(to_string(identifier.scheme())) !=
 			                              tolower(to_string(base.scheme())))
 				return normal(identifier, flag);

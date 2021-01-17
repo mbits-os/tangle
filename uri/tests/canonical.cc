@@ -40,19 +40,23 @@ namespace tangle::testing {
 	TEST_P(UriCannonicalHref, HrefAttr) {
 		auto param = GetParam();
 		auto result = uri::canonical(param.href, param.base);
-		ASSERT_EQ(param.expected, result);
+		ASSERT_EQ(param.expected, result) << "Result: " << result.string();
 	}
 
 	TEST_P(UriCannonicalHex, URLDecode) {
 		auto param = GetParam();
 		auto result = uri::canonical(param.url, {});
-		ASSERT_EQ(param.expected, result);
+		uri copy{};
+		copy = result;
+		ASSERT_EQ(param.expected, result) << "Result: " << result.string();
+		ASSERT_EQ(result, copy)
+		    << "Result: " << result.string() << "\nCopy: " << copy.string();
 	}
 
 	TEST_P(UriCannonicalBase, MakeBase) {
 		auto param = GetParam();
 		auto result = uri::make_base(param.url);
-		ASSERT_EQ(param.expected, result);
+		ASSERT_EQ(param.expected, result) << "Result: " << result.string();
 	}
 
 	// clang-format off
@@ -101,6 +105,10 @@ namespace tangle::testing {
 		{ "https://example.com/A/B/",         "https:/C/other.file",      "https://example.com/C/other.file" },
 		{ "https://example.com/A/B/",         "mailto:user@server",       "mailto:user@server" },
 		{ "https://example.com/A/B/",         "ftp:C/other.file",         "ftp:C/other.file" },
+		{ "://example.com/A/B/",              "ftp:C/other.file",         "ftp:C/other.file" },
+		// here, both uris are opaque, so nothing is done...
+		{ "ftp:A/B",                          "ftp:../C/other.file",      "ftp:../C/other.file" },
+		{ "mailto:userA@serverA",             "mailto:userB@serverB",     "mailto:userB@serverB" },
 	};
 
 	static const UriCannonicalHexTest uri_canonical_decode_auth[] = {
@@ -152,6 +160,8 @@ namespace tangle::testing {
 		{ "/A/B/../../../some.file",                            "/some.file" },
 		{ "A/B/../../some.file",                                "some.file" },
 		{ "A/../../../some.file",                               "../../some.file" },
+		// nothing is done to opaque uri's path
+		{ "ftp:A/B/../C/other.file",                            "ftp:A/B/../C/other.file" },
 	};
 
 	static const UriCannonicalHexTest uri_canonical_decode_query[] = {
