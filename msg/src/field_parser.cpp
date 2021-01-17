@@ -83,7 +83,9 @@ namespace tangle::msg {
 
 				m_last_line_end = static_cast<size_t>(std::distance(begin, it));
 				m_field_list.emplace_back(
+				    // GCOV_EXCL_START - 0 here, 175 times in next line
 				    span(static_cast<size_t>(std::distance(begin, cur)),
+				         // GCOV_EXCL_STOP
 				         static_cast<size_t>(std::distance(cur, colon))),
 				    span(static_cast<size_t>(std::distance(begin, colon) + 1),
 				         static_cast<size_t>(std::distance(colon, it) - 1)));

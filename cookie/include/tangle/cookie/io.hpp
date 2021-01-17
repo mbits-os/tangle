@@ -274,8 +274,11 @@ namespace tangle::cookie::io {
 				static constexpr auto max_long_sz =
 				    static_cast<size_t>(max_long);
 				while (max_long_sz < length) {
+					// GCOV_EXCL_START -- it is rather hard to create a file
+					// satisfying this amounts
 					fseek(readable, max_long, SEEK_CUR);
 					length -= max_long_sz;
+					// GCOV_EXCL_STOP
 				}
 				fseek(readable, static_cast<long>(length), SEEK_CUR);
 			} else {

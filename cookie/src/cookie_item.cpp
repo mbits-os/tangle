@@ -410,10 +410,9 @@ namespace tangle::cookie {
 		if ((m_flags & cookie::flags::persistent) ==
 		    cookie::flags::persistent) {
 			if (prefer_maxage) {
+				using namespace std::chrono;
 				date = std::to_string(
-				    std::chrono::duration_cast<std::chrono::seconds>(m_expires -
-				                                                     when)
-				        .count());
+				    duration_cast<seconds>(m_expires - when).count());
 				len += sizeof(s_maxage) - 1;
 			} else {
 				date = clock::to_string(m_expires);

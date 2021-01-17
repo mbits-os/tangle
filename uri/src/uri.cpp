@@ -142,7 +142,9 @@ namespace tangle {
 				case 'F':
 					return c - 'A' + 10;
 			}
-			return 0;
+			// Line excluded, as this function is ONLY called inside isxdigit
+			// check
+			return 0;  // GCOV_EXCL_LINE
 		}
 
 		inline std::string host_urlencode(const char* in, size_t in_len) {

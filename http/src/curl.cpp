@@ -110,7 +110,7 @@ namespace tangle::http::curl {
 	char const* Curl::effectiveLocation() const {
 		char* url = nullptr;
 		if (curl_easy_getinfo(m_curl, CURLINFO_EFFECTIVE_URL, &url) != CURLE_OK)
-			url = nullptr;
+			url = nullptr;  // GCOV_EXCL_LINE -- we do not test curl here...
 		if (url && !*url) url = nullptr;
 		return url;
 	}
