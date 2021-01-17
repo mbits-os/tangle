@@ -69,6 +69,7 @@ add_executable(cookie-test ${TEST_SRCS})
 set_target_properties(cookie-test PROPERTIES FOLDER tests)
 target_link_libraries(cookie-test cookie GTest::gtest_main)
 
+add_test(NAME cookies.chrono COMMAND cookie-test --gtest_filter=*/cookies_chrono*.*:cookies_chrono*.*)
 add_test(NAME domains.scope COMMAND cookie-test --gtest_filter=domains/scope.*)
 add_test(NAME paths.scope COMMAND cookie-test --gtest_filter=paths/scope.*)
 add_test(NAME client.cookies COMMAND cookie-test --gtest_filter=client/cookies.*)

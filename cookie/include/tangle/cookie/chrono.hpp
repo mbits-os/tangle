@@ -48,7 +48,7 @@ namespace tangle::cookie::chrono {
 		/**
 		Constructs a date representing January 1st, 1601, midnight
 		*/
-		datetime() = default;
+		constexpr datetime() noexcept = default;
 
 		/**
 		Constructs a date from given arguments
@@ -59,12 +59,12 @@ namespace tangle::cookie::chrono {
 		\param minute The minute this datetime should be set to
 		\param second The second this datetime should be set to
 		*/
-		datetime(int year,
-		         int month,
-		         int mday,
-		         int hour,
-		         int minute,
-		         int second)
+		constexpr datetime(int year,
+		                   int month,
+		                   int mday,
+		                   int hour,
+		                   int minute,
+		                   int second) noexcept
 		    : year{year}
 		    , month{month}
 		    , mday{mday}
