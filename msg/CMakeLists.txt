@@ -50,6 +50,7 @@ add_executable(msg-test ${TEST_SRCS})
 set_target_properties(msg-test PROPERTIES FOLDER tests)
 target_link_libraries(msg-test msg GTest::gtest_main)
 
+add_test(NAME hash.string COMMAND msg-test --gtest_filter=combined.*)
 add_test(NAME hash.samples COMMAND msg-test --gtest_filter=hashing/hasher.*)
 add_test(NAME hash.partial-update COMMAND msg-test --gtest_filter=partial/hasher_parts.*)
 add_test(NAME parser.base COMMAND msg-test --gtest_filter=samples/base_parser.*)

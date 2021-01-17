@@ -106,7 +106,7 @@ namespace tangle::msg::testing {
 			auto it = par.headers.find(header.first);
 			auto present = par.headers.end() != it;
 			ASSERT_TRUE(present)
-			    << "unexpected key in parsed headers: " << header.first;
+			    << "unexpected key in parsed headers: " << header.first.view();
 			ASSERT_EQ(header.second.size(), it->second.size());
 			auto val = std::begin(header.second);
 			for (auto& lhs : it->second) {

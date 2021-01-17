@@ -5,6 +5,8 @@
 #include <initializer_list>
 #include <tangle/msg/hasher.hpp>
 
+using namespace std::literals;
+
 namespace {
 	struct hash_info {
 		uint32_t hash32;
@@ -50,6 +52,44 @@ namespace {
 	class hasher : public ::testing::TestWithParam<hash_info> {};
 
 	class hasher_parts : public ::testing::TestWithParam<partial_info> {};
+
+	TEST(combined, copy_and_move) {
+		using namespace tangle::msg;
+
+		combined_string def{};
+		ASSERT_EQ(def.view(), std::string_view{});
+
+		combined_string hello_sv{"hello-sv"sv};
+		ASSERT_EQ(hello_sv.view(), "hello-sv"sv);
+
+		combined_string hello_c{"hello-c"};
+		ASSERT_EQ(hello_c.view(), "hello-c"sv);
+
+		auto const hello_str{"hello-str"s};
+		combined_string hello_s_copy{hello_str};
+		ASSERT_EQ(hello_s_copy.view(), "hello-str"sv);
+
+		combined_string hello_s{"hello-s"s};
+		ASSERT_EQ(hello_s.view(), "hello-s"sv);
+
+		combined_string hello_sv_cpy{hello_sv};
+		ASSERT_EQ(hello_sv_cpy.view(), "hello-sv"sv);
+
+		combined_string hello_s_cpy{hello_s};
+		ASSERT_EQ(hello_s_cpy.view(), "hello-s"sv);
+
+		hello_sv_cpy = hello_sv;
+		ASSERT_EQ(hello_sv_cpy.view(), "hello-sv"sv);
+
+		hello_sv_cpy = hello_s;
+		ASSERT_EQ(hello_sv_cpy.view(), "hello-s"sv);
+
+		hello_s_cpy = hello_sv;
+		ASSERT_EQ(hello_s_cpy.view(), "hello-sv"sv);
+
+		hello_s_cpy = hello_s;
+		ASSERT_EQ(hello_s_cpy.view(), "hello-s"sv);
+	}
 
 	TEST_P(hasher, calc) {
 		auto& par = GetParam();

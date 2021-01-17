@@ -96,11 +96,6 @@ namespace tangle::msg {
 			return view() == rhs.view();
 		}
 
-		friend inline std::ostream& operator<<(std::ostream& o,
-		                                       const combined_string& cs) {
-			return o << cs.view();
-		}
-
 	private:
 		union {
 			std::string m_str;
