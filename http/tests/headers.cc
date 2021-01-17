@@ -46,6 +46,46 @@ namespace tangle::http::testing {
 		ASSERT_EQ(key, eXistenZ_case);
 	}
 
+	TEST(headers_tests, extension_hash) {
+		headers hdrs;
+		auto key = header_key::make("X-Header-Name");
+		std::string value = "X-Header-Value";
+		std::string value2 = "X-Header-Value-2";
+		hdrs.set(key, value);
+		hdrs.add(key, value2);
+		hdrs.add(header_key::make("x-header-name"), "X-Header-Value-3");
+		hdrs.add(header::Content_Type, "text/plain");
+
+		ASSERT_EQ(hdrs.size(), 2);
+		ASSERT_TRUE(hdrs.has(key));
+		ASSERT_TRUE(hdrs.has(http::header::Content_Type));
+
+		hdrs.erase(header::Content_Type);
+
+		ASSERT_EQ(hdrs.size(), 1);
+		ASSERT_TRUE(hdrs.has(key));
+		ASSERT_FALSE(hdrs.has(http::header::Content_Type));
+
+		auto x_hdr_value = hdrs.find_front(key);
+		auto content_type = hdrs.find_front(http::header::Content_Type);
+
+		ASSERT_NE(x_hdr_value, nullptr);
+		ASSERT_EQ(content_type, nullptr);
+
+		ASSERT_EQ(*x_hdr_value, "X-Header-Value");
+
+		auto it = hdrs.find(key);
+		ASSERT_NE(it, hdrs.end());
+		ASSERT_EQ(it->second.size(), 3);
+		ASSERT_EQ(it->second[0], "X-Header-Value");
+		ASSERT_EQ(it->second[1], "X-Header-Value-2");
+		ASSERT_EQ(it->second[2], "X-Header-Value-3");
+
+		ASSERT_NE(hdrs.begin(), hdrs.end());
+		hdrs.clear();
+		ASSERT_EQ(hdrs.begin(), hdrs.end());
+	}
+
 	TEST(headers_tests, empty) {
 		auto const key = header_key{};
 		ASSERT_EQ(key.value(), header::empty);
