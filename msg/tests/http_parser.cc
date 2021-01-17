@@ -40,6 +40,55 @@ namespace tangle::msg::testing {
 		using parser_type = http_response;
 	};
 
+	void print_chunk(std::ostream& o, char const* chunk) {
+		o << '"';
+		for (; *chunk; ++chunk) {
+			switch (*chunk) {
+				case '"':
+					o << "\\\"";
+					break;
+				case '\r':
+					o << "\\r";
+					break;
+				case '\n':
+					o << "\\n";
+					break;
+				case '\t':
+					o << "\\t";
+					break;
+				case '\a':
+					o << "\\a";
+					break;
+				case '\b':
+					o << "\\b";
+					break;
+				case '\v':
+					o << "\\v";
+					break;
+				case '\\':
+					o << "\\\\";
+					break;
+				default:
+					if (std::isprint((uint8_t)*chunk))
+						o << *chunk;
+					else
+						o << "0x" << std::hex << std::setw(2)
+						  << std::setfill('0') << (int)(uint8_t)*chunk
+						  << std::dec;
+			}
+		}
+		o << '"';
+	}
+
+	struct chunko {
+		char const* chunk;
+		friend std::ostream& operator<<(std::ostream& o,
+		                                const chunko& wrapper) {
+			print_chunk(o, wrapper.chunk);
+			return o;
+		}
+	};
+
 	template <typename Info>
 	static std::enable_if_t<std::is_same<Info, http_request_info>::value ||
 	                            std::is_same<Info, http_response_info>::value,
@@ -52,43 +101,7 @@ namespace tangle::msg::testing {
 				first = false;
 			else
 				o << ',';
-			o << ' ' << '"';
-			for (; *chunk; ++chunk) {
-				switch (*chunk) {
-					case '"':
-						o << "\\\"";
-						break;
-					case '\r':
-						o << "\\r";
-						break;
-					case '\n':
-						o << "\\n";
-						break;
-					case '\t':
-						o << "\\t";
-						break;
-					case '\a':
-						o << "\\a";
-						break;
-					case '\b':
-						o << "\\b";
-						break;
-					case '\v':
-						o << "\\v";
-						break;
-					case '\\':
-						o << "\\\\";
-						break;
-					default:
-						if (std::isprint((uint8_t)*chunk))
-							o << *chunk;
-						else
-							o << "0x" << std::hex << std::setw(2)
-							  << std::setfill('0') << (int)(uint8_t)*chunk
-							  << std::dec;
-				}
-			}
-			o << '"';
+			o << ' ' << chunko{chunk};
 		}
 		return o << ' ' << '}';
 	}
@@ -154,7 +167,8 @@ namespace tangle::msg::testing {
 	}
 
 	template <typename Parser>
-	class http_parser_error : public ::testing::TestWithParam<const char*> {
+	class http_parser_error
+	    : public ::testing::TestWithParam<std::initializer_list<char const*>> {
 	public:
 		using parser_type = Parser;
 
@@ -163,15 +177,23 @@ namespace tangle::msg::testing {
 
 	template <typename Parser>
 	inline void http_parser_error<Parser>::error_test() {
-		auto chunk = GetParam();
+		auto chunks = GetParam();
 
 		parser_type parser;
 
-		size_t read = 0;
-		parsing result = parsing::error;
-		size_t length = strlen(chunk);
-		std::tie(read, result) = parser.append(chunk, length);
-		ASSERT_EQ(parsing::error, result);
+		auto const top = chunks.size() ? chunks.size() - 1 : 0;
+		size_t index = 0;
+
+		for (auto chunk : chunks) {
+			auto const expected =
+			    index == top ? parsing::error : parsing::reading;
+			++index;
+			size_t read = 0;
+			parsing result = expected;
+			size_t length = strlen(chunk);
+			std::tie(read, result) = parser.append(chunk, length);
+			ASSERT_EQ(expected, result) << "Chunk: " << chunko{chunk};
+		}
 	}
 
 	class request_parser
@@ -233,71 +255,111 @@ namespace tangle::msg::testing {
 	            {"field8", {"value"}},
 	        },
 	    },
-	    {{"POST /res/ource HTTP/0.99\r\n"}, "POST", "/res/ource", 0, 99, {}},
-	    {{"OPTI", "ONS * HTTP/", "1.1\r\nFie", "ld:value\r\nField2:value\r\n"},
-	     "OPTIONS",
-	     "*",
-	     1,
-	     1,
-	     {
-	         {"field", {"value"}},
-	         {"field2", {"value"}},
-	     }},
+	    {
+	        {"POST /res/ource HTTP/0.99\r", "", "\n"},
+	        "POST",
+	        "/res/ource",
+	        0,
+	        99,
+	        {},
+	    },
+	    {
+	        {"POST /res/ource             HTTP/0.99\r\n"},
+	        "POST",
+	        "/res/ource",
+	        0,
+	        99,
+	        {},
+	    },
+	    {
+	        {"OPTI", "ONS * HTTP/", "1.1\r\nFie",
+	         "ld:value\r\nField2:value\r\n"},
+	        "OPTIONS",
+	        "*",
+	        1,
+	        1,
+	        {
+	            {"field", {"value"}},
+	            {"field2", {"value"}},
+	        },
+	    },
 	};
 
 	http_response_info responses[] = {
-	    {{"HTTP/1.1 200 OK\r\nField:value\r\nField2:value\r\n"},
-	     1,
-	     1,
-	     200,
-	     "OK",
-	     {
-	         {"field", {"value"}},
-	         {"field2", {"value"}},
-	     }},
-	    {{"HTTP/314.99 500 I don't know\r\n"},
-	     314,
-	     99,
-	     500,
-	     "I don't know",
-	     {}},
-	    {{"HT", "TP/1.1 20", "0 OK\r\nField:va", "lue\r\nField2:value\r\n"},
-	     1,
-	     1,
-	     200,
-	     "OK",
-	     {
-	         {"field", {"value"}},
-	         {"field2", {"value"}},
-	     }},
-	    {{"HT", "TP/1.1 20", "0 OK\r\nField:va", "lue\r\nField2:value\r\n",
-	      "\r\n", "HTTP/314.99 500 I don't know\r\n"},
-	     314,
-	     99,
-	     500,
-	     "I don't know",
-	     {}},
+	    {
+	        {"HTTP/1.1 200 OK\r\nField:value\r\nField2:value\r\n"},
+	        1,
+	        1,
+	        200,
+	        "OK",
+	        {
+	            {"field", {"value"}},
+	            {"field2", {"value"}},
+	        },
+	    },
+	    {
+	        {"HTTP/1.1 200 OK\r", "", "\nField:value\r\nField2:value\r\n"},
+	        1,
+	        1,
+	        200,
+	        "OK",
+	        {
+	            {"field", {"value"}},
+	            {"field2", {"value"}},
+	        },
+	    },
+	    {
+	        {"HTTP/314.99 500 I don't know\r\n"},
+	        314,
+	        99,
+	        500,
+	        "I don't know",
+	        {},
+	    },
+	    {
+	        {"HT", "TP/1.1 20", "0 OK\r\nField:va", "lue\r\nField2:value\r\n"},
+	        1,
+	        1,
+	        200,
+	        "OK",
+	        {
+	            {"field", {"value"}},
+	            {"field2", {"value"}},
+	        },
+	    },
+	    {
+	        {"HT", "TP/1.1 20", "0 OK\r\nField:va", "lue\r\nField2:value\r\n",
+	         "\r\n", "HTTP/314.99 500 I don't know\r\n"},
+	        314,
+	        99,
+	        500,
+	        "I don't know",
+	        {},
+	    },
 	};
 
-	const char* error_requests[] = {
-	    "\r\n",
-	    "SINGLE-WORD\r\n",
-	    "METHOD RESOURCE\r\n",
-	    "METHOD         HTTP/1.1\r\n",
-	    "METHOD    *     HTTP/1.\r\n",
+	std::initializer_list<char const*> error_requests[] = {
+	    {"\r\n"},
+	    {"SINGLE-WORD\r\n"},
+	    {"METHOD RESOURCE\r\n"},
+	    {"METHOD         HTTP/1.1\r\n"},
+	    {"METHOD    *     HTTP/1.\r\n"},
+	    {"GET\t/\tHTTP/1.0\r\n"},
+	    {"GET / HTTP/1.0\r", "<error-here>"},
 	};
 
-	const char* error_responses[] = {
-	    "\r\n",
-	    "SINGLE-WORD\r\n",
-	    "HTTP 200 OK\r\n",
-	    "Http/0.1 200 OK\r\n",
-	    "HTTP?1.1 200 OK\r\n",
-	    "HTTP/ 200 OK\r\n",
-	    "HTTP/.2 200 OK\r\n",
-	    "HTTP/2,2 200 OK\r\n",
-	    "HTTP/2.2a 200 OK\r\n",
-	    "HTTP/2.2 0 OK\r\n",
+	std::initializer_list<char const*> error_responses[] = {
+	    {"\r\n"},
+	    {"SINGLE-WORD\r\n"},
+	    {"HTTP 200 OK\r\n"},
+	    {"Http/0.1 200 OK\r\n"},
+	    {"HTTP?1.1 200 OK\r\n"},
+	    {"HTTP/ 200 OK\r\n"},
+	    {"HTTP/.2 200 OK\r\n"},
+	    {"HTTP/2,2 200 OK\r\n"},
+	    {"HTTP/2.2a 200 OK\r\n"},
+	    {"HTTP/2.2 0 OK\r\n"},
+	    {"HTTP/1.0 200 OK\r", "<error-here>"},
 	};
 
 	INSTANTIATE_TEST_CASE_P(requests,

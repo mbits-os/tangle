@@ -19,12 +19,14 @@ static std::ostream& operator<<(std::ostream& o, tangle::msg::parsing p) {
 
 namespace tangle::msg::testing {
 	struct header_info {
+		const char* test_name;
 		std::initializer_list<const char*> stream;
 		std::unordered_map<std::string_view, std::vector<const char*>> headers;
+		parsing expected_result{parsing::separator};
 	};
 
 	static std::ostream& operator<<(std::ostream& o, const header_info& nfo) {
-		o << '{';
+		o << nfo.test_name << ": {";
 		bool first = true;
 		for (auto chunk : nfo.stream) {
 			if (first)
@@ -86,12 +88,17 @@ namespace tangle::msg::testing {
 		for (auto chunk : par.stream) {
 			size_t length = strlen(chunk);
 			std::tie(read, result) = field_parser.append(chunk, length);
-			ASSERT_EQ(parsing::reading, result);
+			if (par.expected_result == parsing::separator)
+				ASSERT_EQ(parsing::reading, result);
+			else if (result != parsing::reading)
+				break;
 			ASSERT_EQ(length, read);
 		}
-		std::tie(read, result) = field_parser.append("\r\n\r\n", 4);
-		ASSERT_EQ(parsing::separator, result);
-		ASSERT_EQ(2, read);
+		if (par.expected_result == parsing::separator) {
+			std::tie(read, result) = field_parser.append("\r\n\r\n", 4);
+			ASSERT_EQ(2, read);
+		}
+		ASSERT_EQ(par.expected_result, result);
 
 		auto headers = field_parser.dict();
 
@@ -123,24 +130,67 @@ namespace tangle::msg::testing {
 	}
 
 	static header_info samples[] = {
-	    {{""}, {}},
-	    {{"field: value\r\nField2 :value2\r\n",
-	      "Field-Three: continued\r\n value\r\n", "Field2 :value3\r\n"},
-	     {
-	         {"field", {"value"}},
+	    {
+	        "empty",
+	        {""},
+	        {},
+	    },
+	    {
+	        "newline-borders",
+	        {"field: value\r\nField2 :value2\r\n",
+	         "Field-Three: continued\r\n value\r\n", "Field2 :value3\r\n"},
+	        {
+	            {"field", {"value"}},
+	            {"field2", {"value2", "value3"}},
+	            {"field-three", {"continued value"}},
+	        },
+	    },
+	    {
+	        "midline-borders",
+	        {"fiel", "d: value\r\nField2 :value2\r\n", "Field-Three: contin",
+	         "ued\r\n value \r\n", "Field2 :value3\r\n",
+	         "Accept-Language :\r\n   pl-PL, \r\n \r\n en-US\r\n"},
+	        {{"field", {"value"}},
 	         {"field2", {"value2", "value3"}},
 	         {"field-three", {"continued value"}},
-	     }},
-	    {{"fiel", "d: value\r\nField2 :value2\r\n", "Field-Three: contin",
-	      "ued\r\n value \r\n", "Field2 :value3\r\n",
-	      "Accept-Language :\r\n   pl-PL, \r\n \r\n en-US\r\n"},
-	     {{"field", {"value"}},
-	      {"field2", {"value2", "value3"}},
-	      {"field-three", {"continued value"}},
-	      {"accept-language", {"pl-PL, en-US"}}}},
+	         {"accept-language", {"pl-PL, en-US"}}},
+	    },
+	};
+
+	static constexpr auto error = parsing::error;
+
+	static header_info errors[] = {
+	    {
+	        "mid-line \\r",
+	        {"field: value\rField2 :value2\r\n",
+	         "Field-Three: continued\r\n value\r\n", "Field2 :value3\r\n"},
+	        {},
+	        error,
+	    },
+	    {
+	        // checks, if the resulting dictionary is actually empty
+	        "mid-line \\r, deeper",
+	        {"field: value\r\nField2 :value2\r\n",
+	         "Field-Three: continued\r value\r\n", "Field2 :value3\r\n"},
+	        {},
+	        error,
+	    },
+	    {
+	        "start with continued value",
+	        {"   continued\r\nfield: value is\r\n"},
+	        {},
+	        error,
+	    },
+	    {
+	        "not an actual field",
+	        {"field = value\r\n"},
+	        {},
+	        error,
+	    },
 	};
 
 	INSTANTIATE_TEST_CASE_P(samples,
 	                        field_parser,
 	                        ::testing::ValuesIn(samples));
+	INSTANTIATE_TEST_CASE_P(errors, field_parser, ::testing::ValuesIn(errors));
 }  // namespace tangle::msg::testing
