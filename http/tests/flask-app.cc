@@ -52,8 +52,15 @@ namespace tangle::http::flask {
 		setenv("FLASK_APP", FLASK_APP, 1);
 		fprintf(stderr, "Starting flask\n");
 		process_ = std::make_unique<Process>("flask run", std::string{});
-		fprintf(stderr, "Started flask\n");
-		std::this_thread::sleep_for(1s);
+		if (!process_->get_id()) {
+			fprintf(
+			    stderr,
+			    "Flask could not be started. These tests need it to run. "
+			    "Use\n\n    sudo python3 -m pip install --upgrade flask\n\n");
+		} else {
+			fprintf(stderr, "Started flask\n");
+			std::this_thread::sleep_for(1s);
+		}
 		{
 			std::unique_lock lck{m_};
 			auto self = this;
