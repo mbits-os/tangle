@@ -278,8 +278,9 @@ namespace tangle::cookie::io {
 					// satisfying this amounts
 					fseek(readable, max_long, SEEK_CUR);
 					length -= max_long_sz;
-					// GCOV_EXCL_STOP
 				}
+				// GCOV_EXCL_STOP -- MSVC also marks closing brace as part of
+				// the block
 				fseek(readable, static_cast<long>(length), SEEK_CUR);
 			} else {
 				fseek(readable, static_cast<long>(length), SEEK_CUR);
