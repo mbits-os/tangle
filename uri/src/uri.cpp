@@ -203,10 +203,10 @@ namespace tangle {
 
 		if (host) {
 			auto userInfo = auth.substr(0, pos);
-			auto colon = userInfo.find(':');
-			out.user = urldecode(userInfo.substr(0, colon));
-			if (colon != std::string_view::npos)
-				out.password = urldecode(userInfo.substr(colon + 1));
+			auto pass_colon = userInfo.find(':');
+			out.user = urldecode(userInfo.substr(0, pass_colon));
+			if (pass_colon != std::string_view::npos)
+				out.password = urldecode(userInfo.substr(pass_colon + 1));
 		}
 
 		out.host = urldecode(auth.substr(host, host_count));

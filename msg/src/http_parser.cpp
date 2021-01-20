@@ -146,16 +146,16 @@ namespace tangle::msg {
 		set_proto(ver.http_major, ver.http_minor);
 
 		{
-			auto end = m_reason.end();
-			auto cur = m_reason.begin();
-			std::advance(cur, status_pos);
-			while (cur != end && *cur == ' ')
-				++cur;
-			auto msg = parse_number(cur, end, m_status);
-			if (msg == cur || msg == end || *msg != ' ' || m_status < 100)
+			auto reason_cur = m_reason.begin();
+			auto reason_end = m_reason.end();
+			std::advance(reason_cur, status_pos);
+			while (reason_cur != reason_end && *reason_cur == ' ')
+				++reason_cur;
+			auto msg = parse_number(reason_cur, reason_end, m_status);
+			if (msg == reason_cur || msg == reason_end || *msg != ' ' || m_status < 100)
 				return {len, parsing::error};
 
-			while (msg != end && *msg == ' ')
+			while (msg != reason_end && *msg == ' ')
 				++msg;
 			m_reason = m_reason.substr(
 			    static_cast<size_t>(std::distance(m_reason.begin(), msg)));
