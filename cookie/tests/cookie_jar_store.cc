@@ -4,8 +4,6 @@
 #include <gtest/gtest.h>
 #include "testing_io.hpp"
 
-namespace fs = std::filesystem;
-
 namespace {
 	using namespace std::literals;
 	using namespace tangle::cookie;

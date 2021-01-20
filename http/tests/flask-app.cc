@@ -6,6 +6,12 @@
 #include <chrono>
 #include "flask-app-dir.hh"
 
+#ifdef _WIN32
+#include <Windows.h>
+#undef max
+#undef min
+#endif
+
 using namespace std::literals;
 
 namespace tangle::http::flask {
@@ -35,6 +41,12 @@ namespace tangle::http::flask {
 		process_.reset();
 		stage_ = 0;
 	}
+
+#ifdef _WIN32
+	inline void setenv(char const* name, char const* value, int) {
+		SetEnvironmentVariableA(name, value);
+	}
+#endif
 
 	void app::run() {
 		setenv("FLASK_APP", FLASK_APP, 1);
