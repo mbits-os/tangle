@@ -86,5 +86,5 @@ namespace tangle::testing {
 	    },
 	};
 
-	INSTANTIATE_TEST_CASE_P(samples, uri_parts, ValuesIn(parts));
+	INSTANTIATE_TEST_SUITE_P(samples, uri_parts, ValuesIn(parts));
 }  // namespace tangle::testing

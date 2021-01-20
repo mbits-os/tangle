@@ -161,8 +161,8 @@ namespace {
 	     "wwwSubPath=value"},
 	};
 
-	INSTANTIATE_TEST_CASE_P(empty, cookie_jar_str, ::testing::ValuesIn(empty));
-	INSTANTIATE_TEST_CASE_P(browser,
-	                        cookie_jar_str,
-	                        ::testing::ValuesIn(browser));
+	INSTANTIATE_TEST_SUITE_P(empty, cookie_jar_str, ::testing::ValuesIn(empty));
+	INSTANTIATE_TEST_SUITE_P(browser,
+	                         cookie_jar_str,
+	                         ::testing::ValuesIn(browser));
 }  // namespace

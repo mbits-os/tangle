@@ -339,7 +339,7 @@ namespace {
 	    },
 	};
 
-	INSTANTIATE_TEST_CASE_P(session,
-	                        cookie_jar_add,
-	                        ::testing::ValuesIn(session));
+	INSTANTIATE_TEST_SUITE_P(session,
+	                         cookie_jar_add,
+	                         ::testing::ValuesIn(session));
 }  // namespace

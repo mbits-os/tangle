@@ -112,13 +112,13 @@ namespace tangle::http::curl::testing {
 		auto doc = browser.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 		EXPECT_FALSE(doc.status_text().empty());
 
 		EXPECT_EQ(doc.conn_status(), 0)
-		    << "Connection status: " << doc.conn_status()
-		    << "\nConnection status text: " << doc.conn_status_text();
+		    << "  Connection status: " << doc.conn_status()
+		    << "\n  Connection status text: " << doc.conn_status_text();
 		EXPECT_TRUE(doc.conn_status_text().empty());
 
 		EXPECT_EQ(doc.text(), "Hello world!");
@@ -147,13 +147,13 @@ namespace tangle::http::curl::testing {
 		}
 
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 		EXPECT_FALSE(doc.status_text().empty());
 
 		EXPECT_EQ(doc.conn_status(), 0)
-		    << "Connection status: " << doc.conn_status()
-		    << "\nConnection status text: " << doc.conn_status_text();
+		    << "  Connection status: " << doc.conn_status()
+		    << "\n  Connection status text: " << doc.conn_status_text();
 		EXPECT_TRUE(doc.conn_status_text().empty());
 
 		EXPECT_EQ(doc.text(), "Hello world!");
@@ -166,13 +166,13 @@ namespace tangle::http::curl::testing {
 		auto doc = browser.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 		EXPECT_FALSE(doc.status_text().empty());
 
 		EXPECT_EQ(doc.conn_status(), 0)
-		    << "Connection status: " << doc.conn_status()
-		    << "\nConnection status text: " << doc.conn_status_text();
+		    << "  Connection status: " << doc.conn_status()
+		    << "\n  Connection status text: " << doc.conn_status_text();
 		EXPECT_TRUE(doc.conn_status_text().empty());
 
 		EXPECT_EQ(doc.text(), "Hello world!");
@@ -244,13 +244,13 @@ set-cookie: cookie=gaderypoluki; Expires=<date>; Max-Age=36000; Path=/
 		auto doc = browser.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 4)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 		EXPECT_FALSE(doc.status_text().empty());
 
 		EXPECT_EQ(doc.conn_status(), 0)
-		    << "Connection status: " << doc.conn_status()
-		    << "\nConnection status text: " << doc.conn_status_text();
+		    << "  Connection status: " << doc.conn_status()
+		    << "\n  Connection status text: " << doc.conn_status_text();
 		EXPECT_TRUE(doc.conn_status_text().empty());
 
 		EXPECT_FALSE(doc.is_link());
@@ -272,8 +272,8 @@ set-cookie: cookie=gaderypoluki; Expires=<date>; Max-Age=36000; Path=/
 		auto doc = browser.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 		EXPECT_EQ(doc.text(), "Hello world!");
 		EXPECT_FALSE(doc.is_link());
 	}
@@ -295,8 +295,8 @@ set-cookie: cookie=gaderypoluki; Expires=<date>; Max-Age=36000; Path=/
 		auto doc = browser.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 
 		EXPECT_EQ(doc.text(), "Test passed");
 		EXPECT_EQ(doc.location().string(), "http://127.0.0.1:5000/upload"sv);
@@ -318,8 +318,8 @@ set-cookie: cookie=gaderypoluki; Expires=<date>; Max-Age=36000; Path=/
 		auto doc = browser.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 
 		EXPECT_EQ(doc.location().string(), "https://www.google.com/"sv);
 		EXPECT_FALSE(doc.is_link());
@@ -339,8 +339,8 @@ set-cookie: cookie=gaderypoluki; Expires=<date>; Max-Age=36000; Path=/
 		auto doc = browser.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 
 		EXPECT_EQ(doc.text(), R"(Accept: */*
 Cookie: cookie=gaderypoluki
@@ -376,13 +376,13 @@ X-Hdr: header value
 
 		auto root = local.open(nav::request{"http://127.0.0.1:5000/"sv});
 		EXPECT_EQ(root.status() / 100, 2)
-		    << "Status: " << root.status()
-		    << "\nStatus text: " << root.status_text();
+		    << "  Status: " << root.status()
+		    << "\n  Status text: " << root.status_text();
 		EXPECT_FALSE(root.status_text().empty());
 
 		EXPECT_EQ(root.conn_status(), 0)
-		    << "Connection status: " << root.conn_status()
-		    << "\nConnection status text: " << root.conn_status_text();
+		    << "  Connection status: " << root.conn_status()
+		    << "\n  Connection status text: " << root.conn_status_text();
 		EXPECT_TRUE(root.conn_status_text().empty());
 
 		EXPECT_EQ(root.text(), "Hello world!");
@@ -398,8 +398,8 @@ X-Hdr: header value
 		auto doc = root.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 
 		EXPECT_EQ(doc.text(), R"(Accept: */*
 Cookie: cookie=gaderypoluki
@@ -419,8 +419,8 @@ X-Hdr: header value
 		auto doc = browser.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 		EXPECT_FALSE(doc.status_text().empty());
 
 		EXPECT_EQ(doc.text(), "URL: /loop/fourth");
@@ -436,13 +436,13 @@ X-Hdr: header value
 		auto doc = browser.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 3)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 		EXPECT_FALSE(doc.status_text().empty());
 
 		EXPECT_NE(doc.conn_status(), 0)
-		    << "Connection status: " << doc.conn_status()
-		    << "\nConnection status text: " << doc.conn_status_text();
+		    << "  Connection status: " << doc.conn_status()
+		    << "\n  Connection status text: " << doc.conn_status_text();
 
 		EXPECT_FALSE(doc.conn_status_text().empty());
 
@@ -457,8 +457,8 @@ X-Hdr: header value
 
 		auto doc = root.open("loop"sv);
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 		EXPECT_FALSE(doc.status_text().empty());
 
 		EXPECT_EQ(doc.text(), "URL: /loop/fourth");
@@ -472,8 +472,8 @@ X-Hdr: header value
 
 		auto doc = root.open(nav::request{"loop"sv});
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 		EXPECT_FALSE(doc.status_text().empty());
 
 		EXPECT_EQ(doc.text(), "URL: /loop/fourth");
@@ -489,8 +489,8 @@ X-Hdr: header value
 		auto doc = browser.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 		EXPECT_FALSE(doc.status_text().empty());
 
 		EXPECT_EQ(doc.text(), R"(Field A: v1
@@ -508,8 +508,8 @@ Field B: v2
 		auto doc = browser.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 2)
-		    << "Status: " << doc.status()
-		    << "\nStatus text: " << doc.status_text();
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
 		EXPECT_FALSE(doc.status_text().empty());
 
 		EXPECT_EQ(doc.text(), "Test passed");

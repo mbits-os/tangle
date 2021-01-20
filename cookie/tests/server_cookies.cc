@@ -217,14 +217,14 @@ namespace {
 	    },
 	};
 
-	INSTANTIATE_TEST_CASE_P(flags,
-	                        server_cookies,
-	                        ::testing::ValuesIn(flag_tests));
-	INSTANTIATE_TEST_CASE_P(scope, server_cookies, ::testing::ValuesIn(scope));
-	INSTANTIATE_TEST_CASE_P(expires,
-	                        server_cookies,
-	                        ::testing::ValuesIn(expires));
-	INSTANTIATE_TEST_CASE_P(max_age,
-	                        server_cookies,
-	                        ::testing::ValuesIn(max_age));
+	INSTANTIATE_TEST_SUITE_P(flags,
+	                         server_cookies,
+	                         ::testing::ValuesIn(flag_tests));
+	INSTANTIATE_TEST_SUITE_P(scope, server_cookies, ::testing::ValuesIn(scope));
+	INSTANTIATE_TEST_SUITE_P(expires,
+	                         server_cookies,
+	                         ::testing::ValuesIn(expires));
+	INSTANTIATE_TEST_SUITE_P(max_age,
+	                         server_cookies,
+	                         ::testing::ValuesIn(max_age));
 }  // namespace

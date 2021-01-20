@@ -189,8 +189,8 @@ namespace tangle::msg::testing {
 	    },
 	};
 
-	INSTANTIATE_TEST_CASE_P(samples,
-	                        field_parser,
-	                        ::testing::ValuesIn(samples));
-	INSTANTIATE_TEST_CASE_P(errors, field_parser, ::testing::ValuesIn(errors));
+	INSTANTIATE_TEST_SUITE_P(samples,
+	                         field_parser,
+	                         ::testing::ValuesIn(samples));
+	INSTANTIATE_TEST_SUITE_P(errors, field_parser, ::testing::ValuesIn(errors));
 }  // namespace tangle::msg::testing

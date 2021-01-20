@@ -362,17 +362,17 @@ namespace tangle::msg::testing {
 	    {"HTTP/1.0 200 OK\r", "<error-here>"},
 	};
 
-	INSTANTIATE_TEST_CASE_P(requests,
-	                        request_parser,
-	                        ::testing::ValuesIn(requests));
-	INSTANTIATE_TEST_CASE_P(responses,
-	                        response_parser,
-	                        ::testing::ValuesIn(responses));
+	INSTANTIATE_TEST_SUITE_P(requests,
+	                         request_parser,
+	                         ::testing::ValuesIn(requests));
+	INSTANTIATE_TEST_SUITE_P(responses,
+	                         response_parser,
+	                         ::testing::ValuesIn(responses));
 
-	INSTANTIATE_TEST_CASE_P(first_line,
-	                        request_error,
-	                        ::testing::ValuesIn(error_requests));
-	INSTANTIATE_TEST_CASE_P(first_line,
-	                        response_error,
-	                        ::testing::ValuesIn(error_responses));
+	INSTANTIATE_TEST_SUITE_P(first_line,
+	                         request_error,
+	                         ::testing::ValuesIn(error_requests));
+	INSTANTIATE_TEST_SUITE_P(first_line,
+	                         response_error,
+	                         ::testing::ValuesIn(error_responses));
 }  // namespace tangle::msg::testing

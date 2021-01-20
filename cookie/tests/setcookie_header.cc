@@ -184,16 +184,16 @@ namespace {
 	    },
 	};
 
-	INSTANTIATE_TEST_CASE_P(flags,
-	                        SetCookie_header,
-	                        ::testing::ValuesIn(flag_tests));
-	INSTANTIATE_TEST_CASE_P(scope,
-	                        SetCookie_header,
-	                        ::testing::ValuesIn(scope));
-	INSTANTIATE_TEST_CASE_P(expires,
-	                        SetCookie_header,
-	                        ::testing::ValuesIn(expires));
-	INSTANTIATE_TEST_CASE_P(max_age,
-	                        SetCookie_header,
-	                        ::testing::ValuesIn(max_age));
+	INSTANTIATE_TEST_SUITE_P(flags,
+	                         SetCookie_header,
+	                         ::testing::ValuesIn(flag_tests));
+	INSTANTIATE_TEST_SUITE_P(scope,
+	                         SetCookie_header,
+	                         ::testing::ValuesIn(scope));
+	INSTANTIATE_TEST_SUITE_P(expires,
+	                         SetCookie_header,
+	                         ::testing::ValuesIn(expires));
+	INSTANTIATE_TEST_SUITE_P(max_age,
+	                         SetCookie_header,
+	                         ::testing::ValuesIn(max_age));
 }  // namespace

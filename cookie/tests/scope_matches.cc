@@ -175,5 +175,5 @@ scope_info paths[] = {
     },
 };
 
-INSTANTIATE_TEST_CASE_P(domains, scope, ::testing::ValuesIn(domains));
-INSTANTIATE_TEST_CASE_P(paths, scope, ::testing::ValuesIn(paths));
+INSTANTIATE_TEST_SUITE_P(domains, scope, ::testing::ValuesIn(domains));
+INSTANTIATE_TEST_SUITE_P(paths, scope, ::testing::ValuesIn(paths));

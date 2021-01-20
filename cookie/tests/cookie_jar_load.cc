@@ -315,9 +315,9 @@ namespace {
 	                                        {CJAR_1_0_expired, true, &tested},
 	                                        {CJAR_1_0_nopersist, false}};
 
-	INSTANTIATE_TEST_CASE_P(experiments,
-	                        cookie_jar_load,
-	                        ::testing::ValuesIn(experiments));
+	INSTANTIATE_TEST_SUITE_P(experiments,
+	                         cookie_jar_load,
+	                         ::testing::ValuesIn(experiments));
 
 	void write_jars() {
 		if constexpr (false) {

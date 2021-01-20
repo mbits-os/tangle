@@ -119,5 +119,7 @@ namespace tangle::cookie::io::testing {
 	    {"1.0-expired.jar", true, &tested},
 	};
 
-	INSTANTIATE_TEST_CASE_P(files, cookie_jar_file, ::testing::ValuesIn(files));
+	INSTANTIATE_TEST_SUITE_P(files,
+	                         cookie_jar_file,
+	                         ::testing::ValuesIn(files));
 }  // namespace tangle::cookie::io::testing

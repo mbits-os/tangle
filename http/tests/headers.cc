@@ -174,6 +174,6 @@ namespace tangle::http::testing {
 	                                    {"Access-Control-Expose-Headers"sv},
 	                                    {"Link"sv},
 	                                    {"x-header-name"sv, true}};
-	INSTANTIATE_TEST_CASE_P(keys, headers_tests, ::testing::ValuesIn(keys));
+	INSTANTIATE_TEST_SUITE_P(keys, headers_tests, ::testing::ValuesIn(keys));
 
 }  // namespace tangle::http::testing

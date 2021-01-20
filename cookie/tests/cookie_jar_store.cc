@@ -215,7 +215,7 @@ namespace {
 	    {CJAR_1_0_expired, &expired},
 	};
 
-	INSTANTIATE_TEST_CASE_P(experiments,
-	                        cookie_jar_store,
-	                        ::testing::ValuesIn(experiments));
+	INSTANTIATE_TEST_SUITE_P(experiments,
+	                         cookie_jar_store,
+	                         ::testing::ValuesIn(experiments));
 }  // namespace

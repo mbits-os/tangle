@@ -163,8 +163,8 @@ namespace {
 	    },
 	};
 
-	INSTANTIATE_TEST_CASE_P(hashing, hasher, ::testing::ValuesIn(hashing));
-	INSTANTIATE_TEST_CASE_P(partial,
-	                        hasher_parts,
-	                        ::testing::ValuesIn(partial));
+	INSTANTIATE_TEST_SUITE_P(hashing, hasher, ::testing::ValuesIn(hashing));
+	INSTANTIATE_TEST_SUITE_P(partial,
+	                         hasher_parts,
+	                         ::testing::ValuesIn(partial));
 }  // namespace

@@ -34,7 +34,7 @@ namespace {
 	    {1601, 13, 1, 0, 0, 0}, {1601, 1, 0, 0, 0, 0},  {1601, 1, 32, 0, 0, 0},
 	    {1601, 1, 1, 25, 0, 0}, {1601, 1, 1, 0, 60, 0}, {1601, 1, 1, 0, 0, 60},
 	};
-	INSTANTIATE_TEST_CASE_P(dates,
-	                        cookies_chrono_dates,
-	                        ::testing::ValuesIn(bad_dates));
+	INSTANTIATE_TEST_SUITE_P(dates,
+	                         cookies_chrono_dates,
+	                         ::testing::ValuesIn(bad_dates));
 }  // namespace

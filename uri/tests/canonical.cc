@@ -185,7 +185,7 @@ namespace tangle::testing {
 	// clang-format off
 
 #define URI_CANONICAL(Name, Domain, arr) \
-	INSTANTIATE_TEST_CASE_P(Name, UriCannonical ## Domain, ValuesIn(arr))
+	INSTANTIATE_TEST_SUITE_P(Name, UriCannonical ## Domain, ValuesIn(arr))
 
 	URI_CANONICAL(Empties, Href, uri_canonical_empties);
 	URI_CANONICAL(Roots, Href, uri_canonical_roots);

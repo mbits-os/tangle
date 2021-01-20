@@ -275,5 +275,5 @@ namespace tangle::testing {
 	    },
 	};
 
-	INSTANTIATE_TEST_CASE_P(samples, query, ValuesIn(tests));
+	INSTANTIATE_TEST_SUITE_P(samples, query, ValuesIn(tests));
 }  // namespace tangle::testing

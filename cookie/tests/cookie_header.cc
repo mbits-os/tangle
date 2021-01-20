@@ -52,5 +52,7 @@ namespace {
 	     }},
 	};
 
-	INSTANTIATE_TEST_CASE_P(client, cookie_header, ::testing::ValuesIn(client));
+	INSTANTIATE_TEST_SUITE_P(client,
+	                         cookie_header,
+	                         ::testing::ValuesIn(client));
 }  // namespace
