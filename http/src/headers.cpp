@@ -224,9 +224,9 @@ namespace tangle::http {
 			case header::extension_header:
 				return extension_.c_str();
 			default:
-				return name(header_);
+				break;
 		}
 
-		return nullptr;
+		return name(header_);
 	}
 }  // namespace tangle::http

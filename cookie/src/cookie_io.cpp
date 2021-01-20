@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <tangle/cookie/io.hpp>
+#include <iterator>
 
 namespace tangle::cookie::io::v1 {
 	uint32_t string_bag::add(std::string const& value) {
