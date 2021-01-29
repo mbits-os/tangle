@@ -162,6 +162,7 @@ namespace tangle::http::curl::testing {
 	}
 
 	TEST_F(curl_test, hello_world_header) {
+		using nav::header;
 		nav::request req{"http://127.0.0.1:5000/"sv};
 		auto doc = browser.open(req);
 
@@ -179,62 +180,79 @@ namespace tangle::http::curl::testing {
 		EXPECT_FALSE(doc.is_link());
 		EXPECT_TRUE(doc.exists());
 
-		auto headers = doc.headers();
+		using headers_item =
+		    std::pair<nav::header_key, std::vector<std::string>>;
+		std::vector<headers_item> headers;
+		std::copy(doc.headers().begin(), doc.headers().end(),
+		          std::back_inserter(headers));
 		std::sort(headers.begin(), headers.end());
 		std::string actual;
 		static constexpr auto npos = std::string_view::npos;
-		for (auto const& [name, value] : headers) {
-			if (name == "date"sv) {
-				actual += "date: <today>\n";
+		for (auto const& [name, values] : headers) {
+			if (name == header::Date) {
+				actual += "Date: <today>\n";
 				continue;
 			}
-			if (name == "server"sv) {
-				std::string server;
-				std::string_view value_view{value};
-				std::string_view::size_type pos = 0;
-				std::string_view::size_type prev = 0;
-				while (pos != npos) {
-					pos = value_view.find('/', prev);
-					if (pos == npos) {
-						server.append(value_view.substr(prev));
-						break;
+			if (name == header::Server) {
+				for (auto const& value : values) {
+					std::string server;
+					std::string_view value_view{value};
+					std::string_view::size_type pos = 0;
+					std::string_view::size_type prev = 0;
+					while (pos != npos) {
+						pos = value_view.find('/', prev);
+						if (pos == npos) {
+							server.append(value_view.substr(prev));
+							break;
+						}
+						server.append(value_view.substr(prev, pos + 1 - prev));
+						server.append("<version>"sv);
+						prev = pos + 1;
+						prev = pos = value_view.find(' ', prev);
 					}
-					server.append(value_view.substr(prev, pos + 1 - prev));
-					server.append("<version>"sv);
-					prev = pos + 1;
-					prev = pos = value_view.find(' ', prev);
+					actual += "Server: ";
+					actual += server;
+					actual.push_back('\n');
 				}
-				actual += "server: ";
-				actual += server;
-				actual.push_back('\n');
 				continue;
 			}
-			if (name == "set-cookie") {
+			if (name == header::Set_Cookie) {
 				static constexpr auto expires = "Expires="sv;
-				auto pos = value.find(expires);
-				if (pos != npos) {
-					std::string cookie = value.substr(0, pos + expires.size());
-					cookie.append("<date>"sv);
-					pos = value.find(';', pos + expires.size());
-					if (pos != npos) cookie.append(value.substr(pos));
+				for (auto const& value : values) {
+					auto pos = value.find(expires);
+					if (pos != npos) {
+						std::string cookie =
+						    value.substr(0, pos + expires.size());
+						cookie.append("<date>"sv);
+						pos = value.find(';', pos + expires.size());
+						if (pos != npos) cookie.append(value.substr(pos));
 
-					actual += "set-cookie: ";
-					actual += cookie;
-					actual.push_back('\n');
-					continue;
+						actual += "Set-Cookie: ";
+						actual += cookie;
+						actual.push_back('\n');
+					} else {
+						actual += "Set-Cookie: ";
+						actual += value;
+						actual.push_back('\n');
+					}
 				}
+				continue;
 			}
 
-			actual += name;
-			actual += ": ";
-			actual += value;
-			actual.push_back('\n');
+			for (auto const& value : values) {
+				actual += name.name();
+				actual += ": ";
+				actual += value;
+				actual.push_back('\n');
+			}
 		}
-		std::string expected = R"(content-length: 12
-content-type: text/plain; charset=UTF-8
-date: <today>
-server: Werkzeug/<version> Python/<version>
-set-cookie: cookie=gaderypoluki; Expires=<date>; Max-Age=36000; Path=/
+		std::string expected = R"(x-user-defined: user defined special value
+x-user-ii: user defined special value
+Server: Werkzeug/<version> Python/<version>
+Content-Length: 12
+Content-Type: text/plain; charset=UTF-8
+Date: <today>
+Set-Cookie: cookie=gaderypoluki; Expires=<date>; Max-Age=36000; Path=/
 )";
 		EXPECT_EQ(expected, actual);
 	}
@@ -326,15 +344,43 @@ set-cookie: cookie=gaderypoluki; Expires=<date>; Max-Age=36000; Path=/
 	}
 
 	TEST_F(curl_test, echo) {
-		nav::request::meta_list hdrs{
-		    {"X-hdr", "header value"},
+		nav::headers hdrs{
+		    {nav::header_key::make("x-hdr"), "header value"},
 		};
 
 		nav::request req{"echo"sv};
 		req.max_redir(0);
 		req.referrer("http://127.0.0.1:5000/"sv);
 		req.custom_agent("custom-agent/1.0");
-		req.meta(std::move(hdrs));
+		req.headers(std::move(hdrs));
+
+		auto doc = browser.open(req);
+
+		EXPECT_EQ(doc.status() / 100, 2)
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
+
+		EXPECT_EQ(doc.text(), R"(Accept: */*
+Cookie: cookie=gaderypoluki
+Host: 127.0.0.1:5000
+Referer: http://127.0.0.1:5000/
+User-Agent: custom-agent/1.0
+X-Hdr: header value
+)");
+		EXPECT_FALSE(doc.is_link());
+	}
+
+	TEST_F(curl_test, hello_world_null_header) {
+		nav::headers hdrs{
+		    {nav::header::empty, "Should not be used by backend"},
+		    {nav::header_key::make("x-hdr"), "header value"},
+		};
+
+		nav::request req{"echo"sv};
+		req.max_redir(0);
+		req.referrer("http://127.0.0.1:5000/"sv);
+		req.custom_agent("custom-agent/1.0");
+		req.headers(std::move(hdrs));
 
 		auto doc = browser.open(req);
 
@@ -389,12 +435,12 @@ X-Hdr: header value
 		EXPECT_FALSE(root.is_link());
 		EXPECT_TRUE(root.exists());
 
-		nav::request::meta_list hdrs{
-		    {"X-hdr", "header value"},
+		nav::headers hdrs{
+		    {nav::header_key::make("X-hdr"), "header value"},
 		};
 
 		nav::request req{"echo"sv};
-		req.meta(std::move(hdrs));
+		req.headers(std::move(hdrs));
 		auto doc = root.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 2)

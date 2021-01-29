@@ -2,10 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(http VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
-	src/client.cpp
 	src/curl.cpp
 	src/doc_impl.cpp
-	include/tangle/http/client.hpp
 	include/tangle/http/curl.hpp
 	include/tangle/http/doc_impl.hpp
 	include/tangle/http/proto.hpp

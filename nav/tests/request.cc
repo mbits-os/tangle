@@ -9,11 +9,20 @@ using namespace std::literals;
 namespace tangle::nav::testing {
 	class req_tests : public ::testing::Test {};
 
+	TEST(req_tests, basic_auth) {
+		request req{};
+		req.basic_auth("user", "password");
+		auto authorization =
+		    req.headers().find_front(nav::header::Authorization);
+		ASSERT_NE(authorization, nullptr);
+		ASSERT_EQ(*authorization, "Basic dXNlcjpwYXNzd29yZA==");
+	}
+
 	TEST(req_tests, empty) {
 		request req{};
 
 		ASSERT_TRUE(req.address().empty());
-		ASSERT_TRUE(req.meta().empty());
+		ASSERT_TRUE(req.headers().empty());
 		ASSERT_EQ(req.method(), method::get);
 		ASSERT_TRUE(req.follow_redirects());
 		ASSERT_EQ(req.max_redir(), 50);

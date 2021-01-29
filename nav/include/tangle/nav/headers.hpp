@@ -168,7 +168,7 @@ namespace tangle::nav {
 		    : header_(header::user_defined_header)
 		    , user_defined_(std::move(ex)) {}
 	};
-}  // namespace tangle::http
+}  // namespace tangle::nav
 
 namespace std {
 	template <>
@@ -190,6 +190,13 @@ namespace tangle::nav {
 		std::unordered_map<header_key, std::vector<std::string>> headers_;
 
 	public:
+		headers() = default;
+		headers(
+		    std::initializer_list<std::pair<header_key, std::string>> items){
+			for (auto const& [key, value] : items)
+				add(key, value);
+		}
+
 		void add(header_key const& key, std::string const& value) {
 			headers_[key].emplace_back(value);
 		}

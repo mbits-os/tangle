@@ -35,17 +35,12 @@ namespace tangle::http {
 			}
 		}
 
-		size_t count = 0;
-		for (auto const& pair : headers)
-			count += pair.second.size();
-
 		headers_.clear();
-		headers_.reserve(count);
 
 		for (auto const& [hdr, values] : headers) {
-			std::string header = hdr.str();
+			auto header = nav::header_key::make(hdr.str());
 			for (auto const& value : values) {
-				headers_.emplace_back(header, value);
+				headers_.add(header, value);
 			}
 		}
 	}
@@ -84,8 +79,5 @@ namespace tangle::http {
 
 	bool doc_impl::is_link() const noexcept { return is_redirect(status_); }
 
-	std::vector<std::pair<std::string, std::string>> const& doc_impl::headers()
-	    const noexcept {
-		return headers_;
-	}
+	nav::headers const& doc_impl::headers() const noexcept { return headers_; }
 }  // namespace tangle::http

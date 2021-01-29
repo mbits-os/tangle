@@ -58,8 +58,7 @@ namespace tangle::http {
 		std::string const& conn_status_text() const noexcept override;
 		bool exists() const noexcept override;
 		bool is_link() const noexcept override;
-		std::vector<std::pair<std::string, std::string>> const& headers()
-		    const noexcept override;
+		nav::headers const& headers() const noexcept override;
 
 	private:
 		uri location_{};
@@ -69,6 +68,6 @@ namespace tangle::http {
 		std::string status_text_{};
 		std::string conn_status_text_{};
 		nav::navigator* nav_{};
-		std::vector<std::pair<std::string, std::string>> headers_{};
+		nav::headers headers_{};
 	};
 }  // namespace tangle::http

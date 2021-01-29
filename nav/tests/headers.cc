@@ -29,6 +29,9 @@ namespace tangle::nav::testing {
 		ASSERT_EQ(key, upper_case);
 		ASSERT_EQ(key, eXistenZ_case);
 		ASSERT_EQ(key, Normal_case);
+
+		ASSERT_FALSE(key < lower_case);
+		ASSERT_FALSE(key != lower_case);
 	}
 
 	TEST(headers_tests, user_defined) {
@@ -44,6 +47,7 @@ namespace tangle::nav::testing {
 		ASSERT_EQ(key, lower_case);
 		ASSERT_EQ(key, upper_case);
 		ASSERT_EQ(key, eXistenZ_case);
+		ASSERT_NE(key, header_key::make("X-Header-Name-2"));
 	}
 
 	TEST(headers_tests, extension_hash) {

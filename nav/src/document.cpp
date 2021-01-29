@@ -72,9 +72,8 @@ namespace tangle::nav {
 		return m_impl->is_link();
 	}
 
-	std::vector<std::pair<std::string, std::string>> const& document::headers()
-	    const noexcept {
-		static std::vector<std::pair<std::string, std::string>> const empty{};
+	nav::headers const& document::headers() const noexcept {
+		static nav::headers const empty{};
 		if (!m_impl) return empty;
 		return m_impl->headers();
 	}

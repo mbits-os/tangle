@@ -14,6 +14,7 @@ over any wire, should do so over the cache.
 #pragma once
 #include <memory>
 #include <tangle/uri.hpp>
+#include <tangle/nav/headers.hpp>
 
 namespace tangle::nav {
 	enum class method { get, post };
@@ -40,8 +41,6 @@ namespace tangle::nav {
 		request(nav::method mth, const uri& address)
 		    : m_address(normalized(address)), m_method(mth) {}
 
-		using meta_list = std::vector<std::pair<std::string, std::string>>;
-
 		request& method(nav::method value) {
 			m_method = value;
 			return *this;
@@ -53,8 +52,8 @@ namespace tangle::nav {
 				m_address = normalized(value, m_referrer);
 			return *this;
 		}
-		request& meta(meta_list&& hdrs) {
-			m_meta = std::move(hdrs);
+		request& headers(nav::headers&& hdrs) {
+			m_headers = std::move(hdrs);
 			return *this;
 		}
 		request& max_redir(int value) {
@@ -66,6 +65,7 @@ namespace tangle::nav {
 			m_address = normalized(m_address, m_referrer);
 			return *this;
 		}
+		request& basic_auth(std::string const& username, std::string const& secret);
 		request& custom_agent(std::string value) {
 			m_custom_agent = std::move(value);
 			return *this;
@@ -88,7 +88,7 @@ namespace tangle::nav {
 		}
 
 		const uri& address() const noexcept { return m_address; }
-		meta_list const& meta() const noexcept { return m_meta; }
+		nav::headers const& headers() const noexcept { return m_headers; }
 		nav::method method() const noexcept { return m_method; }
 		bool follow_redirects() const noexcept { return m_max_redir > 0; }
 		int max_redir() const noexcept { return m_max_redir; }
@@ -120,7 +120,7 @@ namespace tangle::nav {
 		std::string m_content_type;
 		std::string m_content;
 		std::string m_form_fields;
-		meta_list m_meta;
+		nav::headers m_headers;
 		std::shared_ptr<request_trace> m_trace{};
 	};
 }  // namespace tangle::nav

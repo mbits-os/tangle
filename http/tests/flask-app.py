@@ -10,6 +10,8 @@ def root():
     resp = make_response('Hello world!')
     resp.headers.set('Content-Type', 'text/plain; charset=UTF-8')
     resp.set_cookie('cookie', value='gaderypoluki', max_age=36000)
+    resp.headers.set('X-User-Defined', 'user defined special value')
+    resp.headers.set('X-User-II', 'user defined special value')
     return resp
 
 

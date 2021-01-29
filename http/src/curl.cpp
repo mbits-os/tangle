@@ -299,14 +299,20 @@ namespace tangle::http::curl {
 
 			auto headers = StringList{};
 			auto set_headers{false};
-			if (!req.meta().empty()) {
-				for (auto const& [name, value] : req.meta()) {
-					std::string combined{};
-					combined.reserve(name.size() + value.size() + 1);
-					combined.append(name);
-					combined.push_back(':');
-					combined.append(value);
-					headers.append(combined.c_str());
+			if (!req.headers().empty()) {
+				for (auto const& [key, values] : req.headers()) {
+					auto raw_name = key.name();
+					if (!raw_name) continue;
+
+					auto name = std::string_view{raw_name};
+					for (auto const& value : values) {
+						std::string combined{};
+						combined.reserve(name.size() + value.size() + 1);
+						combined.append(name);
+						combined.push_back(':');
+						combined.append(value);
+						headers.append(combined.c_str());
+					}
 				}
 				set_headers = true;
 			}

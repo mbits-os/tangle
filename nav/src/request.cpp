@@ -1,9 +1,9 @@
-// Copyright (c) 2020 midnightBITS
+// Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/http/client.hpp>
+#include <tangle/nav/request.hpp>
 
-namespace tangle::http::client {
+namespace tangle::nav {
 	static constexpr char base64_chars[] =
 	    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	    "abcdefghijklmnopqrstuvwxyz"
@@ -29,8 +29,8 @@ namespace tangle::http::client {
 		return out;
 	}
 
-	request& request::set_basic_auth(std::string const& username,
-	                                 std::string const& secret) {
+	request& request::basic_auth(std::string const& username,
+	                             std::string const& secret) {
 		std::string auth;
 		auth.reserve(username.size() + secret.size() + 1);
 		auth.append(username);
@@ -38,6 +38,8 @@ namespace tangle::http::client {
 		auth.append(secret);
 		auth = base64_encode(auth);
 
-		return set(nav::header::Authorization, "Basic " + auth);
+		m_headers.set(header::Authorization, "Basic " + auth);
+
+		return *this;
 	}
-}  // namespace tangle::http::client
+}

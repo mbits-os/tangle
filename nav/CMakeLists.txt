@@ -6,13 +6,14 @@ set(SOURCES
 	src/headers.cpp
 	src/nav_jar.cpp
 	src/navigator.cpp
+	src/request.cpp
 
 	include/tangle/nav/document.hpp
 	include/tangle/nav/headers.hpp
 	include/tangle/nav/jar.hpp
-	include/tangle/nav/request.hpp
 	include/tangle/nav/navigator.hpp
 	include/tangle/nav/protocol.hpp
+	include/tangle/nav/request.hpp
 	)
 
 WRAP_SOURCELIST(${SOURCES})
