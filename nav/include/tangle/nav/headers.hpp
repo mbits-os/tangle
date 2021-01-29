@@ -7,10 +7,11 @@
 #include <unordered_map>
 #include <vector>
 
-namespace tangle::http {
+namespace tangle::nav {
 	enum class header {
 		empty,
-		extension_header,
+		user_defined_header,
+		extension_header = user_defined_header,
 		// [Request header](https://tools.ietf.org/html/rfc2616#section-5.3)
 		Accept,
 		Accept_Charset,
@@ -88,6 +89,30 @@ namespace tangle::http {
 
 		// https://tools.ietf.org/html/rfc8288#section-3
 		Link,
+
+		// [MIME messages](https://tools.ietf.org/html/rfc822#appendix-D)
+		// for From, see top of this enum
+		Sender,
+		To,
+		Resent_To,
+		CC,
+		Resent_CC,
+		BCC,
+		Resent_BCC,
+		Message_ID,
+		Resent_Message_ID,
+		In_Reply_To,
+		References,
+		Keywords,
+		Subject,
+		Comments,
+		Encrypted,
+		Received,
+		Resent_Reply_To,
+		Resent_From,
+		Resent_Sender,
+		Resent_Date,
+		Return_Path,
 	};
 
 	class header_key {
@@ -96,20 +121,31 @@ namespace tangle::http {
 		header_key(header h) noexcept : header_(h) {}
 
 		header value() const noexcept { return header_; }
-		std::string const& extension() const noexcept { return extension_; }
+		std::string const& user_defined() const noexcept {
+			return user_defined_;
+		}
+		[[deprecated("use header_key::user_defined()")]] std::string const&
+		extension() const noexcept {
+			return user_defined_;
+		}
 
 		static header_key make(std::string) noexcept;
 		static char const* name(header) noexcept;
 		char const* name() const noexcept;
 
 		bool empty() const noexcept { return header_ == header::empty; }
-		bool extension_header() const noexcept {
-			return header_ == header::extension_header;
+		bool user_defined_header() const noexcept {
+			return header_ == header::user_defined_header;
 		}
+		[[deprecated("use header_key::user_defined_header()")]] bool
+		extension_header() const noexcept {
+			return user_defined_header();
+		}
+
 		bool operator==(header_key const& oth) const noexcept {
 			return header_ == oth.header_ &&
-			       (header_ == header::extension_header
-			            ? extension_ == oth.extension_
+			       (header_ == header::user_defined_header
+			            ? user_defined_ == oth.user_defined_
 			            : true);
 		}
 		bool operator!=(header_key const& oth) const noexcept {
@@ -118,8 +154,8 @@ namespace tangle::http {
 
 		bool operator<(header_key const& oth) const noexcept {
 			if (header_ == oth.header_) {
-				if (header_ == header::extension_header)
-					return extension_ < oth.extension_;
+				if (header_ == header::user_defined_header)
+					return user_defined_ < oth.user_defined_;
 				return false;
 			}
 			return header_ < oth.header_;
@@ -127,28 +163,29 @@ namespace tangle::http {
 
 	private:
 		header header_ = header::empty;
-		std::string extension_{};
+		std::string user_defined_{};
 		header_key(std::string&& ex) noexcept
-		    : header_(header::extension_header), extension_(std::move(ex)) {}
+		    : header_(header::user_defined_header)
+		    , user_defined_(std::move(ex)) {}
 	};
 }  // namespace tangle::http
 
 namespace std {
 	template <>
-	struct hash<tangle::http::header_key> {
-		using header = tangle::http::header;
-		using header_key = tangle::http::header_key;
-		size_t operator()(tangle::http::header_key const& key) const
+	struct hash<tangle::nav::header_key> {
+		using header = tangle::nav::header;
+		using header_key = tangle::nav::header_key;
+		size_t operator()(tangle::nav::header_key const& key) const
 		    noexcept(noexcept(hash<header>{}(header::Accept)) && noexcept(
 		        hash<std::string>{}(std::string{}))) {
-			if (key.value() != header::extension_header)
+			if (key.value() != header::user_defined_header)
 				return hash<header>{}(key.value());
-			return hash<std::string>{}(key.extension());
+			return hash<std::string>{}(key.user_defined());
 		}
 	};
 }  // namespace std
 
-namespace tangle::http {
+namespace tangle::nav {
 	class headers {
 		std::unordered_map<header_key, std::vector<std::string>> headers_;
 
@@ -233,4 +270,4 @@ namespace tangle::http {
 		static constexpr version_t http_1_1{1, 1};
 	}  // namespace http_version
 	using http_version_t = http_version::version_t;
-}  // namespace tangle::http
+}  // namespace tangle::nav

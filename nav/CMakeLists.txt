@@ -3,10 +3,12 @@ project(nav VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
 	src/document.cpp
+	src/headers.cpp
 	src/nav_jar.cpp
 	src/navigator.cpp
 
 	include/tangle/nav/document.hpp
+	include/tangle/nav/headers.hpp
 	include/tangle/nav/jar.hpp
 	include/tangle/nav/request.hpp
 	include/tangle/nav/navigator.hpp

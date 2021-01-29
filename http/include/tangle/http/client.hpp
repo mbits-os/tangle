@@ -3,27 +3,28 @@
 
 #pragma once
 
-#include <tangle/http/headers.hpp>
+#include <tangle/nav/headers.hpp>
 #include <tangle/nav/navigator.hpp>
 
 namespace tangle::http {
-	template <typename Final>
 	class message {
 	public:
-		http::headers const& headers() const noexcept { return headers_; }
+		nav::headers const& headers() const noexcept { return headers_; }
 
 	protected:
 		message() = default;
-		message(http::headers&& hdrs) : headers_{std::move(hdrs)} {}
-		message(http::headers const& hdrs) : headers_{hdrs} {}
+		message(nav::headers&& hdrs) : headers_{std::move(hdrs)} {}
+		message(nav::headers const& hdrs) : headers_{hdrs} {}
 
-		http::headers headers_;
+		nav::headers headers_;
 	};
 }  // namespace tangle::http
 
 namespace tangle::http::client {
-	class request : public message<request> {
+	class request : public message {
 	public:
+		using header_key = nav::header_key;
+
 		request() = default;
 		request(uri const& address) : address_{address} {}
 
@@ -58,12 +59,12 @@ namespace tangle::http::client {
 		uri address_{};
 	};
 
-	class response : public message<request> {
+	class response : public message {
 	public:
 		response() = default;
 		response(int status,
 		         uri const& location,
-		         http::headers&& hdrs,
+		         nav::headers&& hdrs,
 		         std::string&& text)
 		    : message{std::move(hdrs)}
 		    , status_{status}

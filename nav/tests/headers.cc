@@ -2,14 +2,14 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <gtest/gtest.h>
-#include <tangle/http/headers.hpp>
+#include <tangle/nav/headers.hpp>
 
 using namespace std::literals;
 
-namespace tangle::http::testing {
+namespace tangle::nav::testing {
 	struct key_info {
 		std::string_view name;
-		bool extension{false};
+		bool user_defined{false};
 	};
 
 	class headers_tests : public ::testing::TestWithParam<key_info> {};
@@ -17,7 +17,7 @@ namespace tangle::http::testing {
 	TEST(headers_tests, make) {
 		auto const key = header_key{header::Link};
 		ASSERT_EQ(key.value(), header::Link);
-		ASSERT_TRUE(key.extension().empty());
+		ASSERT_TRUE(key.user_defined().empty());
 		ASSERT_FALSE(key.empty());
 
 		auto const lower_case = header_key::make("link");
@@ -31,10 +31,10 @@ namespace tangle::http::testing {
 		ASSERT_EQ(key, Normal_case);
 	}
 
-	TEST(headers_tests, extension) {
+	TEST(headers_tests, user_defined) {
 		auto const key = header_key::make("X-Header-Name");
-		ASSERT_EQ(key.value(), header::extension_header);
-		ASSERT_EQ(key.extension(), "x-header-name");
+		ASSERT_EQ(key.value(), header::user_defined_header);
+		ASSERT_EQ(key.user_defined(), "x-header-name");
 		ASSERT_FALSE(key.empty());
 
 		auto const lower_case = header_key::make("x-header-name");
@@ -58,16 +58,16 @@ namespace tangle::http::testing {
 
 		ASSERT_EQ(hdrs.size(), 2);
 		ASSERT_TRUE(hdrs.has(key));
-		ASSERT_TRUE(hdrs.has(http::header::Content_Type));
+		ASSERT_TRUE(hdrs.has(nav::header::Content_Type));
 
 		hdrs.erase(header::Content_Type);
 
 		ASSERT_EQ(hdrs.size(), 1);
 		ASSERT_TRUE(hdrs.has(key));
-		ASSERT_FALSE(hdrs.has(http::header::Content_Type));
+		ASSERT_FALSE(hdrs.has(nav::header::Content_Type));
 
 		auto x_hdr_value = hdrs.find_front(key);
-		auto content_type = hdrs.find_front(http::header::Content_Type);
+		auto content_type = hdrs.find_front(nav::header::Content_Type);
 
 		ASSERT_NE(x_hdr_value, nullptr);
 		ASSERT_EQ(content_type, nullptr);
@@ -90,11 +90,11 @@ namespace tangle::http::testing {
 		auto const key = header_key{};
 		ASSERT_EQ(key.value(), header::empty);
 		ASSERT_EQ(key.name(), nullptr);
-		ASSERT_TRUE(key.extension().empty());
+		ASSERT_TRUE(key.user_defined().empty());
 		ASSERT_TRUE(key.empty());
 
 		ASSERT_EQ(header_key::name(header::empty), nullptr);
-		ASSERT_EQ(header_key::name(header::extension_header), nullptr);
+		ASSERT_EQ(header_key::name(header::user_defined_header), nullptr);
 	}
 
 	TEST_P(headers_tests, keys) {
@@ -104,14 +104,15 @@ namespace tangle::http::testing {
 
 		EXPECT_EQ(key.name(), param.name);
 
-		if (param.extension) {
-			EXPECT_EQ(key.value(), header::extension_header);
-			EXPECT_FALSE(key.extension().empty());
-			EXPECT_TRUE(key.extension_header());
+		if (param.user_defined) {
+			EXPECT_EQ(key.value(), header::user_defined_header);
+			EXPECT_FALSE(key.user_defined().empty());
+			EXPECT_TRUE(key.user_defined_header());
+			EXPECT_EQ(key.user_defined(), key.name());
 		} else {
-			EXPECT_NE(key.value(), header::extension_header);
-			EXPECT_TRUE(key.extension().empty());
-			EXPECT_FALSE(key.extension_header());
+			EXPECT_NE(key.value(), header::user_defined_header);
+			EXPECT_TRUE(key.user_defined().empty());
+			EXPECT_FALSE(key.user_defined_header());
 		}
 	}
 
@@ -173,7 +174,28 @@ namespace tangle::http::testing {
 	                                    {"Access-Control-Max-Age"sv},
 	                                    {"Access-Control-Expose-Headers"sv},
 	                                    {"Link"sv},
+	                                    {"Sender"sv},
+	                                    {"To"sv},
+	                                    {"Resent-To"sv},
+	                                    {"cc"sv},
+	                                    {"Resent-cc"sv},
+	                                    {"bcc"sv},
+	                                    {"Resent-bcc"sv},
+	                                    {"Message-ID"sv},
+	                                    {"Resent-Message-ID"sv},
+	                                    {"In-Reply-To"sv},
+	                                    {"References"sv},
+	                                    {"Keywords"sv},
+	                                    {"Subject"sv},
+	                                    {"Comments"sv},
+	                                    {"Encrypted"sv},
+	                                    {"Received"sv},
+	                                    {"Resent-Reply-To"sv},
+	                                    {"Resent-From"sv},
+	                                    {"Resent-Sender"sv},
+	                                    {"Resent-Date"sv},
+	                                    {"Return-Path"sv},
 	                                    {"x-header-name"sv, true}};
 	INSTANTIATE_TEST_SUITE_P(keys, headers_tests, ::testing::ValuesIn(keys));
 
-}  // namespace tangle::http::testing
+}  // namespace tangle::nav::testing

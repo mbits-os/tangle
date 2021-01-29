@@ -16,7 +16,7 @@ namespace tangle::http::client::testing {
 	TEST(request, basic_auth) {
 		request req{};
 		req.set_basic_auth("user", "password");
-		auto authorization = req.headers().find_front(header::Authorization);
+		auto authorization = req.headers().find_front(nav::header::Authorization);
 		ASSERT_NE(authorization, nullptr);
 		ASSERT_EQ(*authorization, "Basic dXNlcjpwYXNzd29yZA==");
 	}

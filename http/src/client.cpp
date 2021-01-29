@@ -38,6 +38,6 @@ namespace tangle::http::client {
 		auth.append(secret);
 		auth = base64_encode(auth);
 
-		return set(header::Authorization, "Basic " + auth);
+		return set(nav::header::Authorization, "Basic " + auth);
 	}
 }  // namespace tangle::http::client

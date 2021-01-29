@@ -5,10 +5,8 @@ set(SOURCES
 	src/client.cpp
 	src/curl.cpp
 	src/doc_impl.cpp
-	src/headers.cpp
 	include/tangle/http/client.hpp
 	include/tangle/http/curl.hpp
-	include/tangle/http/headers.hpp
 	include/tangle/http/doc_impl.hpp
 	include/tangle/http/proto.hpp
 )

@@ -3,9 +3,9 @@
 
 #include <algorithm>
 #include <cctype>
-#include <tangle/http/headers.hpp>
+#include <tangle/nav/headers.hpp>
 
-namespace tangle::http {
+namespace tangle::nav {
 	header_key header_key::make(std::string hdr) noexcept {
 		static constexpr struct {
 			const char* name;
@@ -30,7 +30,10 @@ namespace tangle::http {
 		    {"age", header::Age},
 		    {"allow", header::Allow},
 		    {"authorization", header::Authorization},
+		    {"bcc", header::BCC},
 		    {"cache-control", header::Cache_Control},
+		    {"cc", header::CC},
+		    {"comments", header::Comments},
 		    {"connection", header::Connection},
 		    {"content-disposition", header::Content_Disposition},
 		    {"content-encoding", header::Content_Encoding},
@@ -42,6 +45,7 @@ namespace tangle::http {
 		    {"content-type", header::Content_Type},
 		    {"cookie", header::Cookie},
 		    {"date", header::Date},
+		    {"encrypted", header::Encrypted},
 		    {"etag", header::ETag},
 		    {"expect", header::Expect},
 		    {"expires", header::Expires},
@@ -52,20 +56,37 @@ namespace tangle::http {
 		    {"if-none-match", header::If_None_Match},
 		    {"if-range", header::If_Range},
 		    {"if-unmodified-since", header::If_Unmodified_Since},
+		    {"in-reply-to", header::In_Reply_To},
+		    {"keywords", header::Keywords},
 		    {"last-modified", header::Last_Modified},
 		    {"link", header::Link},
 		    {"location", header::Location},
 		    {"max-forwards", header::Max_Forwards},
+		    {"message-id", header::Message_ID},
 		    {"origin", header::Origin},
 		    {"pragma", header::Pragma},
 		    {"proxy-authenticate", header::Proxy_Authenticate},
 		    {"proxy-authorization", header::Proxy_Authorization},
 		    {"range", header::Range},
+		    {"received", header::Received},
+		    {"references", header::References},
 		    {"referer", header::Referer},
+		    {"resent-bcc", header::Resent_BCC},
+		    {"resent-cc", header::Resent_CC},
+		    {"resent-date", header::Resent_Date},
+		    {"resent-from", header::Resent_From},
+		    {"resent-message-id", header::Resent_Message_ID},
+		    {"resent-reply-to", header::Resent_Reply_To},
+		    {"resent-sender", header::Resent_Sender},
+		    {"resent-to", header::Resent_To},
 		    {"retry-after", header::Retry_After},
+		    {"return-path", header::Return_Path},
+		    {"sender", header::Sender},
 		    {"server", header::Server},
 		    {"set-cookie", header::Set_Cookie},
+		    {"subject", header::Subject},
 		    {"te", header::TE},
+		    {"to", header::To},
 		    {"trailer", header::Trailer},
 		    {"transfer-encoding", header::Transfer_Encoding},
 		    {"upgrade", header::Upgrade},
@@ -210,6 +231,48 @@ namespace tangle::http {
 				return "Access-Control-Expose-Headers";
 			case header::Link:
 				return "Link";
+			case header::Sender:
+				return "Sender";
+			case header::To:
+				return "To";
+			case header::Resent_To:
+				return "Resent-To";
+			case header::CC:
+				return "cc";
+			case header::Resent_CC:
+				return "Resent-cc";
+			case header::BCC:
+				return "bcc";
+			case header::Resent_BCC:
+				return "Resent-bcc";
+			case header::Message_ID:
+				return "Message-ID";
+			case header::Resent_Message_ID:
+				return "Resent-Message-ID";
+			case header::In_Reply_To:
+				return "In-Reply-To";
+			case header::References:
+				return "References";
+			case header::Keywords:
+				return "Keywords";
+			case header::Subject:
+				return "Subject";
+			case header::Comments:
+				return "Comments";
+			case header::Encrypted:
+				return "Encrypted";
+			case header::Received:
+				return "Received";
+			case header::Resent_Reply_To:
+				return "Resent-Reply-To";
+			case header::Resent_From:
+				return "Resent-From";
+			case header::Resent_Sender:
+				return "Resent-Sender";
+			case header::Resent_Date:
+				return "Resent-Date";
+			case header::Return_Path:
+				return "Return-Path";
 			default:
 				break;
 		}
@@ -222,11 +285,11 @@ namespace tangle::http {
 			case header::empty:
 				return nullptr;
 			case header::extension_header:
-				return extension_.c_str();
+				return user_defined_.c_str();
 			default:
 				break;
 		}
 
 		return name(header_);
 	}
-}  // namespace tangle::http
+}  // namespace tangle::nav
