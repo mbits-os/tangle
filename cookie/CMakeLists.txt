@@ -61,9 +61,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/tests/cookie-dir.in.hh ${CMAKE_CURREN
 
 file(GLOB TEST_SRCS tests/*.cc)
 list(APPEND TEST_SRCS tests/testing_io.hpp)
-if (MSVC)
-list(APPEND TEST_SRCS ${NATVIS})
-endif()
 
 add_executable(cookie-test ${TEST_SRCS})
 set_target_properties(cookie-test PROPERTIES FOLDER tests)

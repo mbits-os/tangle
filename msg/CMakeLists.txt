@@ -13,10 +13,6 @@ set(SOURCES
 
 WRAP_SOURCELIST(${SOURCES})
 
-if (MSVC)
-	list(APPEND SOURCES ../natvis/msg.natvis)
-endif()
-
 add_library(msg STATIC ${SOURCES})
 set_target_properties(msg PROPERTIES
 	VERSION ${PROJECT_VERSION}
@@ -24,6 +20,10 @@ set_target_properties(msg PROPERTIES
 	FOLDER libs)
 target_include_directories(msg PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_options(msg PRIVATE ${ADDITIONAL_WALL_FLAGS})
+
+if (MSVC)
+	target_sources(msg PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../natvis/msg.natvis)
+endif()
 
 if (TANGLE_INSTALL)
 install(TARGETS msg
@@ -42,9 +42,6 @@ if (TANGLE_TESTING)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 file(GLOB TEST_SRCS tests/*.cc)
-if (MSVC)
-list(APPEND TEST_SRCS ${NATVIS})
-endif()
 
 add_executable(msg-test ${TEST_SRCS})
 set_target_properties(msg-test PROPERTIES FOLDER tests)

@@ -13,10 +13,6 @@ set(SOURCES
 
 WRAP_SOURCELIST(${SOURCES})
 
-if (MSVC)
-	list(APPEND SOURCES ../natvis/header.natvis)
-endif()
-
 add_library(http STATIC ${SOURCES})
 set_target_properties(http PROPERTIES
     VERSION ${PROJECT_VERSION}
@@ -47,12 +43,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests ${CMAKE_CURRENT_BINARY_DIR
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/tests/flask-app-dir.in.hh ${CMAKE_CURRENT_BINARY_DIR}/tests/flask-app-dir.hh @ONLY)
 
 file(GLOB TEST_SRCS tests/*.cc)
-if (MSVC)
-list(APPEND TEST_SRCS ${NATVIS})
-endif()
 
 add_executable(http-test ${TEST_SRCS})
-set_target_properties(http-test PROPERTIES FOLDER tests)
+set_target_properties(http-test tiny-process-library PROPERTIES FOLDER tests)
 target_link_libraries(http-test http GTest::gmock_main tiny-process-library)
 
 add_test(NAME http COMMAND http-test)

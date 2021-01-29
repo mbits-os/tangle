@@ -114,7 +114,6 @@ macro(WRAP_SOURCELIST)
 endmacro()
 
 if (MSVC)
-file(GLOB NATVIS natvis/*.natvis)
 add_definitions(/EHsc)
 endif()
 

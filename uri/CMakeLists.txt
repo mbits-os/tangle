@@ -5,10 +5,6 @@ set(SOURCES src/uri.cpp include/tangle/uri.hpp)
 
 WRAP_SOURCELIST(${SOURCES})
 
-if (MSVC)
-	list(APPEND SOURCES ../natvis/uri.natvis)
-endif()
-
 add_library(uri STATIC ${SOURCES})
 set_target_properties(uri PROPERTIES
 	VERSION ${PROJECT_VERSION}
@@ -16,6 +12,10 @@ set_target_properties(uri PROPERTIES
 	FOLDER libs)
 target_include_directories(uri PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_options(uri PRIVATE ${ADDITIONAL_WALL_FLAGS})
+
+if (MSVC)
+	target_sources(uri PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../natvis/uri.natvis)
+endif()
 
 if (TANGLE_INSTALL)
 install(TARGETS uri
@@ -49,9 +49,6 @@ if (TANGLE_TESTING)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 file(GLOB TEST_SRCS tests/*.cc)
-if (MSVC)
-list(APPEND TEST_SRCS ${NATVIS})
-endif()
 
 add_executable(uri-test ${TEST_SRCS})
 set_target_properties(uri-test PROPERTIES FOLDER tests)

@@ -26,6 +26,10 @@ target_include_directories(nav PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(nav PUBLIC uri cookie msg)
 target_compile_options(nav PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
+if (MSVC)
+	target_sources(nav PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../natvis/header.natvis)
+endif()
+
 if (TANGLE_INSTALL)
 install(TARGETS nav
 	ARCHIVE DESTINATION lib
@@ -57,9 +61,6 @@ if (TANGLE_TESTING)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 file(GLOB TEST_SRCS tests/*.cc)
-if (MSVC)
-list(APPEND TEST_SRCS ${NATVIS})
-endif()
 
 add_executable(nav-test ${TEST_SRCS})
 set_target_properties(nav-test PROPERTIES FOLDER tests)
