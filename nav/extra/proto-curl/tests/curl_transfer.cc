@@ -2,11 +2,11 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <gtest/gtest.h>
-#include <tangle/http/curl.hpp>
+#include <tangle/curl/curl.hpp>
 
 using namespace std::literals;
 
-namespace tangle::http::curl::Transfer::testing {
+namespace tangle::curl::Transfer::testing {
 	static constexpr std::string_view raven[] = {
 	    "Then this ebony bird beguiling my sad fancy into smiling,\n"sv,
 	    "By the grave and stern decorum of the countenance it wore,\n"sv,

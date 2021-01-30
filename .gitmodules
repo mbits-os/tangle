@@ -1,6 +1,6 @@
 [submodule "tools/coveralls"]
 	path = tools/coveralls
 	url = https://github.com/mbits-libs/coveralls.git
-[submodule "http/tests/tiny-process-library"]
-	path = http/tests/tiny-process-library
+[submodule "nav/extra/proto-curl/tests/tiny-process-library"]
+	path = nav/extra/proto-curl/tests/tiny-process-library
 	url = https://gitlab.com/eidheim/tiny-process-library.git

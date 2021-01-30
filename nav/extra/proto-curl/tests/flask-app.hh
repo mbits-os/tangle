@@ -7,7 +7,7 @@
 #include <thread>
 #include "process.hpp"
 
-namespace tangle::http::flask {
+namespace tangle::flask {
 	using namespace TinyProcessLib;
 
 	class app {

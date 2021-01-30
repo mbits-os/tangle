@@ -1,14 +1,15 @@
 // Copyright (c) 2020 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/http/curl.hpp>
-#include <tangle/http/proto.hpp>
+#include <tangle/curl/curl.hpp>
+#include <tangle/curl/proto.hpp>
 #include <tangle/msg/http_parser.hpp>
 #include <tangle/nav/protocol.hpp>
+#include <mutex>
 
 using namespace std::literals;
 
-namespace tangle::http::curl {
+namespace tangle::curl {
 	Curl::Curl() : m_curl(curl_easy_init()) {}
 
 	Curl::~Curl() {
@@ -351,11 +352,11 @@ namespace tangle::http::curl {
 			return nav::document::wrap(document);
 		};
 	};
-}  // namespace tangle::http::curl
 
-namespace tangle::http {
+	static std::once_flag inited;
+
 	std::shared_ptr<nav::protocol> proto() {
-		curl_global_init(CURL_GLOBAL_ALL);
-		return std::make_shared<curl::protocol>();
+		std::call_once(inited, curl_global_init, CURL_GLOBAL_ALL);
+		return std::make_shared<protocol>();
 	}
-}  // namespace tangle::http
+}  // namespace tangle::curl

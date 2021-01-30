@@ -87,12 +87,18 @@ set(MODULES
 	uri
 	msg
   nav
-  http
+)
+
+set(EXTRAS
+  nav/extra/proto-curl
 )
 
 if (TANGLE_TESTING)
   set(COVERALLS_PREFIX TANGLE_)
   foreach(MODULE ${MODULES})
+    list(APPEND TANGLE_COVERALLS_DIRS ${MODULE}/include ${MODULE}/src)
+  endforeach()
+  foreach(MODULE ${EXTRAS})
     list(APPEND TANGLE_COVERALLS_DIRS ${MODULE}/include ${MODULE}/src)
   endforeach()
 
@@ -150,6 +156,10 @@ endif()
 ##################################################################
 
 foreach(MODULE ${MODULES})
+	add_subdirectory( ${MODULE} )
+endforeach()
+
+foreach(MODULE ${EXTRAS})
 	add_subdirectory( ${MODULE} )
 endforeach()
 

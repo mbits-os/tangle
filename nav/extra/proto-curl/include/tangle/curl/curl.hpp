@@ -9,7 +9,7 @@
 #include <tangle/nav/doc_impl.hpp>
 #include <tangle/nav/request.hpp>
 
-namespace tangle::http::curl {
+namespace tangle::curl {
 	using DocumentPtr = std::shared_ptr<nav::doc_impl>;
 
 	struct StringList {
@@ -140,4 +140,4 @@ namespace tangle::http::curl {
 		}
 	}  // namespace Transfer
 
-}  // namespace tangle::http::curl
+}  // namespace tangle::curl

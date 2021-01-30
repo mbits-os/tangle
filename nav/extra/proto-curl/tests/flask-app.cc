@@ -14,7 +14,7 @@
 
 using namespace std::literals;
 
-namespace tangle::http::flask {
+namespace tangle::flask {
 	app::app() = default;
 
 	app::~app() { stop(); }
@@ -71,4 +71,4 @@ namespace tangle::http::flask {
 
 		auto result = process_->get_exit_status();
 	}
-}  // namespace tangle::http::flask
+}  // namespace tangle::flask

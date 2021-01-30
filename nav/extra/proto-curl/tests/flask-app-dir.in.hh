@@ -3,7 +3,7 @@
 
 #include <string_view>
 
-namespace tangle::http::flask {
+namespace tangle::flask {
 	static constexpr char FLASK_APP[] =
 	    "@CMAKE_CURRENT_SOURCE_DIR@/tests/flask-app.py";
 }

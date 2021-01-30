@@ -5,6 +5,6 @@
 
 #include <tangle/nav/navigator.hpp>
 
-namespace tangle::http {
+namespace tangle::curl {
 	std::shared_ptr<nav::protocol> proto();
 }

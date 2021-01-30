@@ -4,20 +4,20 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <filesystem>
-#include <tangle/http/curl.hpp>
-#include <tangle/http/proto.hpp>
+#include <tangle/curl/curl.hpp>
+#include <tangle/curl/proto.hpp>
 #include <tangle/nav/protocol.hpp>
 #include "flask-app.hh"
 
 using namespace std::literals;
 namespace fs = std::filesystem;
 
-namespace tangle::http::curl::testing {
+namespace tangle::curl::testing {
 
 	class curl_test : public ::testing::Test {
 	public:
 		static void SetUpTestSuite() {
-			proto = ::tangle::http::proto();
+			proto = ::tangle::curl::proto();
 			browser.reg_proto("http", proto);
 			browser.reg_proto("https", proto);
 			app.start();

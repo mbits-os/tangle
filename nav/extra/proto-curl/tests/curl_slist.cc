@@ -2,11 +2,11 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <gtest/gtest.h>
-#include <tangle/http/curl.hpp>
+#include <tangle/curl/curl.hpp>
 
 using namespace std::literals;
 
-namespace tangle::http::curl::testing {
+namespace tangle::curl::testing {
 	TEST(slist, append) {
 		StringList strings{};
 
