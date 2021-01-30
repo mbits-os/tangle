@@ -2,12 +2,14 @@ cmake_minimum_required(VERSION 3.4)
 project(nav VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
+	src/doc_impl.cpp
 	src/document.cpp
 	src/headers.cpp
 	src/nav_jar.cpp
 	src/navigator.cpp
 	src/request.cpp
 
+	include/tangle/nav/doc_impl.hpp
 	include/tangle/nav/document.hpp
 	include/tangle/nav/headers.hpp
 	include/tangle/nav/jar.hpp

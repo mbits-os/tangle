@@ -16,8 +16,8 @@ Navigation HTTP document backend.
 #include <tangle/nav/navigator.hpp>
 #include <tangle/uri.hpp>
 
-namespace tangle::http {
-	struct doc_impl : nav::doc_impl {
+namespace tangle::nav {
+	struct doc_impl : doc_backend {
 		static inline bool is_redirect(int status) {
 			/*
 			 * 01
@@ -40,15 +40,15 @@ namespace tangle::http {
 			           : false;
 		}
 
-		doc_impl(uri const& location, nav::navigator* nav);
+		doc_impl(uri const& location, navigator* nav);
 		void on_library_error(int code, char const* msg);
 		size_t on_data(const void* data, size_t count);
 		void on_final_location(const std::string& location);
 		void on_headers(std::string const& status_text,
 		                int status,
 		                msg::http_response::dict_t const& headers);
-		using nav::doc_impl::open;
-		nav::document open(nav::request const& req) override;
+		using doc_backend::open;
+		document open(request const& req) override;
 		uri const& location() const noexcept override;
 		std::string const& text() const noexcept override;
 		std::string&& moveable_text() noexcept override;
@@ -67,7 +67,7 @@ namespace tangle::http {
 		int conn_status_{0};
 		std::string status_text_{};
 		std::string conn_status_text_{};
-		nav::navigator* nav_{};
+		navigator* nav_{};
 		nav::headers headers_{};
 	};
-}  // namespace tangle::http
+}  // namespace tangle::nav

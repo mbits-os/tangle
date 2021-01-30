@@ -4,7 +4,7 @@
 #include <tangle/nav/document.hpp>
 
 namespace tangle::nav {
-	document::document(std::shared_ptr<doc_impl> impl) : m_impl(impl) {}
+	document::document(std::shared_ptr<doc_backend> impl) : m_impl(impl) {}
 
 	document::document() = default;
 	document::document(const document&) = default;
@@ -78,9 +78,9 @@ namespace tangle::nav {
 		return m_impl->headers();
 	}
 
-	doc_impl::~doc_impl() = default;
+	doc_backend::~doc_backend() = default;
 
-	document doc_impl::open(uri const& loc) {
+	document doc_backend::open(uri const& loc) {
 		if (!exists()) return {};
 		return open(request{loc}.referrer(location()));
 	}

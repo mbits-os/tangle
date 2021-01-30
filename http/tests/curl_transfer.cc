@@ -17,7 +17,7 @@ namespace tangle::http::curl::Transfer::testing {
 	};
 
 	TEST(transfer, generic) {
-		auto doc = std::make_shared<doc_impl>(uri{}, nullptr);
+		auto doc = std::make_shared<nav::doc_impl>(uri{}, nullptr);
 
 		for (auto const& verse : raven)
 			onData(doc, verse.data(), verse.size());
@@ -40,7 +40,7 @@ namespace tangle::http::curl::Transfer::testing {
 	}
 
 	TEST(transfer, same_size) {
-		auto doc = std::make_shared<doc_impl>(uri{}, nullptr);
+		auto doc = std::make_shared<nav::doc_impl>(uri{}, nullptr);
 
 		for (auto const& verse : raven)
 			Data<true>::onData(doc, verse.data(), verse.size());
@@ -60,7 +60,7 @@ namespace tangle::http::curl::Transfer::testing {
 	}
 
 	TEST(transfer, different_size) {
-		auto doc = std::make_shared<doc_impl>(uri{}, nullptr);
+		auto doc = std::make_shared<nav::doc_impl>(uri{}, nullptr);
 
 		for (auto const& verse : raven)
 			Data<false>::onData(doc, verse.data(), verse.size());

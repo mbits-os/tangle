@@ -6,11 +6,11 @@
 #include <curl/curl.h>
 #undef min
 #undef max
-#include <tangle/http/doc_impl.hpp>
+#include <tangle/nav/doc_impl.hpp>
 #include <tangle/nav/request.hpp>
 
 namespace tangle::http::curl {
-	using DocumentPtr = std::shared_ptr<http::doc_impl>;
+	using DocumentPtr = std::shared_ptr<nav::doc_impl>;
 
 	struct StringList {
 		void append(char const* value) {
@@ -93,7 +93,7 @@ namespace tangle::http::curl {
 		bool m_wasRedirected{false};
 		std::string m_finalLocation{};
 		msg::http_response m_inParser{};
-		std::weak_ptr<http::doc_impl> m_callback{};
+		std::weak_ptr<nav::doc_impl> m_callback{};
 		std::shared_ptr<nav::request_trace> m_trace{};
 	};
 

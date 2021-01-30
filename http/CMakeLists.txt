@@ -3,9 +3,7 @@ project(http VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
 	src/curl.cpp
-	src/doc_impl.cpp
 	include/tangle/http/curl.hpp
-	include/tangle/http/doc_impl.hpp
 	include/tangle/http/proto.hpp
 )
 

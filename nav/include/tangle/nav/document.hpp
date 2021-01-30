@@ -15,7 +15,7 @@ Cache content.
 #include <tangle/uri.hpp>
 
 namespace tangle::nav {
-	struct doc_impl;
+	struct doc_backend;
 	struct document {
 		document();
 		document(const document&);
@@ -38,18 +38,18 @@ namespace tangle::nav {
 		bool is_link() const noexcept;
 		nav::headers const& headers() const noexcept;
 
-		static document wrap(std::shared_ptr<doc_impl> impl) {
+		static document wrap(std::shared_ptr<doc_backend> impl) {
 			return document{std::move(impl)};
 		}
 
 	private:
-		std::shared_ptr<doc_impl> m_impl;
+		std::shared_ptr<doc_backend> m_impl;
 
-		explicit document(std::shared_ptr<doc_impl> impl);
+		explicit document(std::shared_ptr<doc_backend> impl);
 	};
 
-	struct doc_impl {
-		virtual ~doc_impl();
+	struct doc_backend {
+		virtual ~doc_backend();
 		virtual document open(uri const& loc);
 		virtual document open(request const& req) = 0;
 		virtual uri const& location() const noexcept = 0;

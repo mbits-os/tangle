@@ -192,7 +192,7 @@ namespace tangle::http::curl {
 	}
 
 	inline bool Curl::isRedirect() const {
-		return http::doc_impl::is_redirect(m_inParser.status());
+		return nav::doc_impl::is_redirect(m_inParser.status());
 	}
 
 	Curl::size_type Curl::onData(const char* data, size_type length) {
@@ -272,7 +272,7 @@ namespace tangle::http::curl {
 
 			auto cookies = nav.cookies().get(addr, addr.scheme() == "https"sv);
 
-			auto document = std::make_shared<http::doc_impl>(addr, &nav);
+			auto document = std::make_shared<nav::doc_impl>(addr, &nav);
 
 			Curl curl{};
 

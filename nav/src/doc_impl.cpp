@@ -1,10 +1,10 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/http/doc_impl.hpp>
+#include <tangle/nav/doc_impl.hpp>
 
-namespace tangle::http {
-	doc_impl::doc_impl(uri const& location, nav::navigator* nav)
+namespace tangle::nav {
+	doc_impl::doc_impl(uri const& location, navigator* nav)
 	    : location_{location}, nav_{nav} {}
 
 	void doc_impl::on_library_error(int code, char const* msg) {
@@ -38,14 +38,14 @@ namespace tangle::http {
 		headers_.clear();
 
 		for (auto const& [hdr, values] : headers) {
-			auto header = nav::header_key::make(hdr.str());
+			auto header = header_key::make(hdr.str());
 			for (auto const& value : values) {
 				headers_.add(header, value);
 			}
 		}
 	}
 
-	nav::document doc_impl::open(nav::request const& req) {
+	document doc_impl::open(request const& req) {
 		if (!exists()) return {};
 		if (req.referrer().empty()) {
 			auto copy = req;
