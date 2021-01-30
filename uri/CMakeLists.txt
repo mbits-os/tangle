@@ -9,7 +9,7 @@ add_library(uri STATIC ${SOURCES})
 set_target_properties(uri PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER libs)
+	FOLDER tangle)
 target_include_directories(uri PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_options(uri PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
@@ -51,7 +51,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 file(GLOB TEST_SRCS tests/*.cc)
 
 add_executable(uri-test ${TEST_SRCS})
-set_target_properties(uri-test PROPERTIES FOLDER tests)
+set_target_properties(uri-test PROPERTIES FOLDER tangle/tests)
 target_link_libraries(uri-test uri GTest::gtest_main)
 
 add_test(NAME href.empties COMMAND uri-test --gtest_filter=Empties/*)

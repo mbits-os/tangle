@@ -24,7 +24,7 @@ add_library(nav STATIC ${SOURCES})
 set_target_properties(nav PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER libs)
+	FOLDER tangle)
 target_include_directories(nav PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(nav PUBLIC uri cookie msg)
 target_compile_options(nav PRIVATE ${ADDITIONAL_WALL_FLAGS})
@@ -66,7 +66,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 file(GLOB TEST_SRCS tests/*.cc)
 
 add_executable(nav-test ${TEST_SRCS})
-set_target_properties(nav-test PROPERTIES FOLDER tests)
+set_target_properties(nav-test PROPERTIES FOLDER tangle/tests)
 target_link_libraries(nav-test nav GTest::gmock_main)
 
 add_test(NAME nav COMMAND nav-test)

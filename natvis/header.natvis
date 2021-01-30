@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="tangle::nav::header_key">
-    <DisplayString Condition="header_ == tangle::http::header::user_defined_header">{user_defined_}</DisplayString>
-    <DisplayString Condition="header_ != tangle::http::header::user_defined_header">{header_}</DisplayString>
-    <StringView Condition="header_ == tangle::http::header::user_defined_header">user_defined_</StringView>
-    <StringView Condition="header_ != tangle::http::header::user_defined_header">header_</StringView>
+    <DisplayString Condition="header_ == tangle::nav::header::user_defined_header">{user_defined_}</DisplayString>
+    <DisplayString Condition="header_ != tangle::nav::header::user_defined_header">{header_}</DisplayString>
+    <StringView Condition="header_ == tangle::nav::header::user_defined_header">user_defined_</StringView>
+    <StringView Condition="header_ != tangle::nav::header::user_defined_header">header_</StringView>
     <Expand>
       <Item Name="[header]">header_</Item>
       <Item Name="[user-defined]">user_defined_</Item>

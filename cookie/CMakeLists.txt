@@ -22,7 +22,7 @@ add_library(cookie STATIC ${SOURCES})
 set_target_properties(cookie PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER libs)
+	FOLDER tangle)
 target_include_directories(cookie PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_options(cookie PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
@@ -63,7 +63,7 @@ file(GLOB TEST_SRCS tests/*.cc)
 list(APPEND TEST_SRCS tests/testing_io.hpp)
 
 add_executable(cookie-test ${TEST_SRCS})
-set_target_properties(cookie-test PROPERTIES FOLDER tests)
+set_target_properties(cookie-test PROPERTIES FOLDER tangle/tests)
 target_link_libraries(cookie-test cookie GTest::gtest_main)
 
 add_test(NAME cookies.chrono COMMAND cookie-test --gtest_filter=*/cookies_chrono*.*:cookies_chrono*.*)

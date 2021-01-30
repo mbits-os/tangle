@@ -17,7 +17,7 @@ add_library(msg STATIC ${SOURCES})
 set_target_properties(msg PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER libs)
+	FOLDER tangle)
 target_include_directories(msg PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_options(msg PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
@@ -44,7 +44,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 file(GLOB TEST_SRCS tests/*.cc)
 
 add_executable(msg-test ${TEST_SRCS})
-set_target_properties(msg-test PROPERTIES FOLDER tests)
+set_target_properties(msg-test PROPERTIES FOLDER tangle/tests)
 target_link_libraries(msg-test msg GTest::gtest_main)
 
 add_test(NAME hash.string COMMAND msg-test --gtest_filter=combined.*)
