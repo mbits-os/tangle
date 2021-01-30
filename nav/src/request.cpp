@@ -29,6 +29,14 @@ namespace tangle::nav {
 		return out;
 	}
 
+	request& request::referrer(const uri& value) {
+		m_referrer = normalized(value);
+		m_address = normalized(m_address, m_referrer);
+
+		m_headers.set(header::Referer, m_referrer.string());
+
+		return *this;
+	}
 	request& request::basic_auth(std::string const& username,
 	                             std::string const& secret) {
 		std::string auth;
@@ -42,4 +50,14 @@ namespace tangle::nav {
 
 		return *this;
 	}
-}
+
+	request& request::custom_agent(std::string const& value) {
+		m_headers.set(header::User_Agent, value);
+		return *this;
+	}
+
+	request& request::content_type(std::string const& value) {
+		m_headers.set(header::Content_Type, value);
+		return *this;
+	}
+}  // namespace tangle::nav

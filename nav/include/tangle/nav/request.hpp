@@ -34,12 +34,16 @@ namespace tangle::nav {
 	public:
 		request() = default;
 
-		explicit request(nav::method mth) : m_method(mth) {}
+		explicit request(nav::method mth, nav::headers&& hdrs = {})
+		    : m_method(mth), m_headers(std::move(hdrs)) {}
 
-		explicit request(const uri& address) : m_address(normalized(address)) {}
+		explicit request(const uri& address, nav::headers&& hdrs = {})
+		    : m_address(normalized(address)), m_headers(std::move(hdrs)) {}
 
-		request(nav::method mth, const uri& address)
-		    : m_address(normalized(address)), m_method(mth) {}
+		request(nav::method mth, const uri& address, nav::headers&& hdrs = {})
+		    : m_address(normalized(address))
+		    , m_method(mth)
+		    , m_headers(std::move(hdrs)) {}
 
 		request& method(nav::method value) {
 			m_method = value;
@@ -52,28 +56,15 @@ namespace tangle::nav {
 				m_address = normalized(value, m_referrer);
 			return *this;
 		}
-		request& headers(nav::headers&& hdrs) {
-			m_headers = std::move(hdrs);
-			return *this;
-		}
 		request& max_redir(int value) {
 			m_max_redir = value;
 			return *this;
 		}
-		request& referrer(const uri& value) {
-			m_referrer = normalized(value);
-			m_address = normalized(m_address, m_referrer);
-			return *this;
-		}
-		request& basic_auth(std::string const& username, std::string const& secret);
-		request& custom_agent(std::string value) {
-			m_custom_agent = std::move(value);
-			return *this;
-		}
-		request& content_type(std::string value) {
-			m_content_type = std::move(value);
-			return *this;
-		}
+		request& referrer(uri const& value);
+		request& basic_auth(std::string const& username,
+		                    std::string const& secret);
+		request& custom_agent(std::string const& value);
+		request& content_type(std::string const& value);
 		request& content(std::string value) {
 			m_content = std::move(value);
 			return *this;
@@ -93,12 +84,6 @@ namespace tangle::nav {
 		bool follow_redirects() const noexcept { return m_max_redir > 0; }
 		int max_redir() const noexcept { return m_max_redir; }
 		const uri& referrer() const noexcept { return m_referrer; }
-		const std::string& custom_agent() const noexcept {
-			return m_custom_agent;
-		}
-		const std::string& content_type() const noexcept {
-			return m_content_type;
-		}
 		const std::string& content() const noexcept { return m_content; }
 		const std::string& form_fields() const noexcept {
 			return m_form_fields;
@@ -112,14 +97,12 @@ namespace tangle::nav {
 		uri normalized(uri const& input) {
 			return uri::normal(input, uri::with_pass);
 		}
-		uri m_address;
+		uri m_address{};
+		uri m_referrer{};
 		nav::method m_method = nav::method::get;
 		int m_max_redir = 50;
-		uri m_referrer;
-		std::string m_custom_agent;
-		std::string m_content_type;
-		std::string m_content;
-		std::string m_form_fields;
+		std::string m_content{};
+		std::string m_form_fields{};
 		nav::headers m_headers;
 		std::shared_ptr<request_trace> m_trace{};
 	};

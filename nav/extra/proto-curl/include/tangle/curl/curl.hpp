@@ -18,7 +18,9 @@ namespace tangle::curl {
 			if (!slist_) slist_.reset(val);
 		}
 
-		operator curl_slist*() { return slist_.get(); }
+		explicit operator bool() const noexcept { return !!slist_; }
+
+		curl_slist* get() const noexcept { return slist_.get(); }
 
 	private:
 		struct free_all {
@@ -43,15 +45,12 @@ namespace tangle::curl {
 		void setMaxRedirs(long redirs);
 		void setConnectTimeout(long timeout);
 		void setUrl(const std::string& url);
-		void setUA(const std::string& userAgent);
-		void setReferrer(std::string const& url);
 		void setCookie(std::string const& cookie);
 		void postForm(std::string const& form);
 		void setHeaders(curl_slist* headers);
 		void setPostData(const void* data, size_t length);
 		void setSSLVerify(bool verify = true);
 		void setWrite();
-		void setProgress();
 		void setDebug(std::shared_ptr<nav::request_trace> trace = {});
 		CURLcode fetch();
 		char const* effectiveLocation() const;
@@ -72,11 +71,6 @@ namespace tangle::curl {
 		                            size_t size,
 		                            size_t count,
 		                            Curl* self);
-		static int curl_onProgress(Curl* self,
-		                           double dltotal,
-		                           double dlnow,
-		                           double ultotal,
-		                           double ulnow);
 		static int curl_onTrace(CURL*,
 		                        curl_infotype type,
 		                        char* data,
@@ -85,7 +79,6 @@ namespace tangle::curl {
 
 		size_type onData(const char* data, size_type length);
 		size_type onHeader(const char* data, size_type length);
-		bool onProgress(double, double, double, double);
 		int onTrace(curl_infotype type, char* data, size_t size);
 
 		CURL* m_curl{};

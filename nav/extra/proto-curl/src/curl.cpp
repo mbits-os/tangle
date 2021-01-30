@@ -1,11 +1,11 @@
 // Copyright (c) 2020 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
+#include <mutex>
 #include <tangle/curl/curl.hpp>
 #include <tangle/curl/proto.hpp>
 #include <tangle/msg/http_parser.hpp>
 #include <tangle/nav/protocol.hpp>
-#include <mutex>
 
 using namespace std::literals;
 
@@ -46,14 +46,6 @@ namespace tangle::curl {
 		curl_easy_setopt(m_curl, CURLOPT_URL, url.c_str());
 	}
 
-	void Curl::setUA(const std::string& userAgent) {
-		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, userAgent.c_str());
-	}
-
-	void Curl::setReferrer(std::string const& url) {
-		curl_easy_setopt(m_curl, CURLOPT_REFERER, url.c_str());
-	}
-
 	void Curl::setCookie(std::string const& cookie) {
 		curl_easy_setopt(m_curl, CURLOPT_COOKIE, cookie.c_str());
 	}
@@ -86,12 +78,6 @@ namespace tangle::curl {
 		curl_easy_setopt(m_curl, CURLOPT_HEADERFUNCTION, curl_onHeader);
 		curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, this);
 		curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, curl_onData);
-	}
-
-	void Curl::setProgress() {
-		curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 0L);
-		curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, curl_onProgress);
-		curl_easy_setopt(m_curl, CURLOPT_PROGRESSDATA, this);
 	}
 
 	void Curl::setDebug(std::shared_ptr<nav::request_trace> trace) {
@@ -176,14 +162,6 @@ namespace tangle::curl {
 		    size);
 	}
 
-	int Curl::curl_onProgress(Curl* self,
-	                          double dltotal,
-	                          double dlnow,
-	                          double ultotal,
-	                          double ulnow) {
-		return self->onProgress(dltotal, dlnow, ultotal, ulnow) ? 1 : 0;
-	}
-
 	int Curl::curl_onTrace(CURL*,
 	                       curl_infotype type,
 	                       char* data,
@@ -261,7 +239,24 @@ namespace tangle::curl {
 		return 0;
 	}
 
-	bool Curl::onProgress(double, double, double, double) { return false; }
+	static StringList convert(nav::headers const& headers) {
+		StringList result{};
+		for (auto const& [key, values] : headers) {
+			auto raw_name = key.name();
+			if (!raw_name) continue;
+
+			auto name = std::string_view{raw_name};
+			for (auto const& value : values) {
+				std::string combined{};
+				combined.reserve(name.size() + value.size() + 1);
+				combined.append(name);
+				combined.push_back(':');
+				combined.append(value);
+				result.append(combined.c_str());
+			}
+		}
+		return result;
+	}
 
 	struct protocol : nav::protocol {
 		nav::document open(const nav::request& req,
@@ -271,58 +266,38 @@ namespace tangle::curl {
 				return addr;
 			}(req.address());
 
-			auto cookies = nav.cookies().get(addr, addr.scheme() == "https"sv);
-
 			auto document = std::make_shared<nav::doc_impl>(addr, &nav);
 
 			Curl curl{};
 
 			curl.setCallback(document);
 			curl.setConnectTimeout(5);
-			curl.setUA(req.custom_agent().empty() ? nav.user_agent()
-			                                      : req.custom_agent());
-			curl.setProgress();
 			curl.setSSLVerify(false);
 			curl.setWrite();
+			curl.setUrl(addr.string());
 
 			if (req.follow_redirects()) {
 				curl.followLocation();
-				auto const redirs = req.max_redir();
-				if (redirs > 0) curl.setMaxRedirs(redirs);
+				if (auto const redirs = req.max_redir(); redirs > 0)
+					curl.setMaxRedirs(redirs);
 			} else {
 				curl.dontFollowLocation();
 			}
 
-			curl.setUrl(addr.string());
-			if (!req.referrer().empty())
-				curl.setReferrer(req.referrer().string());
-			if (!cookies.empty()) curl.setCookie(cookies);
+			if (auto cookies =
+			        nav.cookies().get(addr, addr.scheme() == "https"sv);
+			    !cookies.empty())
+				curl.setCookie(cookies);
 
-			auto headers = StringList{};
-			auto set_headers{false};
-			if (!req.headers().empty()) {
-				for (auto const& [key, values] : req.headers()) {
-					auto raw_name = key.name();
-					if (!raw_name) continue;
+			auto headers = convert(req.headers());
 
-					auto name = std::string_view{raw_name};
-					for (auto const& value : values) {
-						std::string combined{};
-						combined.reserve(name.size() + value.size() + 1);
-						combined.append(name);
-						combined.push_back(':');
-						combined.append(value);
-						headers.append(combined.c_str());
-					}
-				}
-				set_headers = true;
+			if (auto custom_user_agent =
+			        req.headers().find_front(nav::header::User_Agent);
+			    !custom_user_agent && !nav.user_agent().empty()) {
+				headers.append(("User-Agent:" + nav.user_agent()).c_str());
 			}
-			if (!req.content_type().empty()) {
-				auto combined = "Content-Type: " + req.content_type();
-				headers.append(combined.c_str());
-				set_headers = true;
-			}
-			if (set_headers) curl.setHeaders(headers);
+
+			if (headers) curl.setHeaders(headers.get());
 
 			if (req.method() == nav::method::post) {
 				if (!req.form_fields().empty()) {

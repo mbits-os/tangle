@@ -13,6 +13,7 @@ manipulation of resource addresses, with some helper
 utilities.
 */
 
+#include <iostream>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -518,6 +519,10 @@ namespace tangle {
 		\returns normalized uri
 		*/
 		static uri normal(uri identifier, auth_flag flag = ui_safe);
+
+		friend std::ostream& operator<<(std::ostream& out, uri const& address) {
+			return out << address.string();
+		}
 	};
 
 	inline bool operator==(std::string_view const& lhs,

@@ -3,6 +3,7 @@
 
 #include <gtest/gtest.h>
 #include <tangle/uri.hpp>
+#include <sstream>
 
 using namespace std::literals;
 
@@ -38,25 +39,27 @@ namespace tangle::testing {
 	class UriCannonicalBase : public TestWithParam<UriCannonicalHexTest> {};
 
 	TEST_P(UriCannonicalHref, HrefAttr) {
-		auto param = GetParam();
+		auto const& param = GetParam();
 		auto result = uri::canonical(param.href, param.base);
-		ASSERT_EQ(param.expected, result) << "Result: " << result.string();
+		ASSERT_EQ(param.expected, result);
 	}
 
 	TEST_P(UriCannonicalHex, URLDecode) {
-		auto param = GetParam();
+		auto const& param = GetParam();
 		auto result = uri::canonical(param.url, {});
 		uri copy{};
 		copy = result;
-		ASSERT_EQ(param.expected, result) << "Result: " << result.string();
-		ASSERT_EQ(result, copy)
-		    << "Result: " << result.string() << "\nCopy: " << copy.string();
+		ASSERT_EQ(param.expected, result);
+		ASSERT_EQ(result, copy);
 	}
 
 	TEST_P(UriCannonicalBase, MakeBase) {
-		auto param = GetParam();
+		auto const& param = GetParam();
 		auto result = uri::make_base(param.url);
-		ASSERT_EQ(param.expected, result) << "Result: " << result.string();
+		auto stream = std::ostringstream{};
+		stream << result;
+		ASSERT_EQ(param.expected, result);
+		ASSERT_EQ(result.string(), stream.str());
 	}
 
 	// clang-format off

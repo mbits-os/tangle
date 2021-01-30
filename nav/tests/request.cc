@@ -27,8 +27,6 @@ namespace tangle::nav::testing {
 		ASSERT_TRUE(req.follow_redirects());
 		ASSERT_EQ(req.max_redir(), 50);
 		ASSERT_TRUE(req.referrer().empty());
-		ASSERT_TRUE(req.custom_agent().empty());
-		ASSERT_TRUE(req.content_type().empty());
 		ASSERT_TRUE(req.content().empty());
 		ASSERT_TRUE(req.form_fields().empty());
 	}

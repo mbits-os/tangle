@@ -35,6 +35,11 @@ def loopA_4():
     return 'URL: /loop/fourth'
 
 
+@app.route('/pre-echo')
+def pre_echo():
+    return redirect('/echo')
+
+
 @app.route('/echo')
 def echo():
     headers = {}

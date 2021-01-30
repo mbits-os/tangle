@@ -344,15 +344,13 @@ Set-Cookie: cookie=gaderypoluki; Expires=<date>; Max-Age=36000; Path=/
 	}
 
 	TEST_F(curl_test, echo) {
-		nav::headers hdrs{
-		    {nav::header_key::make("x-hdr"), "header value"},
-		};
-
-		nav::request req{"echo"sv};
+		nav::request req{"echo"sv,
+		                 {
+		                     {nav::header_key::make("x-hdr"), "header value"},
+		                 }};
 		req.max_redir(0);
 		req.referrer("http://127.0.0.1:5000/"sv);
 		req.custom_agent("custom-agent/1.0");
-		req.headers(std::move(hdrs));
 
 		auto doc = browser.open(req);
 
@@ -360,27 +358,24 @@ Set-Cookie: cookie=gaderypoluki; Expires=<date>; Max-Age=36000; Path=/
 		    << "  Status: " << doc.status()
 		    << "\n  Status text: " << doc.status_text();
 
-		EXPECT_EQ(doc.text(), R"(Accept: */*
+		EXPECT_EQ(R"(Accept: */*
 Cookie: cookie=gaderypoluki
 Host: 127.0.0.1:5000
 Referer: http://127.0.0.1:5000/
 User-Agent: custom-agent/1.0
 X-Hdr: header value
-)");
+)",
+		          doc.text());
 		EXPECT_FALSE(doc.is_link());
 	}
 
-	TEST_F(curl_test, hello_world_null_header) {
-		nav::headers hdrs{
-		    {nav::header::empty, "Should not be used by backend"},
-		    {nav::header_key::make("x-hdr"), "header value"},
-		};
-
-		nav::request req{"echo"sv};
-		req.max_redir(0);
+	TEST_F(curl_test, redir_and_echo) {
+		nav::request req{"pre-echo"sv,
+		                 {
+		                     {nav::header_key::make("x-hdr"), "header value"},
+		                 }};
 		req.referrer("http://127.0.0.1:5000/"sv);
 		req.custom_agent("custom-agent/1.0");
-		req.headers(std::move(hdrs));
 
 		auto doc = browser.open(req);
 
@@ -388,13 +383,43 @@ X-Hdr: header value
 		    << "  Status: " << doc.status()
 		    << "\n  Status text: " << doc.status_text();
 
-		EXPECT_EQ(doc.text(), R"(Accept: */*
+		EXPECT_EQ(R"(Accept: */*
 Cookie: cookie=gaderypoluki
 Host: 127.0.0.1:5000
 Referer: http://127.0.0.1:5000/
 User-Agent: custom-agent/1.0
 X-Hdr: header value
-)");
+)",
+		          doc.text());
+		EXPECT_FALSE(doc.is_link());
+		EXPECT_EQ(doc.location(), "http://127.0.0.1:5000/echo"sv);
+	}
+
+	TEST_F(curl_test, echo_null_header) {
+		nav::request req{
+		    "echo"sv,
+		    {
+		        {nav::header::empty, "Should not be used by backend"},
+		        {nav::header_key::make("x-hdr"), "header value"},
+		    }};
+		req.max_redir(0);
+		req.referrer("http://127.0.0.1:5000/"sv);
+		req.custom_agent("custom-agent/1.0");
+
+		auto doc = browser.open(req);
+
+		EXPECT_EQ(doc.status() / 100, 2)
+		    << "  Status: " << doc.status()
+		    << "\n  Status text: " << doc.status_text();
+
+		EXPECT_EQ(R"(Accept: */*
+Cookie: cookie=gaderypoluki
+Host: 127.0.0.1:5000
+Referer: http://127.0.0.1:5000/
+User-Agent: custom-agent/1.0
+X-Hdr: header value
+)",
+		          doc.text());
 		EXPECT_FALSE(doc.is_link());
 	}
 
@@ -435,12 +460,10 @@ X-Hdr: header value
 		EXPECT_FALSE(root.is_link());
 		EXPECT_TRUE(root.exists());
 
-		nav::headers hdrs{
-		    {nav::header_key::make("X-hdr"), "header value"},
-		};
-
-		nav::request req{"echo"sv};
-		req.headers(std::move(hdrs));
+		nav::request req{"echo"sv,
+		                 {
+		                     {nav::header_key::make("X-hdr"), "header value"},
+		                 }};
 		auto doc = root.open(req);
 
 		EXPECT_EQ(doc.status() / 100, 2)
@@ -562,4 +585,4 @@ Field B: v2
 		EXPECT_EQ(doc.location().string(), "http://127.0.0.1:5000/upload"sv);
 		EXPECT_FALSE(doc.is_link());
 	}
-}  // namespace tangle::http::curl::testing
+}  // namespace tangle::curl::testing

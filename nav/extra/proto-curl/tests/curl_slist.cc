@@ -22,7 +22,7 @@ namespace tangle::curl::testing {
 		for (auto const& verse : raven)
 			strings.append(verse.data());
 
-		auto node = static_cast<curl_slist*>(strings);
+		auto node = strings.get();
 		for (auto const& verse : raven) {
 			if (!node) {
 				auto result = ::testing::AssertionFailure()
@@ -34,5 +34,6 @@ namespace tangle::curl::testing {
 			EXPECT_EQ(verse, node->data);
 			node = node->next;
 		}
+		EXPECT_EQ(node, nullptr);
 	}
 }  // namespace tangle::http::curl::testing
