@@ -13,8 +13,8 @@ over any wire, should do so over the cache.
 
 #pragma once
 #include <memory>
-#include <tangle/uri.hpp>
 #include <tangle/nav/headers.hpp>
+#include <tangle/uri.hpp>
 
 namespace tangle::nav {
 	enum class method { get, post };
@@ -56,21 +56,43 @@ namespace tangle::nav {
 				m_address = normalized(value, m_referrer);
 			return *this;
 		}
-		request& max_redir(int value) {
-			m_max_redir = value;
+		request& add(header_key const& header, std::string const& value) {
+			m_headers.add(header, value);
 			return *this;
 		}
+		request& add(header_key const& header, std::string&& value) {
+			m_headers.add(header, std::move(value));
+			return *this;
+		}
+		request& set(header_key const& header, std::string const& value) {
+			m_headers.set(header, value);
+			return *this;
+		}
+		request& set(header_key const& header, std::string&& value) {
+			m_headers.set(header, std::move(value));
+			return *this;
+		}
+		void remove(header_key const& key) noexcept { m_headers.remove(key); }
+		void clear_headers() noexcept { m_headers.clear(); }
 		request& referrer(uri const& value);
 		request& basic_auth(std::string const& username,
 		                    std::string const& secret);
-		request& custom_agent(std::string const& value);
-		request& content_type(std::string const& value);
+		request& custom_agent(std::string const& value) {
+			return set(header::User_Agent, value);
+		}
+		request& content_type(std::string const& value) {
+			return set(header::Content_Type, value);
+		}
 		request& content(std::string value) {
 			m_content = std::move(value);
 			return *this;
 		}
 		request& form_fields(std::string value) {
 			m_form_fields = std::move(value);
+			return *this;
+		}
+		request& max_redir(int value) {
+			m_max_redir = value;
 			return *this;
 		}
 		request& trace(std::shared_ptr<request_trace> callback) {

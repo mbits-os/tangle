@@ -3,6 +3,7 @@
 
 #include <gtest/gtest.h>
 #include <tangle/nav/headers.hpp>
+#include <tangle/nav/request.hpp>
 
 using namespace std::literals;
 
@@ -64,7 +65,7 @@ namespace tangle::nav::testing {
 		ASSERT_TRUE(hdrs.has(key));
 		ASSERT_TRUE(hdrs.has(nav::header::Content_Type));
 
-		hdrs.erase(header::Content_Type);
+		hdrs.remove(header::Content_Type);
 
 		ASSERT_EQ(hdrs.size(), 1);
 		ASSERT_TRUE(hdrs.has(key));
@@ -88,6 +89,46 @@ namespace tangle::nav::testing {
 		ASSERT_NE(hdrs.begin(), hdrs.end());
 		hdrs.clear();
 		ASSERT_EQ(hdrs.begin(), hdrs.end());
+	}
+
+	TEST(headers_tests, extension_hash_inside_a_request) {
+		request req;
+		auto key = header_key::make("X-Header-Name");
+		std::string value = "X-Header-Value";
+		std::string value2 = "X-Header-Value-2";
+		req.set(key, value);
+		req.add(key, value2);
+		req.add(header_key::make("x-header-name"), "X-Header-Value-3");
+		req.add(header::Content_Type, "text/plain");
+
+		ASSERT_EQ(req.headers().size(), 2);
+		ASSERT_TRUE(req.headers().has(key));
+		ASSERT_TRUE(req.headers().has(nav::header::Content_Type));
+
+		req.remove(header::Content_Type);
+
+		ASSERT_EQ(req.headers().size(), 1);
+		ASSERT_TRUE(req.headers().has(key));
+		ASSERT_FALSE(req.headers().has(nav::header::Content_Type));
+
+		auto x_hdr_value = req.headers().find_front(key);
+		auto content_type = req.headers().find_front(nav::header::Content_Type);
+
+		ASSERT_NE(x_hdr_value, nullptr);
+		ASSERT_EQ(content_type, nullptr);
+
+		ASSERT_EQ(*x_hdr_value, "X-Header-Value");
+
+		auto it = req.headers().find(key);
+		ASSERT_NE(it, req.headers().end());
+		ASSERT_EQ(it->second.size(), 3);
+		ASSERT_EQ(it->second[0], "X-Header-Value");
+		ASSERT_EQ(it->second[1], "X-Header-Value-2");
+		ASSERT_EQ(it->second[2], "X-Header-Value-3");
+
+		ASSERT_NE(req.headers().begin(), req.headers().end());
+		req.clear_headers();
+		ASSERT_EQ(req.headers().begin(), req.headers().end());
 	}
 
 	TEST(headers_tests, empty) {

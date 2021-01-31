@@ -213,14 +213,14 @@ namespace tangle::nav {
 			values.clear();
 			values.emplace_back(std::move(value));
 		}
-		void erase(header_key const& key) noexcept { headers_.erase(key); }
+		void remove(header_key const& key) noexcept { headers_.erase(key); }
 
 		auto empty() const noexcept { return headers_.empty(); }
 		auto size() const noexcept { return headers_.size(); }
 		auto find(header_key const& key) const { return headers_.find(key); }
 		auto begin() const { return headers_.begin(); }
 		auto end() const { return headers_.end(); }
-		void clear() { headers_.clear(); }
+		void clear() noexcept { headers_.clear(); }
 
 		bool has(header_key const& key) const {
 			auto it = find(key);
