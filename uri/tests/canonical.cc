@@ -75,14 +75,32 @@ namespace tangle::testing {
 
 	static const UriCannonicalHrefTest uri_canonical_roots[] = {
 		{ "http://example.com/A/B/some.file", "/C/other.file",            "http://example.com/C/other.file" },
+		{ "http://example.com/A/B/some.file?field=value",
+		                                      "/C/other.file",            "http://example.com/C/other.file" },
+		{ "http://example.com/A/B/some.file?field=value#anchor",
+		                                      "/C/other.file",            "http://example.com/C/other.file" },
+		{ "http://example.com/A/B/some.file#anchor",
+		                                      "/C/other.file",            "http://example.com/C/other.file" },
 		{ "http://example.com/A/B/",          "/C/other.file",            "http://example.com/C/other.file" },
 		{ "http://example.com",               "//example.net",            "http://example.net/" },
 		{ "https://example.com",              "//example.net",            "https://example.net/" },
 	};
 
 	static const UriCannonicalHrefTest uri_canonical_here[] = {
-		{ "http://example.com/A/B/some.file", "C/other.file",             "http://example.com/A/B/some.file/C/other.file" },
-		{ "http://example.com/A/B/",          "C/other.file",             "http://example.com/A/B/C/other.file" },
+		{ "http://example.com/A/B/some.file", "C/other.file",                  "http://example.com/A/B/some.file/C/other.file" },
+		{ "http://example.com/A/B/some.file?field=value",
+		                                      "C/other.file",                  "http://example.com/A/B/some.file/C/other.file" },
+		{ "http://example.com/A/B/some.file?field=value#anchor",
+		                                      "C/other.file",                  "http://example.com/A/B/some.file/C/other.file" },
+		{ "http://example.com/A/B/some.file#anchor",
+		                                      "C/other.file",                  "http://example.com/A/B/some.file/C/other.file" },
+		{ "http://example.com/A/B/",          "C/other.file",                  "http://example.com/A/B/C/other.file" },
+		{ "http://example.com/A/B/some.file", "C/other.file?fld=value",        "http://example.com/A/B/some.file/C/other.file?fld=value" },
+		{ "http://example.com/A/B/",          "C/other.file?fld=value",        "http://example.com/A/B/C/other.file?fld=value" },
+		{ "http://example.com/A/B/some.file", "C/other.file?fld=value#anchor", "http://example.com/A/B/some.file/C/other.file?fld=value#anchor" },
+		{ "http://example.com/A/B/",          "C/other.file?fld=value#anchor", "http://example.com/A/B/C/other.file?fld=value#anchor" },
+		{ "http://example.com/A/B/some.file", "C/other.file#anchor",           "http://example.com/A/B/some.file/C/other.file#anchor" },
+		{ "http://example.com/A/B/",          "C/other.file#anchor",           "http://example.com/A/B/C/other.file#anchor" },
 	};
 
 	static const UriCannonicalHrefTest uri_canonical_up[] = {
