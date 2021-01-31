@@ -50,10 +50,7 @@ namespace tangle::nav {
 			return *this;
 		}
 		request& address(const uri& value) {
-			if (m_referrer.empty())
-				m_address = normalized(value);
-			else
-				m_address = normalized(value, m_referrer);
+			m_address = value;
 			return *this;
 		}
 		request& add(header_key const& header, std::string const& value) {
@@ -74,9 +71,11 @@ namespace tangle::nav {
 		}
 		void remove(header_key const& key) noexcept { m_headers.remove(key); }
 		void clear_headers() noexcept { m_headers.clear(); }
-		request& referrer(uri const& value);
 		request& basic_auth(std::string const& username,
 		                    std::string const& secret);
+		request& referrer(uri const& value) {
+			return set(header::Referer, value.string());
+		}
 		request& custom_agent(std::string const& value) {
 			return set(header::User_Agent, value);
 		}
@@ -100,12 +99,12 @@ namespace tangle::nav {
 			return *this;
 		}
 
-		const uri& address() const noexcept { return m_address; }
+		uri address() const;
+		uri referrer() const;
 		nav::headers const& headers() const noexcept { return m_headers; }
 		nav::method method() const noexcept { return m_method; }
 		bool follow_redirects() const noexcept { return m_max_redir > 0; }
 		int max_redir() const noexcept { return m_max_redir; }
-		const uri& referrer() const noexcept { return m_referrer; }
 		const std::string& content() const noexcept { return m_content; }
 		const std::string& form_fields() const noexcept {
 			return m_form_fields;
@@ -113,14 +112,13 @@ namespace tangle::nav {
 		std::shared_ptr<request_trace> trace() const { return m_trace; }
 
 	private:
-		uri normalized(uri const& input, uri const& doc) {
+		static uri normalized(uri const& input, uri const& doc) {
 			return uri::canonical(input, uri::make_base(doc), uri::with_pass);
 		}
-		uri normalized(uri const& input) {
+		static uri normalized(uri const& input) {
 			return uri::normal(input, uri::with_pass);
 		}
 		uri m_address{};
-		uri m_referrer{};
 		nav::method m_method = nav::method::get;
 		int m_max_redir = 50;
 		std::string m_content{};

@@ -61,6 +61,18 @@ namespace tangle::nav::testing {
 		ASSERT_EQ(req.address(), "scheme://host/app2/file2.ext"sv);
 	}
 
+	TEST(req_test, referrer3) {
+		request req{method::get, "dir/file.ext"sv};
+		ASSERT_EQ(req.address(), "dir/file.ext"sv);
+		ASSERT_TRUE(req.referrer().empty());
+
+		req.referrer("scheme://host/app/source.ext"sv);
+		ASSERT_EQ(req.address(), "scheme://host/app/dir/file.ext"sv);
+
+		req.referrer("another-scheme://example.com/subdir/"sv);
+		ASSERT_EQ(req.address(), "another-scheme://example.com/subdir/dir/file.ext"sv);
+	}
+
 	TEST(req_test, redir) {
 		request req{};
 

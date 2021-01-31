@@ -67,7 +67,7 @@ namespace tangle::nav {
 	}
 
 	document navigator::open(const request& req, cookie::time_point) {
-		auto& addr = req.address();
+		auto addr = req.address();
 
 		if (!addr.has_authority()) return {};
 
