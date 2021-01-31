@@ -142,40 +142,43 @@ namespace tangle {
 		static constexpr size_type ncalc = static_cast<size_type>(-2);
 		static constexpr size_type npos = static_cast<size_type>(-1);
 
-		mutable size_type m_scheme = ncalc;
-		mutable size_type m_path = ncalc;
-		mutable size_type m_query = ncalc;
-		mutable size_type m_part = ncalc;
+		size_type m_scheme = ncalc;
+		size_type m_path = ncalc;
+		size_type m_query = ncalc;
+		size_type m_part = ncalc;
 
-		void ensure_scheme() const;
-		void ensure_path() const;
-		void ensure_query() const;
-		void ensure_fragment() const;
+		void ensure_scheme();
+		void ensure_path();
+		void ensure_query();
+		void ensure_fragment();
 
-		void invalidate_fragment() { m_part = ncalc; }
+		void invalidate_fragment() {
+			m_part = ncalc;
+			ensure_fragment();
+		}
 
 		void invalidate_query() {
-			invalidate_fragment();
 			m_query = ncalc;
+			invalidate_fragment();
 		}
 
 		void invalidate_path() {
-			invalidate_query();
 			m_path = ncalc;
+			invalidate_query();
 		}
 
 		void invalidate_scheme() {
-			invalidate_path();
 			m_scheme = ncalc;
+			invalidate_path();
 		}
 #endif
 
 	public:
-		uri();                      /**< Constructs empty uri */
-		uri(const uri&);            /**< Copy-constructs an uri */
-		uri(uri&&);                 /**< Move-constructs an uri */
-		uri& operator=(const uri&); /**< Copy-assigns an uri */
-		uri& operator=(uri&&);      /**< Move-assigns an uri */
+		uri();                          /**< Constructs empty uri */
+		uri(const uri&);                /**< Copy-constructs an uri */
+		uri(uri&&) noexcept;            /**< Move-constructs an uri */
+		uri& operator=(const uri&);     /**< Copy-assigns an uri */
+		uri& operator=(uri&&) noexcept; /**< Move-assigns an uri */
 
 		/**
 		Constructs an uri from the identifier.
