@@ -126,7 +126,7 @@ namespace tangle::testing {
 		{ "https://example.com/A/B/",         "https:/C/other.file",      "https://example.com/C/other.file" },
 		{ "https://example.com/A/B/",         "mailto:user@server",       "mailto:user@server" },
 		{ "https://example.com/A/B/",         "ftp:C/other.file",         "ftp:C/other.file" },
-		{ "://example.com/A/B/",              "ftp:C/other.file",         "ftp:C/other.file" },
+		{ "//example.com/A/B/",              "ftp:C/other.file",         "ftp:C/other.file" },
 		// here, both uris are opaque, so nothing is done...
 		{ "ftp:A/B",                          "ftp:../C/other.file",      "ftp:../C/other.file" },
 		{ "mailto:userA@serverA",             "mailto:userB@serverB",     "mailto:userB@serverB" },

@@ -429,25 +429,26 @@ namespace tangle {
 			return;
 		}
 
-		auto length = m_uri.length();
-
-		auto c = m_uri.data();
-
 		m_path = m_scheme;
 
-		if (m_scheme + 1 >= length || c[m_scheme] != '/' ||
-		    c[m_scheme + 1] != '/')
+		if (m_scheme + 1 >= m_uri.length() || m_uri[m_scheme] != '/' ||
+		    m_uri[m_scheme + 1] != '/')
 			return;
 
 		m_path = m_scheme + 2;
+
+		// This seems to be faster, than find_first_of("/?#", m_path)
+		auto const length = m_uri.length();
+		auto const* data = m_uri.data() + m_path;
 		while (m_path < length) {
-			switch (c[m_path]) {
+			switch (*data) {
 				case '/':
 				case '?':
 				case '#':
 					return;
 			}
 			++m_path;
+			++data;
 		}
 	}
 
@@ -456,18 +457,19 @@ namespace tangle {
 
 		ensure_path();
 
-		auto length = m_uri.length();
-
-		auto c = m_uri.data();
-
 		m_query = m_path;
+
+		auto const length = m_uri.length();
+		auto data = m_uri.data() + m_query;
+
 		while (m_query < length) {
-			switch (c[m_query]) {
+			switch (*data) {
 				case '?':
 				case '#':
 					return;
 			}
 			++m_query;
+			++data;
 		}
 	}
 
@@ -476,14 +478,14 @@ namespace tangle {
 
 		ensure_query();
 
-		auto length = m_uri.length();
-
-		auto c = m_uri.data();
-
 		m_part = m_query;
+		auto const length = m_uri.length();
+		auto data = m_uri.data() + m_part;
+
 		while (m_part < length) {
-			if (c[m_part] == '#') return;
+			if (*data == '#') return;
 			++m_part;
+			++data;
 		}
 	}
 
