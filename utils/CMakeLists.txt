@@ -22,6 +22,7 @@ set_target_properties(utils PROPERTIES
 	FOLDER tangle)
 target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_options(utils PRIVATE ${ADDITIONAL_WALL_FLAGS})
+target_link_libraries(utils nav)
 
 ##################################################################
 ##  TESTING

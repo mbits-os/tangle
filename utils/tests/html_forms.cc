@@ -28,6 +28,16 @@ namespace tangle::testing {
 		std::initializer_list<html_form_test_data> forms{};
 	};
 
+	struct html_forms_req_test_data {
+		html_form_test_data form{};
+		std::string_view referrer{};
+		std::string_view url{};
+		std::string_view post_data{};
+		friend std::ostream& operator<<(std::ostream& out, html_forms_req_test_data const& data) {
+			return out << '{' << cxx_string{data.url} << ", " << cxx_string{data.post_data} << '}';
+		}
+	};
+
 	inline std::string as_str(std::string_view view) {
 		return {view.data(), view.size()};
 	}
@@ -82,6 +92,47 @@ namespace tangle::testing {
 				}
 			}
 		}
+	}
+
+	class html_forms_req
+	    : public ::testing::TestWithParam<html_forms_req_test_data> {};
+	TEST_P(html_forms_req, parse) {
+		auto& param = GetParam();
+		html_form form{
+		    as_str(param.form.data.id), as_str(param.form.data.action),
+		    as_str(param.form.data.method), as_str(param.form.data.enctype)};
+		for (auto const& field : param.form.fields) {
+			for (auto const& value : field.values) {
+				form.add(as_str(field.name), as_str(value));
+			}
+		}
+
+		auto actual = form.make_request(param.referrer);
+
+#if 0
+		std::cerr << "{\n  {\n    {" << cxx_string{form.id} << ", "
+		          << cxx_string{form.action} << ", " << cxx_string{form.method}
+		          << ", " << cxx_string{form.enctype} << "}, {\n";
+
+		for (auto const& field : form.fields) {
+			std::cerr << "      {" << cxx_string{field.name} << ", {";
+			bool first = true;
+			for (auto const& value : field.values) {
+				if (first)
+					first = false;
+				else
+					std::cerr << ", ";
+				std::cerr << cxx_string{value};
+			}
+			std::cerr << "}},\n";
+		}
+		std::cerr << "    },\n  },\n  " << cxx_string{param.referrer} << ",\n  "
+		          << cxx_string{actual.address().string()} << ",\n  "
+		          << cxx_string{actual.form_fields()} << ",\n},\n";
+#endif
+
+		ASSERT_EQ(param.url, actual.address().string());
+		ASSERT_EQ(param.post_data, actual.form_fields());
 	}
 
 	static constexpr html_forms_test_data samples[] = {
@@ -191,5 +242,80 @@ textarea: <b>bold</b></textarea></label></p>
 	    },
 	};
 
+	static constexpr html_forms_req_test_data forms[] = {
+	    {
+	        {
+	            {"form-0"sv,
+	             {},
+	             "post"sv,
+	             "application/x-www-form-urlencoded"sv},
+	            {
+	                {"custname"sv, {{}}},
+	                {"custtel"sv, {{}}},
+	                {"custemail"sv, {{}}},
+	                {"size"sv, {"large"sv}},
+	                {"topping"sv,
+	                 {"topping \xc2\xbb cheese"sv,
+	                  "topping \xc2\xbb mushroom"sv}},
+	                {"delivery"sv, {{}}},
+	                {"comments"sv,
+	                 {"    a\ntext inside\n\n</nope\n\ntextarea: <b>bold</b>"sv}},
+	                {"buffer"sv,
+	                 {"# System-wide .bashrc file for interactive bash(1) shells.\n\n# To enable the settings / commands in this file for login shells as well,\n# this file has to be sourced in /etc/profile.\n\n# If not running interactively, don't do anything\n[ -z \"$PS1\" ] && return <!--\n\n..."sv}},
+	            },
+	        },
+	        "https://pizza.example.com/order.cgi"sv,
+	        "https://pizza.example.com/order.cgi"sv,
+	        "buffer=%23+System-wide+.bashrc+file+for+interactive+bash%281%29+shells.%0A%0A%23+To+enable+the+settings+%2F+commands+in+this+file+for+login+shells+as+well%2C%0A%23+this+file+has+to+be+sourced+in+%2Fetc%2Fprofile.%0A%0A%23+If+not+running+interactively%2C+don%27t+do+anything%0A%5B+-z+%22%24PS1%22+%5D+%26%26+return+%3C%21--%0A%0A...&topping=topping+%C2%BB+cheese&topping=topping+%C2%BB+mushroom&delivery=&size=large&comments=++++a%0Atext+inside%0A%0A%3C%2Fnope%0A%0Atextarea%3A+%3Cb%3Ebold%3C%2Fb%3E&custemail=&custtel=&custname="sv,
+	    },
+	    {
+	        {
+	            {"form-1"sv, "/app/login"sv, "post"sv, {}},
+	            {
+	                {"login"sv, {"username"sv}},
+	                {"passphrase"sv, {"secret"sv}},
+	                {"code"sv, {"iopwqopiweopAUpmp"sv}},
+	            },
+	        },
+	        "https://service.example.com/"sv,
+	        "https://service.example.com/app/login"sv,
+	        "code=iopwqopiweopAUpmp&passphrase=secret&login=username"sv,
+	    },
+	    {
+	        {
+	            {"form-2"sv, "//backend.example.com/app.cgi"sv, "post", {}},
+	            {
+	                {"name"sv, {"username"sv}},
+	            },
+	        },
+	        "http://www.example.com/"sv,
+	        "http://backend.example.com/app.cgi"sv,
+	        "name=username"sv,
+	    },
+	    {
+	        {
+	            {"form-2"sv, "//backend.example.com/app.cgi"sv, {}, {}},
+	            {
+	                {"name"sv, {"username"sv}},
+	            },
+	        },
+	        "http://www.example.com/"sv,
+	        "http://backend.example.com/app.cgi?name=username"sv,
+	        {},
+	    },
+	    {
+	        {
+	            {"form-3"sv, "//backend.example.com/app.cgi"sv, {}, {}},
+	            {
+	                {"name"sv, {"username"sv}},
+	            },
+	        },
+	        "https://www.example.com/"sv,
+	        "https://backend.example.com/app.cgi?name=username"sv,
+	        {},
+	    },
+	};
+
 	INSTANTIATE_TEST_SUITE_P(samples, html_forms, ::testing::ValuesIn(samples));
+	INSTANTIATE_TEST_SUITE_P(forms, html_forms_req, ::testing::ValuesIn(forms));
 }  // namespace tangle::testing

@@ -59,6 +59,29 @@ namespace tangle {
 		fields.push_back({decoded_name, {decoded_value}});
 	}
 
+	nav::request html_form::make_request(uri const& page_url) const {
+		uri::params params{};
+		for (auto const& field : fields) {
+			for (auto const& value : field.values) {
+				params.add(field.name, value);
+			}
+		}
+
+		auto action_url = page_url;
+		if (!action.empty()) action_url = action;
+
+		auto const nav_method =
+		    method == "post" ? nav::method::post : nav::method::get;
+
+		if (nav_method == nav::method::get) action_url.query(params.string());
+
+		nav::request result{nav_method, action_url};
+		result.referrer(page_url).max_redir(0);
+		if (nav_method == nav::method::post)
+			result.form_fields(params.string(uri::form_urlencoded));
+		return result;
+	}
+
 	form_attrs_view form_attrs(
 	    std::unordered_map<std::string_view, attr_pos> const& attrs) {
 		form_attrs_view result{};

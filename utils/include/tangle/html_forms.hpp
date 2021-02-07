@@ -7,6 +7,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+#include <tangle/nav/request.hpp>
 
 namespace tangle {
 	struct html_form_field {
@@ -27,6 +28,7 @@ namespace tangle {
 
 		void add(std::string const& decoded_name, std::string const& decoded_value);
 		void set(std::string const& decoded_name, std::string const& decoded_value);
+		nav::request make_request(uri const& page_url) const;
 	private:
 		std::unordered_map<std::string, size_t> indexes_;
 	};
