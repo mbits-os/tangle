@@ -193,6 +193,14 @@ namespace tangle::testing {
 		}
 	}
 
+	struct opt {
+		std::optional<std::string_view> data;
+		friend std::ostream& operator<<(std::ostream& out, opt const& value) {
+			if (!value.data) return out << "std::nullopt";
+			return out << '"' << *value.data << '"';
+		}
+	};
+
 	TEST_P(query, list) {
 		auto param = GetParam();
 		auto& expected = param.expected;
@@ -228,7 +236,9 @@ namespace tangle::testing {
 			auto const& left = *l_it;
 			auto const& right = *r_it;
 			EXPECT_EQ(left.first, right.first);
-			EXPECT_EQ(left.second, right.second);
+			EXPECT_EQ(left.second, right.second)
+			    << "Optionals:\n  expected:\n    " << opt{left.second}
+			    << "\n  actual:\n    " << opt{right.second} << '\n';
 		}
 	}
 
@@ -271,6 +281,12 @@ namespace tangle::testing {
 	        "?na%3dme=am%26persand",
 	        {
 	            {"na=me", {"am&persand"}},
+	        },
+	    },
+	    {
+	        "?name=value+with+spaces",
+	        {
+	            {"name", {"value with spaces"}},
 	        },
 	    },
 	};

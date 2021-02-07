@@ -1,7 +1,7 @@
 // Copyright (c) 2015 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <cctype>
+#include <tangle/decode.hpp>
 #include <tangle/uri.hpp>
 
 namespace tangle {
@@ -74,109 +74,7 @@ namespace tangle {
 
 			return out;
 		}
-
-		inline bool issafe(unsigned char c) {
-			return std::isalnum(c) || c == '-' || c == '.' || c == '_' ||
-			       c == '~';
-		}
-
-		inline bool host_issafe(unsigned char c) {
-			return issafe(c) || c == ':' || c == '[' || c == ']';
-		}
-
-		template <typename Pred>
-		inline std::string urlencode(const char* in,
-		                             size_t in_len,
-		                             Pred&& safe) {
-			size_t length = in_len;
-
-			auto b = in;
-			auto e = b + in_len;
-
-			for (auto it = b; it != e; ++it) {
-				if (!safe(static_cast<unsigned char>(*it))) length += 2;
-			}
-
-			static constexpr char hexes[] = "0123456789ABCDEF";
-			std::string out;
-			out.reserve(length);
-
-			for (auto it = b; it != e; ++it) {
-				auto c = *it;
-				if (safe(static_cast<unsigned char>(c))) {
-					out += c;
-					continue;
-				}
-				out += '%';
-				out += hexes[(c >> 4) & 0xF];
-				out += hexes[(c)&0xF];
-			}
-			return out;
-		}
-
-		inline int hex(char c) {
-			switch (c) {
-				case '0':
-				case '1':
-				case '2':
-				case '3':
-				case '4':
-				case '5':
-				case '6':
-				case '7':
-				case '8':
-				case '9':
-					return static_cast<unsigned char>(c - '0');
-				case 'a':
-				case 'b':
-				case 'c':
-				case 'd':
-				case 'e':
-				case 'f':
-					return c - 'a' + 10;
-				case 'A':
-				case 'B':
-				case 'C':
-				case 'D':
-				case 'E':
-				case 'F':
-					return c - 'A' + 10;
-			}
-			// Line excluded, as this function is ONLY called inside isxdigit
-			// check
-			return 0;  // GCOV_EXCL_LINE
-		}
-
-		inline std::string host_urlencode(const char* in, size_t in_len) {
-			return urlencode(in, in_len, host_issafe);
-		}
-
-		inline std::string host_urlencode(std::string_view in) {
-			return host_urlencode(in.data(), in.length());
-		}
 	}  // namespace
-
-	std::string urlencode(const char* in, size_t in_len) {
-		return urlencode(in, in_len, issafe);
-	}
-
-	std::string urldecode(const char* in, size_t in_len) {
-		std::string out;
-		out.reserve(in_len);
-
-		for (size_t i = 0; i < in_len; ++i) {
-			// go inside only, if there is enough space
-			if (in[i] == '%' && (i < in_len - 2) && isxdigit(in[i + 1]) &&
-			    isxdigit(in[i + 2])) {
-				auto c = (hex(in[i + 1]) << 4) | hex(in[i + 2]);
-				out.push_back(static_cast<char>(c));
-				i += 2;
-				continue;
-			}
-			out += in[i];
-		}
-		return out;
-	}
 
 	uri::auth_parts uri::auth_parts::parse(std::string_view auth) {
 		auto pos = auth.find('@');
@@ -206,10 +104,11 @@ namespace tangle {
 			auto pass_colon = userInfo.find(':');
 			out.user = urldecode(userInfo.substr(0, pass_colon));
 			if (pass_colon != std::string_view::npos)
-				out.password = urldecode(userInfo.substr(pass_colon + 1));
+				out.password =
+				    urldecode(userInfo.substr(pass_colon + 1), codec::host);
 		}
 
-		out.host = urldecode(auth.substr(host, host_count));
+		out.host = urldecode(auth.substr(host, host_count), codec::host);
 		if (colon != std::string_view::npos)
 			out.port = urldecode(auth.substr(colon + 1));
 
@@ -218,8 +117,8 @@ namespace tangle {
 
 	std::string uri::auth_parts::string(auth_flag flag) const {
 		auto auser_name = urlencode(user);
-		auto auser_pass = host_urlencode(password);
-		auto ahost = host_urlencode(host);
+		auto auser_pass = urlencode(password, codec::host);
+		auto ahost = urlencode(host, codec::host);
 		auto aport = urlencode(port);
 
 		if (flag == no_userinfo)
@@ -270,15 +169,15 @@ namespace tangle {
 		for (auto& pair : m_values) {
 			if (pair.second.empty()) {
 				add_prefix();
-				out += urlencode(pair.first);
+				out += urlencode(pair.first, codec::query);
 				continue;
 			}
 
-			auto name = urlencode(pair.first) + "=";
+			auto name = urlencode(pair.first, codec::query) + "=";
 			for (auto& value : pair.second) {
 				add_prefix();
 
-				out += name + urlencode(value);
+				out += name + urlencode(value, codec::query);
 			}
 		}
 		return out;
@@ -305,22 +204,15 @@ namespace tangle {
 		return out;
 	}
 
-#define WS()                                                       \
-	do {                                                           \
-		while (isspace(static_cast<unsigned char>(*c)) && c < end) \
-			++c;                                                   \
+#define LOOK_FOR(ch)                  \
+	do {                              \
+		while (*c != (ch) && c < end) \
+			++c;                      \
 	} while (0)
-#define LOOK_FOR(ch)                                                     \
-	do {                                                                 \
-		while (!isspace(static_cast<unsigned char>(*c)) && *c != (ch) && \
-		       c < end)                                                  \
-			++c;                                                         \
-	} while (0)
-#define LOOK_FOR2(ch1, ch2)                                               \
-	do {                                                                  \
-		while (!isspace(static_cast<unsigned char>(*c)) && *c != (ch1) && \
-		       *c != (ch2) && c < end)                                    \
-			++c;                                                          \
+#define LOOK_FOR2(ch1, ch2)                           \
+	do {                                              \
+		while (*c != (ch1) && *c != (ch2) && c < end) \
+			++c;                                      \
 	} while (0)
 #define IS(ch) (c < end && *c == (ch))
 
@@ -330,21 +222,18 @@ namespace tangle {
 		const char* c = query.data();
 		const char* end = c + query.length();
 		while (c < end) {
-			WS();
 			const char* name_start = c;
 			LOOK_FOR2('=', '&');
-			std::string name =
-			    urldecode(name_start, static_cast<size_t>(c - name_start));
-			WS();
+			std::string name = urldecode(
+			    name_start, static_cast<size_t>(c - name_start), codec::query);
 
 			if (IS('=')) {
 				++c;
-				WS();
 				const char* value_start = c;
 				LOOK_FOR('&');
 				out.add(name, urldecode(value_start,
-				                        static_cast<size_t>(c - value_start)));
-				WS();
+				                        static_cast<size_t>(c - value_start),
+				                        codec::query));
 			} else
 				out.set(name);
 
@@ -691,7 +580,8 @@ namespace tangle {
 			std::vector<std::string> recoded;
 			recoded.reserve(path.size());
 			for (auto& part : path)
-				recoded.push_back(urlencode(urldecode(part)));
+				recoded.push_back(
+				    urlencode(urldecode(part, codec::path), codec::path));
 
 			bool absolute_path =
 			    (recoded.size() > 1) && recoded.front().empty();
@@ -727,6 +617,12 @@ namespace tangle {
 				canon.insert(canon.begin(), overshots.begin(), overshots.end());
 				tmp.path(path_join(canon));
 			}
+		}
+
+		// QUERY:
+		// =======================================================================================
+		if (!tmp.query().empty()) {
+			tmp.query(tmp.parsed_query().string());
 		}
 
 		return tmp;

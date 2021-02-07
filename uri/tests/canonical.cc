@@ -2,8 +2,8 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <gtest/gtest.h>
-#include <tangle/uri.hpp>
 #include <sstream>
+#include <tangle/uri.hpp>
 
 using namespace std::literals;
 
@@ -163,6 +163,7 @@ namespace tangle::testing {
 		{ "http://example.com/Dir/subdir%2ffake/FileName.ext", "http://example.com/Dir/subdir%2Ffake/FileName.ext" },
 		{ "http://example.com/Dir/subdir/Fil%65Name.ext",      "http://example.com/Dir/subdir/FileName.ext" },
 		{ "http://example.com/Dir/subdir/File Name.ext",       "http://example.com/Dir/subdir/File%20Name.ext" },
+		{ "http://example.com/Dir/subdir/File+Name.ext",       "http://example.com/Dir/subdir/File+Name.ext" },
 		{ "http://example.com/A/B/./some.file",                "http://example.com/A/B/some.file" },
 		{ "http://example.com/A/B/./",                         "http://example.com/A/B/" },
 		{ "http://example.com/A/B/.",                          "http://example.com/A/B/" },
@@ -187,6 +188,9 @@ namespace tangle::testing {
 
 	static const UriCannonicalHexTest uri_canonical_decode_query[] = {
 		{ "?name=value",                                        "?name=value" },
+		{ "?name=value with space",                             "?name=value+with+space" },
+		{ "?name=value+with+space",                             "?name=value+with+space" },
+		{ "?name=value%20with%20space",                         "?name=value+with+space" },
 	};
 
 	static const UriCannonicalHexTest uri_make_base[] = {
