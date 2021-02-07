@@ -439,10 +439,10 @@ namespace tangle {
 
 		if (m_scheme)
 			m_uri.replace(0, m_scheme - 1, value.data(), value.length());
-		else {
+		else if (!value.empty()) {
 			m_uri.replace(0, 0, value.data(), value.length());
 			m_uri.insert(value.length(), 1, ':');
-		}
+		} else return;
 		invalidate_scheme();
 	}
 

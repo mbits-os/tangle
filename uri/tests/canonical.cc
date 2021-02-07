@@ -137,6 +137,7 @@ namespace tangle::testing {
 		{ "http://%45xample.com/",                             "http://example.com/" },
 		{ "http://example%2Fslash.com/",                       "" },
 		{ "HTTP://EXAMPLE.COM/",                               "http://example.com/" },
+		{ "//EXAMPLE.COM/",                                    "//example.com/" },
 		{ "http://127.0.0.1/",                                 "http://127.0.0.1/" },
 		{ "http://[::1]/",                                     "http://[::1]/" },
 		{ "http://[::1]:/",                                    "http://[::1]/" },
