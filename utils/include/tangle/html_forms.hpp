@@ -5,9 +5,9 @@
 
 #include <string>
 #include <string_view>
+#include <tangle/nav/request.hpp>
 #include <unordered_map>
 #include <vector>
-#include <tangle/nav/request.hpp>
 
 namespace tangle {
 	struct html_form_field {
@@ -24,14 +24,21 @@ namespace tangle {
 		std::vector<html_form_field> fields{};
 
 		html_form() = default;
-		html_form(std::string&& id, std::string&& action, std::string&& method, std::string&& enctype);
+		html_form(std::string&& id,
+		          std::string&& action,
+		          std::string&& method,
+		          std::string&& enctype);
 
-		void add(std::string const& decoded_name, std::string const& decoded_value);
-		void set(std::string const& decoded_name, std::string const& decoded_value);
+		void add(std::string const& decoded_name,
+		         std::string const& decoded_value);
+		void set(std::string const& decoded_name,
+		         std::string const& decoded_value);
 		nav::request make_request(uri const& page_url) const;
+
 	private:
 		std::unordered_map<std::string, size_t> indexes_;
 	};
 
-	std::unordered_map<std::string, html_form> html_forms(std::string_view html);
+	std::unordered_map<std::string, html_form> html_forms(
+	    std::string_view html);
 }  // namespace tangle

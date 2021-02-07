@@ -33,8 +33,10 @@ namespace tangle::testing {
 		std::string_view referrer{};
 		std::string_view url{};
 		std::string_view post_data{};
-		friend std::ostream& operator<<(std::ostream& out, html_forms_req_test_data const& data) {
-			return out << '{' << cxx_string{data.url} << ", " << cxx_string{data.post_data} << '}';
+		friend std::ostream& operator<<(std::ostream& out,
+		                                html_forms_req_test_data const& data) {
+			return out << '{' << cxx_string{data.url} << ", "
+			           << cxx_string{data.post_data} << '}';
 		}
 	};
 

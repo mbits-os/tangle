@@ -5,11 +5,13 @@ set(SOURCES
     src/html_entities.cpp
     src/html_forms.cpp
     src/html_split.cpp
+    src/offline_media.cpp
     src/str.cpp
 
     include/tangle/html_entities.hpp
     include/tangle/html_forms.hpp
     include/tangle/html_split.hpp
+    include/tangle/offline_media.hpp
     include/tangle/str.hpp
 )
 
