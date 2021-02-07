@@ -399,13 +399,13 @@ namespace tangle {
 		return sv.substr(off, len);
 	}
 
-	std::string_view uri::scheme() const {
+	std::string_view uri::scheme() const& {
 		if (!has_scheme() || !m_scheme) return {};
 
 		return substr(m_uri, 0, m_scheme - 1);
 	}
 
-	std::string_view uri::authority() const {
+	std::string_view uri::authority() const& {
 		if (!has_scheme() || is_opaque()) return {};
 
 		auto start = m_scheme + 2;
@@ -418,21 +418,21 @@ namespace tangle {
 		return auth_parts::parse(authority());
 	}
 
-	std::string_view uri::path() const {
+	std::string_view uri::path() const& {
 		return substr(m_uri, m_path, m_query - m_path);
 	}
 
-	std::string_view uri::query() const {
+	std::string_view uri::query() const& {
 		return substr(m_uri, m_query, m_part - m_query);
 	}
 
 	uri::params uri::parsed_query() const { return params::parse(query()); }
 
-	std::string_view uri::resource() const {
+	std::string_view uri::resource() const& {
 		return substr(m_uri, m_path, m_part - m_path);
 	}
 
-	std::string_view uri::fragment() const { return substr(m_uri, m_part); }
+	std::string_view uri::fragment() const& { return substr(m_uri, m_part); }
 
 	void uri::scheme(std::string_view value) {
 		if (m_scheme == npos) return;

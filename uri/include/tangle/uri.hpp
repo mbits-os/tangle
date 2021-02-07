@@ -251,17 +251,29 @@ namespace tangle {
 		*/
 		bool is_opaque() const { return !has_authority(); }
 
+#ifndef USING_DOXYGEN
+		// Using any of those with a high probablity result in dangling
+		// pointers; the m_uri will probably be long destructed before the view
+		// will be used...
+		std::string_view scheme() && = delete;
+		std::string_view authority() && = delete;
+		std::string_view path() && = delete;
+		std::string_view query() && = delete;
+		std::string_view resource() && = delete;
+		std::string_view fragment() && = delete;
+#endif
+
 		/**
 		Getter for the scheme property.
 		\returns scheme, if present
 		*/
-		std::string_view scheme() const;
+		std::string_view scheme() const&;
 
 		/**
 		Getter for the authority property.
 		\returns authority, if present
 		*/
-		std::string_view authority() const;
+		std::string_view authority() const&;
 
 		/**
 		Getter for the authority property, pre-parsed to auth_parts.
@@ -273,13 +285,13 @@ namespace tangle {
 		Getter for the path property.
 		\returns path, if present
 		*/
-		std::string_view path() const;
+		std::string_view path() const&;
 
 		/**
 		Getter for the query property.
 		\returns query, if present
 		*/
-		std::string_view query() const;
+		std::string_view query() const&;
 
 		/**
 		Getter for the query property, pre-parsed to params.
@@ -291,13 +303,13 @@ namespace tangle {
 		Getter for the resource property.
 		\returns path and query, if present
 		*/
-		std::string_view resource() const;
+		std::string_view resource() const&;
 
 		/**
 		Getter for the fragment property.
 		\returns fragment, if present
 		*/
-		std::string_view fragment() const;
+		std::string_view fragment() const&;
 
 		/**
 		Setter for the scheme property.
