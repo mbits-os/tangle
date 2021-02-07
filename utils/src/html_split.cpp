@@ -3,6 +3,7 @@
 
 #include <cctype>
 #include <string>
+#include <tangle/html_entities.hpp>
 #include <tangle/html_split.hpp>
 
 namespace tangle {
@@ -211,5 +212,83 @@ namespace tangle {
 
 	std::vector<elem> html_split(std::string_view text) {
 		return parser{text}.split();
+	}
+
+	std::string attr_encode(std::string_view attr) {
+		size_t len = attr.size();
+		for (auto c : attr) {
+			switch (c) {
+				case '<':
+				case '>':
+					len += 3;
+					break;
+				case '&':
+					len += 4;
+					break;
+				case '"':
+					len += 6;
+					break;
+			}
+		}
+		std::string result{};
+		result.reserve(len);
+		for (auto c : attr) {
+			switch (c) {
+				case '<':
+					result.append("&lt;"sv);
+					break;
+				case '>':
+					result.append("&gt;"sv);
+					break;
+				case '&':
+					result.append("&amp;"sv);
+					break;
+				case '"':
+					result.append("&quot;"sv);
+					break;
+				default:
+					result.push_back(c);
+			}
+		}
+		return result;
+	}
+
+	std::string attr_decode(std::string_view attr) {
+		std::string result{};
+		result.reserve(attr.size());
+
+		auto it = attr.begin();
+		auto end = attr.end();
+
+		while (it != end) {
+			auto start = it;
+			while (it != end && *it != '&')
+				++it;
+
+			result.append(start, it);
+
+			if (it == end) break;
+			++it;
+
+			if (it == end) break;
+
+			start = it;
+			while (it != end && std::isalnum(static_cast<unsigned char>(*it)))
+				++it;
+			auto const has_semicolon = it != end && *it == ';';
+
+			auto name =
+			    std::string_view{&*start, static_cast<size_t>(&*it - &*start)};
+
+			auto entity = html_entity(name);
+			if (entity) {
+				result.append(entity);
+				if (has_semicolon) ++it;
+			} else {
+				result.push_back('&');
+				result.append(name);
+			}
+		}
+		return result;
 	}
 }  // namespace tangle

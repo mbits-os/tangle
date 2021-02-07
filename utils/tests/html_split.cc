@@ -3,6 +3,7 @@
 
 #include <gtest/gtest.h>
 #include <tangle/html_split.hpp>
+#include "cxx_string.hh"
 
 namespace tangle::testing {
 	struct test_attr_pos {
@@ -31,7 +32,14 @@ namespace tangle::testing {
 		std::vector<std::string_view> textnodes{};
 	};
 
+	struct attr_text_test_data {
+		std::string_view raw;
+		std::string_view decoded{};
+		std::string_view reencoded{};
+	};
+
 	class html_split : public ::testing::TestWithParam<html_split_test_data> {};
+	class attr_text : public ::testing::TestWithParam<attr_text_test_data> {};
 
 	TEST_P(html_split, elems) {
 		auto& param = GetParam();
@@ -97,6 +105,18 @@ namespace tangle::testing {
 				    << "Attr: " << exp.name.value << '@' << exp_attr.name;
 			}
 		}
+	}
+
+	TEST_P(attr_text, decode_encode) {
+		auto& param = GetParam();
+		auto decoded = attr_decode(param.raw);
+		auto reencoded = attr_encode(decoded);
+#if 0
+		std::cerr << "{" << cxx_string{param.raw} << ", " << cxx_string{decoded}
+		          << ", " << cxx_string{reencoded} << "},\n";
+#endif
+		ASSERT_EQ(param.decoded, decoded);
+		ASSERT_EQ(param.reencoded, reencoded);
 	}
 
 	static html_split_test_data const data[] = {
@@ -396,5 +416,31 @@ textarea: <b>bold</b></textarea></label></p>
 	    },
 	};
 
+	static constexpr attr_text_test_data attributes[] = {
+	    {{}, {}, {}},
+	    {"plain"sv, "plain"sv, "plain"sv},
+	    {"&amp;amp;"sv, "&amp;"sv, "&amp;amp;"sv},
+	    {
+	        "&quot;quoted &raquo; string&quot;"sv,
+	        "\"quoted \xc2\xbb string\""sv,
+	        "&quot;quoted \xc2\xbb string&quot;"sv,
+	    },
+	    {">> title <<"sv, ">> title <<"sv, "&gt;&gt; title &lt;&lt;"sv},
+	    {
+	        ">> &title <<"sv,
+	        ">> &title <<"sv,
+	        "&gt;&gt; &amp;title &lt;&lt;"sv,
+	    },
+	    {
+	        ">> &title; <<"sv,
+	        ">> &title; <<"sv,
+	        "&gt;&gt; &amp;title; &lt;&lt;"sv,
+	    },
+	    {"&DoubleLongLeftRightArrow", "\xe2\x9f\xba", "\xe2\x9f\xba"},
+	};
+
 	INSTANTIATE_TEST_SUITE_P(samples, html_split, ::testing::ValuesIn(data));
+	INSTANTIATE_TEST_SUITE_P(attributes,
+	                         attr_text,
+	                         ::testing::ValuesIn(attributes));
 }  // namespace tangle::testing

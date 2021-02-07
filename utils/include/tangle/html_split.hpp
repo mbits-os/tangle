@@ -31,4 +31,6 @@ namespace tangle {
 	};
 
 	std::vector<elem> html_split(std::string_view text);
+	std::string attr_encode(std::string_view text);
+	std::string attr_decode(std::string_view text);
 }  // namespace tangle
