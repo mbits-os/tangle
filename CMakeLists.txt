@@ -83,6 +83,7 @@ set(TANGLE_TESTING ON CACHE BOOL "Compile and/or run self-tests")
 set(TANGLE_INSTALL ON CACHE BOOL "Create install target(s)")
 set(TANGLE_DOCS OFF CACHE BOOL "Create doxygen documentation")
 set(MODULES
+  utils
 	cookie
 	uri
 	msg
