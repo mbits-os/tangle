@@ -3,10 +3,12 @@ project(utils VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
     src/html_entities.cpp
+    src/html_forms.cpp
     src/html_split.cpp
     src/str.cpp
 
     include/tangle/html_entities.hpp
+    include/tangle/html_forms.hpp
     include/tangle/html_split.hpp
     include/tangle/str.hpp
 )
