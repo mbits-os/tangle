@@ -149,9 +149,9 @@ namespace tangle {
 						form_id = attr_decode(id);
 					} else if (!name.empty()) {
 						form_id = attr_decode(name);
-						auto id = result.find(form_id);
+						auto it = result.find(form_id);
 						// name has lower priority from id
-						if (id != result.end()) form_id.clear();
+						if (it != result.end()) form_id.clear();
 					}
 					in_form = !form_id.empty();
 					if (in_form) {
