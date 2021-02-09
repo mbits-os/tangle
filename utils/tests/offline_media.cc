@@ -21,7 +21,7 @@ namespace tangle::testing {
 	struct offline_media_test_data {
 		std::string_view text;
 		std::string_view expected;
-		std::string_view doc_url;
+		std::string_view base_url;
 		std::string_view prefix;
 		std::vector<mock_response> responses{};
 	};
@@ -76,16 +76,18 @@ namespace tangle::testing {
 		return concat__(std::string_view(std::forward<String>(strings))...);
 	}
 
-	class test_offline_media : public tangle::offline_media {
+	template <typename BaseClass>
+	class test_offline_media_infix : public BaseClass {
 	public:
-		test_offline_media(nav::navigator& browser, std::string&& dirname)
-		    : tangle::offline_media{browser}, dirname_{dirname} {}
+		test_offline_media_infix(nav::navigator& browser, std::string&& dirname)
+		    : BaseClass{browser}, dirname_{dirname} {}
 
 	private:
 		std::string download(uri const& address) override {
 			std::cerr << "dl > " << address << '\n';
 			return tangle::offline_media::download(address);
 		}
+
 		std::string store(std::string const& filename,
 		                  std::string const& ext,
 		                  std::string_view) override {
@@ -108,7 +110,12 @@ namespace tangle::testing {
 		std::unordered_set<std::string> files_{};
 	};
 
+	using test_offline_media = test_offline_media_infix<tangle::offline_media>;
+	using test_intranet_offline_media = test_offline_media_infix<tangle::intranet_offline_media>;
+
 	class offline_media
+	    : public ::testing::TestWithParam<offline_media_test_data> {};
+	class intranet_offline_media
 	    : public ::testing::TestWithParam<offline_media_test_data> {};
 
 	TEST_P(offline_media, process) {
@@ -122,7 +129,7 @@ namespace tangle::testing {
 		auto offline = test_offline_media{
 		    browser, {param.prefix.begin(), param.prefix.end()}};
 
-		auto actual = offline.analyze(param.text, param.doc_url);
+		auto actual = offline.analyze(param.text, param.base_url);
 		ASSERT_EQ(param.expected.data(), actual);
 	}
 
@@ -141,15 +148,30 @@ namespace tangle::testing {
         auto dirname = fs::temp_directory_path() / "offline-media-tests";
         fs::create_directories(dirname);
         fs::current_path(dirname);
-		auto actual = offline.analyze(param.text, param.doc_url);
+		auto actual = offline.analyze(param.text, param.base_url);
         fs::current_path(pwd);
 
 		ASSERT_EQ(param.expected.data(), actual);
 	}
 
+	TEST_P(intranet_offline_media, process) {
+		auto& param = GetParam();
+
+		auto proto = std::make_shared<proto_mock>();
+		proto->set_responses(param.responses);
+		auto browser = nav::navigator{{}};
+		browser.reg_proto("http", proto);
+		browser.reg_proto("https", proto);
+		auto offline = test_intranet_offline_media{
+		    browser, {param.prefix.begin(), param.prefix.end()}};
+
+		auto actual = offline.analyze(param.text, param.base_url);
+		ASSERT_EQ(param.expected.data(), actual);
+	}
+
 	static offline_media_test_data snippets[] = {
 	    {
-	        "<img SRC=/site/logo.gif>"sv,
+	        "<img SRC=http://www.example.com/site/logo.gif>"sv,
 	        "<img SRC=\"dir/logo.gif\">"sv,
 	        "http://www.example.com/",
 	        "dir"sv,
@@ -159,7 +181,7 @@ namespace tangle::testing {
 <video src=movie></video>
 <video src=movie.mp4></video>)"sv,
 	        "<video SRC=\"dir/movie.mp4\"><A name=href></A></video>\n<video src=\"dir/movie-1.mp4\"></video>\n<video src=\"dir/movie.mp4\"></video>"sv,
-	        "http://www.example.com/media/page.html",
+	        "http://www.example.com/media/",
 	        "dir"sv,
 	        {
 	            {"http://www.example.com/media/movie", "video/mp4"},
@@ -191,7 +213,78 @@ namespace tangle::testing {
 	    },
 	};
 
+	static offline_media_test_data intranet_snippets[] = {
+	    {
+	        "<img SRC=http://www.example.com/site/logo.gif>"sv,
+	        "<img SRC=\"dir/logo.gif\">"sv,
+	        "http://www.example.com/",
+	        "dir"sv,
+	    },
+	    {
+	        R"(<video SRC=/media/movie.mp4><A name=href></A></video>
+<video src=movie></video>
+<video src=movie.mp4></video>)"sv,
+	        "<video SRC=\"dir/movie.mp4\"><A name=href></A></video>\n<video src=\"dir/movie-1.mp4\"></video>\n<video src=\"dir/movie.mp4\"></video>"sv,
+	        "http://www.example.com/media/",
+	        "dir"sv,
+	        {
+	            {"http://www.example.com/media/movie", "video/mp4"},
+	        },
+	    },
+	    {
+	        "<img src=/media/>"sv,
+	        "<img src=\"dir/index.svg\">"sv,
+	        "http://www.example.com/",
+	        "dir"sv,
+	        {
+	            {"http://www.example.com/media/",
+	             "image/svg+xml; charset=utf-8"},
+	        },
+	    },
+	    {
+	        R"(<img src=/data/img.gif>
+<video>
+<source src="/data/track1.mov" />
+<source src=http://www.example.com/data/track2.mov />
+<source src=http://jira.example.com/data/track3.mov />
+</video>
+<A HREF="img.gif">The image</A>)"sv,
+	        R"(<img src="files/img.gif">
+<video>
+<source src="files/track1.mov" />
+<source src="files/track2.mov" />
+<source src=http://jira.example.com/data/track3.mov />
+</video>
+<A HREF="files/img.gif">The image</A>)"sv,
+	        "http://www.example.com/data/",
+	        "files"sv,
+	    },
+	    {
+	        R"(<img src=/data/img.gif>
+<video>
+<source src="/data/track1.mov" />
+<source src=http://jira.example.com/data/track2.mov />
+</video>
+<img src=https://user-images.githubusercontent.com/user/GUID-GUID-GUID-GUID-GUID-GUID-GUID-GUID>)"sv,
+	        R"(<img src="files/img.gif">
+<video>
+<source src="files/track1.mov" />
+<source src=http://jira.example.com/data/track2.mov />
+</video>
+<img src="files/GUID-GUID-GUID-GUID-GUID-GUID-GUID-GUID.png">)"sv,
+	        "http://api.github.com/", // note http/https mismatch
+	        "files"sv,
+	        {
+	            {"https://user-images.githubusercontent.com/user/GUID-GUID-GUID-GUID-GUID-GUID-GUID-GUID", "image/png"},
+	        },
+	    },
+	};
+
 	INSTANTIATE_TEST_SUITE_P(snippets,
 	                         offline_media,
 	                         ::testing::ValuesIn(snippets));
+
+	INSTANTIATE_TEST_SUITE_P(intranet_snippets,
+	                         intranet_offline_media,
+	                         ::testing::ValuesIn(intranet_snippets));
 }  // namespace tangle::testing

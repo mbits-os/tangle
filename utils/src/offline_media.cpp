@@ -227,7 +227,7 @@ namespace tangle {
 	offline_media::~offline_media() = default;
 
 	std::string offline_media::analyze(std::string_view text,
-	                                   uri const& doc_url) {
+	                                   uri const& base_url) {
 		auto tags = html_split(text);
 
 		std::vector<attr_replacement> replacements{};
@@ -237,7 +237,7 @@ namespace tangle {
 			auto it = find_attr(tag, "src"sv);
 			if (it == tag.attrs.end()) continue;
 
-			auto repl = downloaded(it->second.value, doc_url);
+			auto repl = downloaded(it->second.value, base_url);
 			if (!repl.empty()) {
 				replacements.push_back({it->second.start,
 				                        it->second.stop,
@@ -250,7 +250,7 @@ namespace tangle {
 			auto it = find_attr(tag, "href"sv);
 			if (it == tag.attrs.end()) continue;
 
-			auto repl = cached(it->second.value, doc_url);
+			auto repl = cached(it->second.value, base_url);
 			if (!repl.empty()) {
 				replacements.push_back({it->second.start,
 				                        it->second.stop,
@@ -263,13 +263,13 @@ namespace tangle {
 	}
 
 	std::optional<uri> offline_media::normalize(std::string_view href,
-	                                            uri const& doc_url) const {
-		return uri::canonical(attr_decode(href), uri::make_base(doc_url));
+	                                            uri const& base_url) const {
+		return uri::canonical(attr_decode(href), uri::make_base(base_url));
 	}
 
 	std::string_view offline_media::downloaded(std::string_view href,
-	                                           uri const& doc_url) {
-		auto address = normalize(href, doc_url);
+	                                           uri const& base_url) {
+		auto address = normalize(href, base_url);
 		if (!address) return {};
 
 		auto it = srcs_.find(address->string());
@@ -287,8 +287,8 @@ namespace tangle {
 	}
 
 	std::string_view offline_media::cached(std::string_view href,
-	                                       uri const& doc_url) const {
-		auto address = normalize(href, doc_url);
+	                                       uri const& base_url) const {
+		auto address = normalize(href, base_url);
 		if (!address) return {};
 		auto it = srcs_.find(address->string());
 		if (it == srcs_.end()) return {};
@@ -346,5 +346,64 @@ namespace tangle {
 		}
 
 		return "\"" + attr_encode(path.generic_string()) + "\"";
+	}
+
+	namespace {
+		template <typename Item>
+		struct simple_list {
+			constexpr simple_list() noexcept = default;
+			template <size_t Length>
+			constexpr simple_list(Item const (&array)[Length]) noexcept
+			    : first_{array}, last_{array + Length} {}
+
+			constexpr Item const* begin() const noexcept { return first_; }
+			constexpr Item const* end() const noexcept { return last_; }
+
+		private:
+			Item const* first_{};
+			Item const* last_{};
+		};
+
+		struct alias {
+			std::string_view known_server;
+			simple_list<std::string_view> content_aliases;
+		};
+
+		constexpr std::string_view github_aliases[] = {
+		    "user-images.githubusercontent.com"sv,
+		};
+		constexpr alias servers[] = {
+		    {
+		        "api.github.com"sv,
+		        github_aliases,
+		    },
+		};
+	}  // namespace
+
+	std::optional<uri> intranet_offline_media_helper::filter_by_server(
+	    std::string_view href,
+	    uri const& base_url) {
+		auto resource =
+		    uri::canonical(attr_decode(href), base_url);
+
+		auto url_auth = base_url.parsed_authority();
+		auto res_auth = resource.parsed_authority();
+
+		if (res_auth.host != url_auth.host) {
+			for (auto [name, aliases] : servers) {
+				if (std::string_view{name} != url_auth.host) continue;
+
+				for (auto alias : aliases) {
+					if (std::string_view{alias} == res_auth.host) {
+						return resource;
+					}
+				}
+
+				break;
+			}
+			return std::nullopt;
+		}
+
+		return resource;
 	}
 }  // namespace tangle
