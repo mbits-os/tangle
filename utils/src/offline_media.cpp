@@ -1,10 +1,20 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
+#ifdef WIN32
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <string_view>
 #include <tangle/html_split.hpp>
 #include <tangle/offline_media.hpp>
 #include <tangle/str.hpp>
+
+#ifdef WIN32
+#include <Windows.h>
+#undef min
+#undef max
+#endif
 
 using namespace std::literals;
 namespace fs = std::filesystem;

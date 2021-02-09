@@ -5,12 +5,20 @@
 #include <tangle/html_forms.hpp>
 #include "cxx_string.hh"
 
+#ifdef _MSC_VER
+#define INITLIST_CONSTEXPR const
+#define INITLIST_INIT
+#else
+#define INITLIST_CONSTEXPR constexpr
+#define INITLIST_INIT {}
+#endif
+
 using namespace std::literals;
 
 namespace tangle::testing {
 	struct html_field_test_data {
 		std::string_view name{};
-		std::initializer_list<std::string_view> values{};
+		std::initializer_list<std::string_view> values INITLIST_INIT;
 	};
 
 	struct html_form_test_data {
@@ -20,12 +28,12 @@ namespace tangle::testing {
 			std::string_view method{};
 			std::string_view enctype{};
 		} data;
-		std::initializer_list<html_field_test_data> fields{};
+		std::initializer_list<html_field_test_data> fields INITLIST_INIT;
 	};
 
 	struct html_forms_test_data {
 		std::string_view html{};
-		std::initializer_list<html_form_test_data> forms{};
+		std::initializer_list<html_form_test_data> forms INITLIST_INIT;
 	};
 
 	struct html_forms_req_test_data {
@@ -137,7 +145,7 @@ namespace tangle::testing {
 		ASSERT_EQ(param.post_data, actual.form_fields());
 	}
 
-	static constexpr html_forms_test_data samples[] = {
+	static INITLIST_CONSTEXPR html_forms_test_data samples[] = {
 	    {
 	        R"(<html><body>
 <form id="form-0" method="post"
@@ -244,7 +252,7 @@ textarea: <b>bold</b></textarea></label></p>
 	    },
 	};
 
-	static constexpr html_forms_req_test_data forms[] = {
+	static INITLIST_CONSTEXPR html_forms_req_test_data forms[] = {
 	    {
 	        {
 	            {"form-0"sv,

@@ -84,11 +84,11 @@ namespace tangle::testing {
 			    << "Tag: " << exp.name.value;
 
 			for (auto const& exp_attr : exp.attrs) {
-				auto it = act.attrs.find(exp_attr.name);
-				ASSERT_NE(it, act.attrs.end())
+				auto attr_it = act.attrs.find(exp_attr.name);
+				ASSERT_NE(attr_it, act.attrs.end())
 				    << "Missing atribute in parsed text: " << exp_attr.name
 				    << "\nTag: " << exp.view;
-				auto& act_attr = *it;
+				auto& act_attr = *attr_it;
 
 				auto act_view = param.text.substr(
 				    act_attr.second.name_start,
