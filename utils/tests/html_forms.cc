@@ -268,7 +268,15 @@ textarea: <b>bold</b></textarea></label></p>
 	        },
 	        "https://pizza.example.com/order.cgi"sv,
 	        "https://pizza.example.com/order.cgi"sv,
-	        "buffer=%23+System-wide+.bashrc+file+for+interactive+bash%281%29+shells.%0A%0A%23+To+enable+the+settings+%2F+commands+in+this+file+for+login+shells+as+well%2C%0A%23+this+file+has+to+be+sourced+in+%2Fetc%2Fprofile.%0A%0A%23+If+not+running+interactively%2C+don%27t+do+anything%0A%5B+-z+%22%24PS1%22+%5D+%26%26+return+%3C%21--%0A%0A...&topping=topping+%C2%BB+cheese&topping=topping+%C2%BB+mushroom&delivery=&size=large&comments=++++a%0Atext+inside%0A%0A%3C%2Fnope%0A%0Atextarea%3A+%3Cb%3Ebold%3C%2Fb%3E&custemail=&custtel=&custname="sv,
+	        "custname=&custtel=&custemail=&size=large&topping=topping+%C2%BB+"
+	        "cheese&topping=topping+%C2%BB+mushroom&delivery=&comments=++++a%"
+	        "0Atext+inside%0A%0A%3C%2Fnope%0A%0Atextarea%3A+%3Cb%3Ebold%3C%2Fb%"
+	        "3E&buffer=%23+System-wide+.bashrc+file+for+interactive+bash%281%"
+	        "29+shells.%0A%0A%23+To+enable+the+settings+%2F+commands+in+this+"
+	        "file+for+login+shells+as+well%2C%0A%23+this+file+has+to+be+"
+	        "sourced+in+%2Fetc%2Fprofile.%0A%0A%23+If+not+running+"
+	        "interactively%2C+don%27t+do+anything%0A%5B+-z+%22%24PS1%22+%5D+%"
+	        "26%26+return+%3C%21--%0A%0A..."sv,
 	    },
 	    {
 	        {
@@ -281,7 +289,7 @@ textarea: <b>bold</b></textarea></label></p>
 	        },
 	        "https://service.example.com/"sv,
 	        "https://service.example.com/app/login"sv,
-	        "code=iopwqopiweopAUpmp&passphrase=secret&login=username"sv,
+	        "login=username&passphrase=secret&code=iopwqopiweopAUpmp"sv,
 	    },
 	    {
 	        {

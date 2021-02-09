@@ -12,8 +12,9 @@ namespace tangle::testing {
 
 	struct query_parser {
 		std::string_view query;
-		std::unordered_map<std::string_view, std::vector<std::string_view>>
+		std::vector<std::pair<std::string_view, std::vector<std::string_view>>>
 		    expected;
+		std::string_view reversed{};
 	};
 
 	inline std::string to_string(std::string_view sv) {
@@ -42,54 +43,42 @@ namespace tangle::testing {
 
 #define ASSERT(result) GTEST_NONFATAL_FAILURE_((result).failure_message())
 
+	TEST_F(query, remove) {
+		uri::params params{};
+		params.add("name", "value");
+		params.add("remove", "yes");
+		params.add("name2", "value");
+		ASSERT_EQ("?name=value&remove=yes&name2=value", params.string());
+		params.remove("nonexistent");
+		ASSERT_EQ("?name=value&remove=yes&name2=value", params.string());
+		params.remove("remove");
+		// also, make sure indexes are still working
+		params.add("name2", "value2");
+		ASSERT_EQ("?name=value&name2=value&name2=value2", params.string());
+	}
+
 	TEST_P(query, breakup) {
 		auto param = GetParam();
 		auto& expected = param.expected;
 		auto const params = uri::params::parse(param.query);
-		for (auto const& [name, values] : param.expected) {
-			auto it = params.values().find({name.data(), name.size()});
-			if (it == params.values().end()) {
-				auto error = ::testing::AssertionFailure();
-				error << "Cannot find " << name << " in parsed query";
-				ASSERT(error);
-				continue;
-			}
-			auto vals_it = it->second.begin();
-			auto vals_end = it->second.end();
-			auto exp_it = values.begin();
-			auto exp_end = values.end();
-			for (; vals_it != vals_end && exp_it != exp_end;
-			     ++vals_it, ++exp_it) {
-				auto const& actual = *vals_it;
-				auto const& exp = *exp_it;
-				EXPECT_EQ(actual, exp);
-			}
-			if (exp_it != exp_end) {
-				auto error = ::testing::AssertionFailure();
-				error << "Missing values for " << name;
-				char sep = ':';
-				for (; exp_it != exp_end; ++exp_it) {
-					error << sep << ' ' << *exp_it;
-					sep = ',';
-				}
-				ASSERT(error);
-			}
-			if (vals_it != vals_end) {
-				auto error = ::testing::AssertionFailure();
-				error << "Unexpected values for " << name;
-				char sep = ':';
-				for (; vals_it != vals_end; ++vals_it) {
-					error << sep << ' ' << *vals_it;
-					sep = ',';
-				}
-				ASSERT(error);
-			}
-		}
-		for (auto const& [name, values] : params.values()) {
-			auto it = param.expected.find({name.data(), name.size()});
-			if (it == param.expected.end()) {
-				ASSERT(::testing::AssertionFailure()
-				       << "Unexpected param " << name << " in parsed query");
+
+		ASSERT_EQ(params.size(), param.expected.size());
+		auto it = params.begin();
+		size_t index = 0;
+		for (auto const& [exp_name, exp_values] : param.expected) {
+			auto const& [act_name, act_values] = *it++;
+			EXPECT_EQ(exp_name, act_name) << "Param at: " << index;
+			ASSERT_EQ(exp_values.size(), act_values.size())
+			    << "Param at: " << index;
+			++index;
+
+			auto val_it = act_values.begin();
+			size_t val_index = 0;
+			for (auto const& exp_value : exp_values) {
+				auto const& act_value = *val_it++;
+				ASSERT_EQ(exp_value, act_value)
+				    << "Param at: " << index << "\nValue at: " << val_index;
+				++val_index;
 			}
 		}
 	}
@@ -103,26 +92,26 @@ namespace tangle::testing {
 		auto const verbose = uri::params::parse(address.query());
 		auto const from_uri = address.parsed_query();
 
-		for (auto const& [name, values] : verbose.values()) {
-			auto it = from_uri.values().find(name);
-			if (it == from_uri.values().end()) {
+		for (auto const& [name, values] : verbose) {
+			auto it = from_uri.find(name);
+			if (it == from_uri.end()) {
 				ASSERT(::testing::AssertionFailure()
 				       << "Unexpected param " << name << " in params::parse");
 			}
 		}
 
-		for (auto const& [name, values] : from_uri.values()) {
-			auto it = verbose.values().find(name);
-			if (it == verbose.values().end()) {
+		for (auto const& [name, values] : from_uri) {
+			auto it = verbose.find(name);
+			if (it == verbose.end()) {
 				ASSERT(::testing::AssertionFailure()
 				       << "Unexpected param " << name
 				       << " in uri::parsed_query");
 			}
 		}
 
-		for (auto const& [name, values] : from_uri.values()) {
-			auto verbose_it = verbose.values().find(name);
-			if (verbose_it == verbose.values().end()) continue;
+		for (auto const& [name, values] : from_uri) {
+			auto verbose_it = verbose.find(name);
+			if (verbose_it == verbose.end()) continue;
 
 			auto v_it = verbose_it->second.begin();
 			auto v_it_end = verbose_it->second.end();
@@ -140,57 +129,12 @@ namespace tangle::testing {
 
 	TEST_P(query, reverse) {
 		auto param = GetParam();
-		auto& expected = param.expected;
+		auto expected = param.reversed.empty() ? param.query : param.reversed;
 		uri address{};
-		address.query(uri::params::parse(param.query).string());
-		std::cerr << "QUERY: " << address.query() << '\n';
-		auto const params = address.parsed_query();
-		for (auto const& [name, values] : param.expected) {
-			auto it = params.values().find({name.data(), name.size()});
-			if (it == params.values().end()) {
-				auto error = ::testing::AssertionFailure();
-				error << "Cannot find " << name << " in parsed query";
-				ASSERT(error);
-				continue;
-			}
-			auto vals_it = it->second.begin();
-			auto vals_end = it->second.end();
-			auto exp_it = values.begin();
-			auto exp_end = values.end();
-			for (; vals_it != vals_end && exp_it != exp_end;
-			     ++vals_it, ++exp_it) {
-				auto const& actual = *vals_it;
-				auto const& exp = *exp_it;
-				EXPECT_EQ(actual, exp);
-			}
-			if (exp_it != exp_end) {
-				auto error = ::testing::AssertionFailure();
-				error << "Missing values for " << name;
-				char sep = ':';
-				for (; exp_it != exp_end; ++exp_it) {
-					error << sep << ' ' << *exp_it;
-					sep = ',';
-				}
-				ASSERT(error);
-			}
-			if (vals_it != vals_end) {
-				auto error = ::testing::AssertionFailure();
-				error << "Unexpected values for " << name;
-				char sep = ':';
-				for (; vals_it != vals_end; ++vals_it) {
-					error << sep << ' ' << *vals_it;
-					sep = ',';
-				}
-				ASSERT(error);
-			}
-		}
-		for (auto const& [name, values] : params.values()) {
-			auto it = param.expected.find({name.data(), name.size()});
-			if (it == param.expected.end()) {
-				ASSERT(::testing::AssertionFailure()
-				       << "Unexpected param " << name << " in parsed query");
-			}
-		}
+		auto actual = uri::params::parse(param.query).string();
+		if (expected.empty() || expected.front() != '?')
+			actual = actual.substr(1);
+		ASSERT_EQ(expected, actual);
 	}
 
 	struct opt {
@@ -209,10 +153,10 @@ namespace tangle::testing {
 		EXPECT_EQ(param.query, address.query());
 		auto const params = address.parsed_query();
 
-		auto parsed_list = params.list();
+		auto parsed_list = params.flat_list();
 		std::sort(parsed_list.begin(), parsed_list.end());
 
-		auto test_list = uri::params::list_type{};
+		auto test_list = uri::params::flat_list_type{};
 		for (auto const& [name, values] : expected) {
 			auto const sname = std::string{name.data(), name.size()};
 			if (values.empty()) {
@@ -278,10 +222,19 @@ namespace tangle::testing {
 	        },
 	    },
 	    {
+	        // params::set over pre-existing name
+	        "?A=1&A=2&A=3&A",
+	        {
+	            {"A", {}},
+	        },
+	        "?A",
+	    },
+	    {
 	        "?na%3dme=am%26persand",
 	        {
 	            {"na=me", {"am&persand"}},
 	        },
+	        "?na%3Dme=am%26persand",
 	    },
 	    {
 	        "?name=value+with+spaces",

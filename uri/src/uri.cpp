@@ -183,7 +183,7 @@ namespace tangle {
 		return out;
 	}
 
-	uri::params::list_type uri::params::list() const {
+	uri::params::flat_list_type uri::params::flat_list() const {
 		size_t length = 0;
 		for (auto& pair : m_values) {
 			if (pair.second.empty())
@@ -192,7 +192,7 @@ namespace tangle {
 				length += pair.second.size();
 		}
 
-		uri::params::list_type out;
+		uri::params::flat_list_type out;
 		out.reserve(length);
 
 		for (auto& pair : m_values) {
@@ -248,6 +248,50 @@ namespace tangle {
 #undef LOOK_FOR
 #undef LOOK_FOR2
 #undef IS
+
+	uri::params& uri::params::add(const std::string& name,
+	                              const std::string& value) {
+		auto it = m_keys.find(name);
+		if (it != m_keys.end()) {
+			m_values[it->second].second.push_back(value);
+			return *this;
+		}
+
+		auto const index = m_values.size();
+
+		m_values.push_back({name, {value}});
+		m_keys[name] = index;
+		return *this;
+	}
+
+	uri::params& uri::params::set(const std::string& name) {
+		auto it = m_keys.find(name);
+		if (it != m_keys.end()) {
+			m_values[it->second].second.clear();
+			return *this;
+		}
+
+		auto const index = m_values.size();
+
+		m_values.push_back({name, {}});
+		m_keys[name] = index;
+		return *this;
+	}
+
+	uri::params& uri::params::remove(const std::string& name) {
+		auto it = m_keys.find(name);
+		if (it == m_keys.end()) return *this;
+
+		auto const index = it->second;
+		m_values.erase(
+		    std::next(m_values.begin(), static_cast<std::ptrdiff_t>(index)));
+
+		m_keys.erase(name);
+		for (auto& key : m_keys) {
+			if (key.second > index) --key.second;
+		}
+		return *this;
+	}
 
 	uri::uri() { ensure_fragment(); }
 	uri::uri(const uri&) = default;
@@ -442,7 +486,8 @@ namespace tangle {
 		else if (!value.empty()) {
 			m_uri.replace(0, 0, value.data(), value.length());
 			m_uri.insert(value.length(), 1, ':');
-		} else return;
+		} else
+			return;
 		invalidate_scheme();
 	}
 

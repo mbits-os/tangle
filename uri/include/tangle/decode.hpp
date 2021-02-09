@@ -105,7 +105,8 @@ namespace tangle {
 
 	\see urlencode(const char*, size_t)
 	*/
-	inline std::string urlencode(std::string_view in, codec alg = codec::common) {
+	inline std::string urlencode(std::string_view in,
+	                             codec alg = codec::common) {
 		return urlencode(in.data(), in.length(), alg);
 	}
 
@@ -122,7 +123,8 @@ namespace tangle {
 
 	\see urldecode(const char*, size_t)
 	*/
-	inline std::string urldecode(std::string_view in, codec alg = codec::common) {
+	inline std::string urldecode(std::string_view in,
+	                             codec alg = codec::common) {
 		return urldecode(in.data(), in.length(), alg);
 	}
 }  // namespace tangle
