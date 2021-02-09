@@ -2,10 +2,10 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <gtest/gtest.h>
-#include <tangle/html_split.hpp>
+#include <tangle/browser/html_split.hpp>
 #include "cxx_string.hh"
 
-namespace tangle::testing {
+namespace tangle::browser::testing {
 	struct test_attr_pos {
 		std::string_view view;
 		std::string_view name;
@@ -43,7 +43,7 @@ namespace tangle::testing {
 
 	TEST_P(html_split, elems) {
 		auto& param = GetParam();
-		auto actual = tangle::html_split(param.text);
+		auto actual = browser::html_split(param.text);
 #if 0
 		for (auto const& tag : actual) {
 			std::cerr << "{R\"("
@@ -443,4 +443,4 @@ textarea: <b>bold</b></textarea></label></p>
 	INSTANTIATE_TEST_SUITE_P(attributes,
 	                         attr_text,
 	                         ::testing::ValuesIn(attributes));
-}  // namespace tangle::testing
+}  // namespace tangle::browser::testing

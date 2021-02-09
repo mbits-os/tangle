@@ -9,7 +9,7 @@
 
 using namespace std::literals;
 
-namespace tangle {
+namespace tangle::browser {
 	struct attr_pos {
 		size_t name_start{};
 		size_t start{};
@@ -33,4 +33,4 @@ namespace tangle {
 	std::vector<elem> html_split(std::string_view text);
 	std::string attr_encode(std::string_view text);
 	std::string attr_decode(std::string_view text);
-}  // namespace tangle
+}  // namespace tangle::browser

@@ -9,25 +9,25 @@
 #include <unordered_map>
 #include <vector>
 
-namespace tangle {
-	struct html_form_field {
+namespace tangle::browser {
+	struct form_field {
 		std::string name{};
 		std::vector<std::string> values{};
 	};
 
-	struct html_form {
+	struct form {
 		std::string id{};
 		std::string action{};
 		std::string method{};
 		std::string enctype{};
 
-		std::vector<html_form_field> fields{};
+		std::vector<form_field> fields{};
 
-		html_form() = default;
-		html_form(std::string&& id,
-		          std::string&& action,
-		          std::string&& method,
-		          std::string&& enctype);
+		form() = default;
+		form(std::string&& id,
+		     std::string&& action,
+		     std::string&& method,
+		     std::string&& enctype);
 
 		void add(std::string const& decoded_name,
 		         std::string const& decoded_value);
@@ -39,6 +39,5 @@ namespace tangle {
 		std::unordered_map<std::string, size_t> indexes_;
 	};
 
-	std::unordered_map<std::string, html_form> html_forms(
-	    std::string_view html);
-}  // namespace tangle
+	std::unordered_map<std::string, form> forms(std::string_view html);
+}  // namespace tangle::browser

@@ -2,7 +2,7 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <gtest/gtest.h>
-#include <tangle/html_forms.hpp>
+#include <tangle/browser/forms.hpp>
 #include "cxx_string.hh"
 
 #ifdef _MSC_VER
@@ -10,12 +10,13 @@
 #define INITLIST_INIT
 #else
 #define INITLIST_CONSTEXPR constexpr
-#define INITLIST_INIT {}
+#define INITLIST_INIT \
+	{}
 #endif
 
 using namespace std::literals;
 
-namespace tangle::testing {
+namespace tangle::browser::testing {
 	struct html_field_test_data {
 		std::string_view name{};
 		std::initializer_list<std::string_view> values INITLIST_INIT;
@@ -55,7 +56,7 @@ namespace tangle::testing {
 	class html_forms : public ::testing::TestWithParam<html_forms_test_data> {};
 	TEST_P(html_forms, parse) {
 		auto& param = GetParam();
-		auto forms = tangle::html_forms(param.html);
+		auto forms = browser::forms(param.html);
 
 #if 0
 		for (auto const& [id, form] : forms) {
@@ -108,7 +109,7 @@ namespace tangle::testing {
 	    : public ::testing::TestWithParam<html_forms_req_test_data> {};
 	TEST_P(html_forms_req, parse) {
 		auto& param = GetParam();
-		html_form form{
+		browser::form form{
 		    as_str(param.form.data.id), as_str(param.form.data.action),
 		    as_str(param.form.data.method), as_str(param.form.data.enctype)};
 		for (auto const& field : param.form.fields) {
@@ -336,4 +337,4 @@ textarea: <b>bold</b></textarea></label></p>
 
 	INSTANTIATE_TEST_SUITE_P(samples, html_forms, ::testing::ValuesIn(samples));
 	INSTANTIATE_TEST_SUITE_P(forms, html_forms_req, ::testing::ValuesIn(forms));
-}  // namespace tangle::testing
+}  // namespace tangle::browser::testing

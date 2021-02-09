@@ -1,8 +1,8 @@
 // clang-format off
 // This file is generated, to recreate, call
-// curl https://html.spec.whatwg.org/entities.json | python3 utils/src/html_entities.py > utils/src/html_entities.cpp
+// curl https://html.spec.whatwg.org/entities.json | python3 browser/src/entities.py > browser/src/entities.cpp
 
-#include <tangle/html_entities.hpp>
+#include <tangle/browser/entities.hpp>
 
 using namespace std::literals;
 
@@ -16,8 +16,8 @@ using namespace std::literals;
 #define ON_LEAF_NOBR(NO, result) if (length == NO) return result
 #define ON_LEAF(NO, result) ON_LEAF_NOBR(NO, result); break
 
-namespace tangle {
-char const* html_entity(std::string_view name) {
+namespace tangle::browser {
+char const* entity(std::string_view name) {
   auto const length = name.length();
 
   CHAR_AT(0)

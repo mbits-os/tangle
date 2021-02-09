@@ -6,14 +6,14 @@
 #include <filesystem>
 #include <tangle/nav/navigator.hpp>
 
-namespace tangle {
+namespace tangle::browser {
 	class offline_media {
 	public:
 		offline_media(nav::navigator& browser);
 		virtual ~offline_media();
 		std::string analyze(std::string_view, uri const& base_url);
 
-    protected:
+	protected:
 		virtual std::optional<uri> normalize(std::string_view,
 		                                     uri const& base_url) const;
 		virtual std::string download(uri const&);
@@ -74,4 +74,4 @@ namespace tangle {
 	using intranet_offline_media = basic_intranet_offline_media<offline_media>;
 	using fs_intranet_offline_media =
 	    basic_intranet_offline_media<fs_offline_media>;
-}  // namespace tangle
+}  // namespace tangle::browser

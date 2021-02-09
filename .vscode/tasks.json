@@ -49,7 +49,7 @@
 		{
 			"type": "shell",
 			"label": "Coverage tests",
-			"command": "ninja coveralls",
+			"command": "ninja TANGLE_coveralls",
 			"args": [],
 			"options": {
 				"cwd": "${workspaceFolder}/build"

@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string_view>
 
-namespace tangle::testing {
+namespace tangle::browser::testing {
 	struct cxx_string {
 		std::string_view val;
 
@@ -59,4 +59,4 @@ namespace tangle::testing {
 			return out << "\"sv";
 		}
 	};
-}  // namespace tangle::testing
+}  // namespace tangle::browser::testing

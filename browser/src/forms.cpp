@@ -3,10 +3,10 @@
 
 #include <assert.h>
 #include <iostream>
-#include <tangle/html_forms.hpp>
-#include <tangle/html_split.hpp>
+#include <tangle/browser/forms.hpp>
+#include <tangle/browser/html_split.hpp>
 
-namespace tangle {
+namespace tangle::browser {
 	struct form_attrs_view {
 		std::string_view id{};
 		std::string_view name{};
@@ -22,17 +22,17 @@ namespace tangle {
 		bool is_checked = false;
 	};
 
-	html_form::html_form(std::string&& id,
-	                     std::string&& action,
-	                     std::string&& method,
-	                     std::string&& enctype)
+	form::form(std::string&& id,
+	           std::string&& action,
+	           std::string&& method,
+	           std::string&& enctype)
 	    : id{std::move(id)}
 	    , action{std::move(action)}
 	    , method{std::move(method)}
 	    , enctype{std::move(enctype)} {}
 
-	void html_form::add(std::string const& decoded_name,
-	                    std::string const& decoded_value) {
+	void form::add(std::string const& decoded_name,
+	               std::string const& decoded_value) {
 		auto it = indexes_.find(decoded_name);
 		if (it != indexes_.end()) {
 			auto const index = it->second;
@@ -45,8 +45,8 @@ namespace tangle {
 		fields.push_back({decoded_name, {decoded_value}});
 	}
 
-	void html_form::set(std::string const& decoded_name,
-	                    std::string const& decoded_value) {
+	void form::set(std::string const& decoded_name,
+	               std::string const& decoded_value) {
 		auto it = indexes_.find(decoded_name);
 		if (it != indexes_.end()) {
 			auto const index = it->second;
@@ -59,7 +59,7 @@ namespace tangle {
 		fields.push_back({decoded_name, {decoded_value}});
 	}
 
-	nav::request html_form::make_request(uri const& page_url) const {
+	nav::request form::make_request(uri const& page_url) const {
 		uri::params params{};
 		for (auto const& field : fields) {
 			for (auto const& value : field.values) {
@@ -116,9 +116,8 @@ namespace tangle {
 		return result;
 	}
 
-	std::unordered_map<std::string, html_form> html_forms(
-	    std::string_view html) {
-		std::unordered_map<std::string, html_form> result{};
+	std::unordered_map<std::string, form> forms(std::string_view html) {
+		std::unordered_map<std::string, form> result{};
 		auto elems = html_split(html);
 
 		bool in_form = false;
@@ -128,7 +127,7 @@ namespace tangle {
 		size_t prev_textarea = std::string::npos - 1;
 		std::string_view prev_textarea_name{};
 
-		html_form* current{nullptr};
+		form* current{nullptr};
 
 		struct lazy_assign {
 			size_t* prev_end_ptr;
@@ -214,4 +213,4 @@ namespace tangle {
 
 		return result;
 	}
-}  // namespace tangle
+}  // namespace tangle::browser

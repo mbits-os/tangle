@@ -3,10 +3,10 @@
 
 #include <cctype>
 #include <string>
-#include <tangle/html_entities.hpp>
-#include <tangle/html_split.hpp>
+#include <tangle/browser/entities.hpp>
+#include <tangle/browser/html_split.hpp>
 
-namespace tangle {
+namespace tangle::browser {
 	namespace {
 		inline char lower(char c) noexcept {
 			return static_cast<char>(
@@ -280,7 +280,7 @@ namespace tangle {
 			auto name =
 			    std::string_view{&*start, static_cast<size_t>(&*it - &*start)};
 
-			auto entity = html_entity(name);
+			auto entity = browser::entity(name);
 			if (entity) {
 				result.append(entity);
 				if (has_semicolon) ++it;
@@ -291,4 +291,4 @@ namespace tangle {
 		}
 		return result;
 	}
-}  // namespace tangle
+}  // namespace tangle::browser

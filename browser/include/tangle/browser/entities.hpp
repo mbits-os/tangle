@@ -5,6 +5,6 @@
 
 #include <string_view>
 
-namespace tangle {
-	char const* html_entity(std::string_view name);
+namespace tangle::browser {
+	char const* entity(std::string_view name);
 }

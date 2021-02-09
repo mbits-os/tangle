@@ -83,11 +83,12 @@ set(TANGLE_TESTING ON CACHE BOOL "Compile and/or run self-tests")
 set(TANGLE_INSTALL ON CACHE BOOL "Create install target(s)")
 set(TANGLE_DOCS OFF CACHE BOOL "Create doxygen documentation")
 set(MODULES
+  str
 	cookie
 	uri
 	msg
   nav
-  utils
+  browser
 )
 
 set(EXTRAS
@@ -106,7 +107,7 @@ if (TANGLE_TESTING)
   # The file introduces almost 7000 lines, which more than quadruples
   # number of total lines; this clouds the reports a little. To double
   # check the coverage, comment next line.
-  set(TANGLE_COVERALLS_IGNORE_FILES utils/src/html_entities.cpp)
+  set(TANGLE_COVERALLS_IGNORE_FILES browser/src/entities.cpp)
 
   include(tools/coveralls/Coveralls.cmake)
 endif()

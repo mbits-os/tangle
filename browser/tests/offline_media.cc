@@ -2,16 +2,16 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <gtest/gtest.h>
+#include <tangle/browser/offline_media.hpp>
 #include <tangle/nav/doc_impl.hpp>
 #include <tangle/nav/document.hpp>
 #include <tangle/nav/protocol.hpp>
-#include <tangle/offline_media.hpp>
 #include <unordered_set>
 
 using namespace std::literals;
 namespace fs = std::filesystem;
 
-namespace tangle::testing {
+namespace tangle::browser::testing {
 	struct mock_response {
 		std::string_view url{};
 		std::string_view content_type{};
@@ -85,7 +85,7 @@ namespace tangle::testing {
 	private:
 		std::string download(uri const& address) override {
 			std::cerr << "dl > " << address << '\n';
-			return tangle::offline_media::download(address);
+			return BaseClass::download(address);
 		}
 
 		std::string store(std::string const& filename,
@@ -110,8 +110,9 @@ namespace tangle::testing {
 		std::unordered_set<std::string> files_{};
 	};
 
-	using test_offline_media = test_offline_media_infix<tangle::offline_media>;
-	using test_intranet_offline_media = test_offline_media_infix<tangle::intranet_offline_media>;
+	using test_offline_media = test_offline_media_infix<browser::offline_media>;
+	using test_intranet_offline_media =
+	    test_offline_media_infix<browser::intranet_offline_media>;
 
 	class offline_media
 	    : public ::testing::TestWithParam<offline_media_test_data> {};
@@ -144,12 +145,12 @@ namespace tangle::testing {
 		auto offline = fs_offline_media{
 		    browser, {param.prefix.begin(), param.prefix.end()}};
 
-        auto pwd = fs::current_path();
-        auto dirname = fs::temp_directory_path() / "offline-media-tests";
-        fs::create_directories(dirname);
-        fs::current_path(dirname);
+		auto pwd = fs::current_path();
+		auto dirname = fs::temp_directory_path() / "offline-media-tests";
+		fs::create_directories(dirname);
+		fs::current_path(dirname);
 		auto actual = offline.analyze(param.text, param.base_url);
-        fs::current_path(pwd);
+		fs::current_path(pwd);
 
 		ASSERT_EQ(param.expected.data(), actual);
 	}
@@ -272,10 +273,12 @@ namespace tangle::testing {
 <source src=http://jira.example.com/data/track2.mov />
 </video>
 <img src="files/GUID-GUID-GUID-GUID-GUID-GUID-GUID-GUID.png">)"sv,
-	        "http://api.github.com/", // note http/https mismatch
+	        "http://api.github.com/",  // note http/https mismatch
 	        "files"sv,
 	        {
-	            {"https://user-images.githubusercontent.com/user/GUID-GUID-GUID-GUID-GUID-GUID-GUID-GUID", "image/png"},
+	            {"https://user-images.githubusercontent.com/user/"
+	             "GUID-GUID-GUID-GUID-GUID-GUID-GUID-GUID",
+	             "image/png"},
 	        },
 	    },
 	};
@@ -287,4 +290,4 @@ namespace tangle::testing {
 	INSTANTIATE_TEST_SUITE_P(intranet_snippets,
 	                         intranet_offline_media,
 	                         ::testing::ValuesIn(intranet_snippets));
-}  // namespace tangle::testing
+}  // namespace tangle::browser::testing

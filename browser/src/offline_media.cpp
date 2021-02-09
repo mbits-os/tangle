@@ -6,8 +6,8 @@
 #endif
 
 #include <string_view>
-#include <tangle/html_split.hpp>
-#include <tangle/offline_media.hpp>
+#include <tangle/browser/html_split.hpp>
+#include <tangle/browser/offline_media.hpp>
 #include <tangle/str.hpp>
 
 #ifdef WIN32
@@ -19,7 +19,7 @@
 using namespace std::literals;
 namespace fs = std::filesystem;
 
-namespace tangle {
+namespace tangle::browser {
 	namespace {
 		constexpr std::string_view embedded[] = {"img"sv, "source"sv, "video"sv,
 		                                         "audio"sv};
@@ -228,7 +228,7 @@ namespace tangle {
 
 	std::string offline_media::analyze(std::string_view text,
 	                                   uri const& base_url) {
-		auto tags = html_split(text);
+		auto tags = browser::html_split(text);
 
 		std::vector<attr_replacement> replacements{};
 
@@ -383,8 +383,7 @@ namespace tangle {
 	std::optional<uri> intranet_offline_media_helper::filter_by_server(
 	    std::string_view href,
 	    uri const& base_url) {
-		auto resource =
-		    uri::canonical(attr_decode(href), base_url);
+		auto resource = uri::canonical(attr_decode(href), base_url);
 
 		auto url_auth = base_url.parsed_authority();
 		auto res_auth = resource.parsed_authority();
@@ -406,4 +405,4 @@ namespace tangle {
 
 		return resource;
 	}
-}  // namespace tangle
+}  // namespace tangle::browser

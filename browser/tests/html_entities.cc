@@ -2,11 +2,11 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <gtest/gtest.h>
-#include <tangle/html_entities.hpp>
+#include <tangle/browser/entities.hpp>
 
 using namespace std::literals;
 
-namespace tangle::testing {
+namespace tangle::browser::testing {
 	struct entity {
 		std::string_view name;
 		char const* expected{};
@@ -18,7 +18,7 @@ namespace tangle::testing {
 	class html_named_entities : public ::testing::TestWithParam<entity> {};
 	TEST_P(html_named_entities, lookup) {
 		auto& param = GetParam();
-		auto actual = html_entity(param.name);
+		auto actual = browser::entity(param.name);
 
 		ASSERT_STREQ(param.expected, actual);
 	}
@@ -5374,4 +5374,4 @@ namespace tangle::testing {
 	INSTANTIATE_TEST_SUITE_P(errors,
 	                         html_named_entities,
 	                         ::testing::ValuesIn(nosuch));
-}  // namespace tangle::testing
+}  // namespace tangle::browser::testing

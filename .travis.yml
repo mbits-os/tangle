@@ -48,4 +48,4 @@ script:
   - conan install .. --build missing -s build_type=Debug
   - cmake -DCMAKE_BUILD_TYPE=Debug -DTANGLE_TESTING=ON -DTANGLE_INSTALL=OFF -DTANGLE_COVERALLS=ON -DTANGLE_COVERALLS_UPLOAD=ON ..
   - make -j`nproc`
-  - make coveralls
+  - make TANGLE_coveralls
