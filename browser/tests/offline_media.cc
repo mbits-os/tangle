@@ -79,7 +79,8 @@ namespace tangle::browser::testing {
 	template <typename BaseClass>
 	class test_offline_media_infix : public BaseClass {
 	public:
-		test_offline_media_infix(nav::navigator& browser, std::string&& dirname)
+		test_offline_media_infix(fetch_interface& browser,
+		                         std::string&& dirname)
 		    : BaseClass{browser}, dirname_{dirname} {}
 
 	private:
@@ -110,6 +111,15 @@ namespace tangle::browser::testing {
 		std::unordered_set<std::string> files_{};
 	};
 
+	simple_fetch make_browser(std::vector<mock_response> const& list) {
+		auto proto = std::make_shared<proto_mock>();
+		proto->set_responses(list);
+		auto navigator = nav::navigator{{}};
+		navigator.reg_proto("http", proto);
+		navigator.reg_proto("https", proto);
+		return navigator;
+	}
+
 	using test_offline_media = test_offline_media_infix<browser::offline_media>;
 	using test_intranet_offline_media =
 	    test_offline_media_infix<browser::intranet_offline_media>;
@@ -122,11 +132,7 @@ namespace tangle::browser::testing {
 	TEST_P(offline_media, process) {
 		auto& param = GetParam();
 
-		auto proto = std::make_shared<proto_mock>();
-		proto->set_responses(param.responses);
-		auto browser = nav::navigator{{}};
-		browser.reg_proto("http", proto);
-		browser.reg_proto("https", proto);
+		auto browser = make_browser(param.responses);
 		auto offline = test_offline_media{
 		    browser, {param.prefix.begin(), param.prefix.end()}};
 
@@ -137,11 +143,7 @@ namespace tangle::browser::testing {
 	TEST_P(offline_media, process_fs) {
 		auto& param = GetParam();
 
-		auto proto = std::make_shared<proto_mock>();
-		proto->set_responses(param.responses);
-		auto browser = nav::navigator{{}};
-		browser.reg_proto("http", proto);
-		browser.reg_proto("https", proto);
+		auto browser = make_browser(param.responses);
 		auto offline = fs_offline_media{
 		    browser, {param.prefix.begin(), param.prefix.end()}};
 
@@ -158,11 +160,7 @@ namespace tangle::browser::testing {
 	TEST_P(intranet_offline_media, process) {
 		auto& param = GetParam();
 
-		auto proto = std::make_shared<proto_mock>();
-		proto->set_responses(param.responses);
-		auto browser = nav::navigator{{}};
-		browser.reg_proto("http", proto);
-		browser.reg_proto("https", proto);
+		auto browser = make_browser(param.responses);
 		auto offline = test_intranet_offline_media{
 		    browser, {param.prefix.begin(), param.prefix.end()}};
 

@@ -222,7 +222,8 @@ namespace tangle::browser {
 		}
 	}  // namespace
 
-	offline_media::offline_media(nav::navigator& browser) : browser_{browser} {}
+	offline_media::offline_media(fetch_interface& browser)
+	    : browser_{browser} {}
 
 	offline_media::~offline_media() = default;
 
@@ -300,7 +301,7 @@ namespace tangle::browser {
 		req.set(nav::header::Accept,
 		        "text/html,application/xhtml+xml,application/"
 		        "xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-		auto resp = browser_.open(req);
+		auto resp = browser_.fetch(req);
 
 		auto [fname, ext] = splitext(address.path());
 		if (ext.empty()) {
@@ -312,7 +313,7 @@ namespace tangle::browser {
 		return store(fname, ext, resp.text());
 	}
 
-	fs_offline_media::fs_offline_media(nav::navigator& browser,
+	fs_offline_media::fs_offline_media(fetch_interface& browser,
 	                                   fs::path const& dirname)
 	    : offline_media{browser}, dirname_{dirname} {}
 

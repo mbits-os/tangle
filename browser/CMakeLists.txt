@@ -3,11 +3,13 @@ project(browser VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
     src/entities.cpp
+    src/fetch.cpp
     src/forms.cpp
     src/html_split.cpp
     src/offline_media.cpp
 
     include/tangle/browser/entities.hpp
+    include/tangle/browser/fetch.hpp
     include/tangle/browser/forms.hpp
     include/tangle/browser/html_split.hpp
     include/tangle/browser/offline_media.hpp

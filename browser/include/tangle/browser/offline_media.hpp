@@ -4,12 +4,12 @@
 #pragma once
 
 #include <filesystem>
-#include <tangle/nav/navigator.hpp>
+#include <tangle/browser/fetch.hpp>
 
 namespace tangle::browser {
 	class offline_media {
 	public:
-		offline_media(nav::navigator& browser);
+		offline_media(fetch_interface& browser);
 		virtual ~offline_media();
 		std::string analyze(std::string_view, uri const& base_url);
 
@@ -25,13 +25,14 @@ namespace tangle::browser {
 		std::string_view downloaded(std::string_view, uri const& base_url);
 		std::string_view cached(std::string_view, uri const& base_url) const;
 
-		nav::navigator& browser_;
+		fetch_interface& browser_;
 		std::unordered_map<std::string, std::string> srcs_;
 	};
 
 	class fs_offline_media : public offline_media {
 	public:
-		fs_offline_media(nav::navigator& browser, std::filesystem::path const&);
+		fs_offline_media(fetch_interface& browser,
+		                 std::filesystem::path const&);
 
 	private:
 		std::string store(std::string const& filename,
