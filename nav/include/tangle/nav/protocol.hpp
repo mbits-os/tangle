@@ -12,10 +12,10 @@ over any wire, should do so over the cache.
 */
 
 #pragma once
-#include <memory>
 #include <tangle/nav/document.hpp>
 #include <tangle/nav/jar.hpp>
 #include <tangle/nav/request.hpp>
+#include <memory>
 #include <unordered_map>
 
 namespace tangle::nav {

@@ -1,11 +1,11 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <cctype>
-#include <map>
 #include <tangle/nav/jar.hpp>
 #include <tangle/nav/navigator.hpp>
 #include <tangle/nav/protocol.hpp>
+#include <cctype>
+#include <map>
 
 namespace tangle::nav {
 	request_trace::~request_trace() = default;

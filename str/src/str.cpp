@@ -1,9 +1,9 @@
 // Copyright (c) 2020 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
+#include <tangle/str.hpp>
 #include <cctype>
 #include <iostream>
-#include <tangle/str.hpp>
 
 namespace tangle {
 	namespace {

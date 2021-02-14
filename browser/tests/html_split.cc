@@ -1,9 +1,9 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gtest/gtest.h>
 #include <tangle/browser/html_split.hpp>
 #include "cxx_string.hh"
+#include <gtest/gtest.h>
 
 namespace tangle::browser::testing {
 	struct test_attr_pos {

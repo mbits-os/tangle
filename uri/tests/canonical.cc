@@ -1,9 +1,9 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gtest/gtest.h>
-#include <sstream>
 #include <tangle/uri.hpp>
+#include <sstream>
+#include <gtest/gtest.h>
 
 using namespace std::literals;
 

@@ -1,9 +1,9 @@
 // Copyright (c) 2020 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
+#include <tangle/nav/headers.hpp>
 #include <algorithm>
 #include <cctype>
-#include <tangle/nav/headers.hpp>
 
 namespace tangle::nav {
 	header_key header_key::make(std::string hdr) noexcept {

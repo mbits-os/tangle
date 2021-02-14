@@ -1,8 +1,8 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <algorithm>
 #include <tangle/msg/http_parser.hpp>
+#include <algorithm>
 
 namespace tangle::msg {
 	namespace {
@@ -152,7 +152,8 @@ namespace tangle::msg {
 			while (reason_cur != reason_end && *reason_cur == ' ')
 				++reason_cur;
 			auto msg = parse_number(reason_cur, reason_end, m_status);
-			if (msg == reason_cur || msg == reason_end || *msg != ' ' || m_status < 100)
+			if (msg == reason_cur || msg == reason_end || *msg != ' ' ||
+			    m_status < 100)
 				return {len, parsing::error};
 
 			while (msg != reason_end && *msg == ' ')

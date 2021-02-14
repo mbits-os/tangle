@@ -1,8 +1,8 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gtest/gtest.h>
 #include <tangle/nav/request.hpp>
+#include <gtest/gtest.h>
 
 using namespace std::literals;
 
@@ -70,7 +70,8 @@ namespace tangle::nav::testing {
 		ASSERT_EQ(req.address(), "scheme://host/app/dir/file.ext"sv);
 
 		req.referrer("another-scheme://example.com/subdir/"sv);
-		ASSERT_EQ(req.address(), "another-scheme://example.com/subdir/dir/file.ext"sv);
+		ASSERT_EQ(req.address(),
+		          "another-scheme://example.com/subdir/dir/file.ext"sv);
 	}
 
 	TEST(req_test, redir) {

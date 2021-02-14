@@ -2,9 +2,9 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include "flask-app.hh"
+#include "flask-app-dir.hh"
 #include <stdlib.h>
 #include <chrono>
-#include "flask-app-dir.hh"
 
 #ifdef _WIN32
 #include <Windows.h>

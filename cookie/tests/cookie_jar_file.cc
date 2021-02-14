@@ -1,10 +1,10 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gtest/gtest.h>
-#include <filesystem>
 #include <tangle/cookie/jar.hpp>
 #include "cookie-dir.hh"
+#include <filesystem>
+#include <gtest/gtest.h>
 
 namespace fs = std::filesystem;
 

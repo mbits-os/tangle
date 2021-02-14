@@ -1,8 +1,8 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gtest/gtest.h>
 #include <tangle/str.hpp>
+#include <gtest/gtest.h>
 
 namespace tangle::testing {
 	template <typename String>

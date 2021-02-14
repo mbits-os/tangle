@@ -1,11 +1,11 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gtest/gtest.h>
+#include <tangle/msg/http_parser.hpp>
 #include <cctype>
 #include <initializer_list>
-#include <tangle/msg/http_parser.hpp>
 #include <type_traits>
+#include <gtest/gtest.h>
 
 static std::ostream& operator<<(std::ostream& o, tangle::msg::parsing p) {
 	switch (p) {

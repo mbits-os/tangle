@@ -1,13 +1,13 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-#include <filesystem>
 #include <tangle/curl/curl.hpp>
 #include <tangle/curl/proto.hpp>
 #include <tangle/nav/protocol.hpp>
 #include "flask-app.hh"
+#include <filesystem>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 using namespace std::literals;
 namespace fs = std::filesystem;

@@ -80,4 +80,4 @@ namespace tangle::nav {
 	bool doc_impl::is_link() const noexcept { return is_redirect(status_); }
 
 	nav::headers const& doc_impl::headers() const noexcept { return headers_; }
-}  // namespace tangle::http
+}  // namespace tangle::nav

@@ -1,8 +1,8 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <algorithm>
 #include <tangle/cookie/io.hpp>
+#include <algorithm>
 #include <iterator>
 
 namespace tangle::cookie::io::v1 {

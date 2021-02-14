@@ -1,10 +1,10 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <cctype>
-#include <string>
 #include <tangle/browser/entities.hpp>
 #include <tangle/browser/html_split.hpp>
+#include <cctype>
+#include <string>
 
 namespace tangle::browser {
 	namespace {

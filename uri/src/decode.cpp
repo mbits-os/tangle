@@ -1,8 +1,8 @@
 // Copyright (c) 2015 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <cctype>
 #include <tangle/decode.hpp>
+#include <cctype>
 
 namespace tangle {
 	namespace {

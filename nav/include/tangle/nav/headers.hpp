@@ -176,8 +176,8 @@ namespace std {
 		using header = tangle::nav::header;
 		using header_key = tangle::nav::header_key;
 		size_t operator()(tangle::nav::header_key const& key) const
-		    noexcept(noexcept(hash<header>{}(header::Accept)) && noexcept(
-		        hash<std::string>{}(std::string{}))) {
+		    noexcept(noexcept(hash<header>{}(header::Accept)) &&
+		             noexcept(hash<std::string>{}(std::string{}))) {
 			if (key.value() != header::user_defined_header)
 				return hash<header>{}(key.value());
 			return hash<std::string>{}(key.user_defined());
@@ -192,7 +192,7 @@ namespace tangle::nav {
 	public:
 		headers() = default;
 		headers(
-		    std::initializer_list<std::pair<header_key, std::string>> items){
+		    std::initializer_list<std::pair<header_key, std::string>> items) {
 			for (auto const& [key, value] : items)
 				add(key, value);
 		}

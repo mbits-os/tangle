@@ -12,10 +12,10 @@ over any wire, should do so over the cache.
 */
 
 #pragma once
-#include <memory>
 #include <tangle/cookie/chrono.hpp>
 #include <tangle/nav/document.hpp>
 #include <tangle/nav/request.hpp>
+#include <memory>
 
 namespace tangle::nav {
 	struct protocol;

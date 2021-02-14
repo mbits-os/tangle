@@ -1,9 +1,9 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gtest/gtest.h>
 #include <tangle/browser/forms.hpp>
 #include "cxx_string.hh"
+#include <gtest/gtest.h>
 
 #ifdef _MSC_VER
 #define INITLIST_CONSTEXPR const

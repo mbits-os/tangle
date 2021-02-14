@@ -1,11 +1,11 @@
 // Copyright (c) 2020 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <mutex>
 #include <tangle/curl/curl.hpp>
 #include <tangle/curl/proto.hpp>
 #include <tangle/msg/http_parser.hpp>
 #include <tangle/nav/protocol.hpp>
+#include <mutex>
 
 using namespace std::literals;
 

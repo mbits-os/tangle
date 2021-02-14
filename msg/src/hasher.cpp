@@ -1,8 +1,8 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <algorithm>
 #include <tangle/msg/hasher.hpp>
+#include <algorithm>
 
 namespace tangle::msg {
 

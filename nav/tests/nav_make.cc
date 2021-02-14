@@ -1,11 +1,11 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include <tangle/nav/jar.hpp>
 #include <tangle/nav/navigator.hpp>
 #include <tangle/nav/protocol.hpp>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 using namespace std::literals;
 

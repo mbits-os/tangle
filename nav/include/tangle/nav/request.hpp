@@ -12,9 +12,9 @@ over any wire, should do so over the cache.
 */
 
 #pragma once
-#include <memory>
 #include <tangle/nav/headers.hpp>
 #include <tangle/uri.hpp>
+#include <memory>
 
 namespace tangle::nav {
 	enum class method { get, post };

@@ -1,12 +1,12 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gtest/gtest.h>
 #include <tangle/browser/fetch.hpp>
 #include <tangle/nav/doc_impl.hpp>
 #include <tangle/nav/document.hpp>
 #include <tangle/nav/protocol.hpp>
 #include <unordered_set>
+#include <gtest/gtest.h>
 
 using namespace std::literals;
 

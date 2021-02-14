@@ -1,8 +1,8 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gtest/gtest.h>
 #include <tangle/cookie/scope.hpp>
+#include <gtest/gtest.h>
 
 struct scope_info {
 	tangle::cookie::scope_type in, out;

@@ -1,8 +1,8 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <memory>
 #include <tangle/cookie/jar.hpp>
+#include <memory>
 
 namespace tangle::cookie {
 	jar::const_iterator jar::find(const std::string& name,

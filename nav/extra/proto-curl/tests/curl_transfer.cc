@@ -1,8 +1,8 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gtest/gtest.h>
 #include <tangle/curl/curl.hpp>
+#include <gtest/gtest.h>
 
 using namespace std::literals;
 
@@ -78,4 +78,4 @@ namespace tangle::curl::Transfer::testing {
 
 		EXPECT_EQ(doc->text(), expected);
 	}
-}  // namespace tangle::http::curl::Transfer::testing
+}  // namespace tangle::curl::Transfer::testing

@@ -1,8 +1,8 @@
 // Copyright (c) 2016 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <gtest/gtest.h>
 #include <tangle/uri.hpp>
+#include <gtest/gtest.h>
 
 namespace tangle::testing {
 	using ::testing::TestWithParam;

@@ -9,10 +9,10 @@ Cache content.
 
 #pragma once
 
-#include <functional>
-#include <memory>
 #include <tangle/nav/request.hpp>
 #include <tangle/uri.hpp>
+#include <functional>
+#include <memory>
 
 namespace tangle::nav {
 	struct doc_backend;

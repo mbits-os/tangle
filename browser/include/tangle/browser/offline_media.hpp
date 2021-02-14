@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <filesystem>
 #include <tangle/browser/fetch.hpp>
+#include <filesystem>
 
 namespace tangle::browser {
 	class offline_media {

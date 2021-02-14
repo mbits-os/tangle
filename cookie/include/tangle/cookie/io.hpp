@@ -16,12 +16,12 @@ I/O.
 
 #pragma once
 
+#include <tangle/cookie/item.hpp>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <map>
 #include <memory>
-#include <tangle/cookie/item.hpp>
 
 /**
 Cookie jar I/O code.
