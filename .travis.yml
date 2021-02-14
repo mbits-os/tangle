@@ -12,6 +12,7 @@ cache:
   directories:
     - $HOME/.conan/data
     - /opt/pyenv/versions/3.8
+    - /opt/python/3.8.1
 
 install:
   # setup g++ 10
