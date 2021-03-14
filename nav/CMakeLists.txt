@@ -4,6 +4,8 @@ project(nav VERSION 0.1.0 LANGUAGES CXX )
 set(SOURCES
 	src/doc_impl.cpp
 	src/document.cpp
+	src/headers_parsers.cpp
+	src/headers_parsers.hpp
 	src/headers.cpp
 	src/nav_jar.cpp
 	src/navigator.cpp
@@ -26,7 +28,7 @@ set_target_properties(nav PROPERTIES
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	FOLDER tangle)
 target_include_directories(nav PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(nav PUBLIC uri cookie msg)
+target_link_libraries(nav PUBLIC uri cookie msg str)
 target_compile_options(nav PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
 if (MSVC)

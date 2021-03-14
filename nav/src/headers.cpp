@@ -2,6 +2,7 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <tangle/nav/headers.hpp>
+#include "headers_parsers.hpp"
 #include <algorithm>
 #include <cctype>
 
@@ -291,5 +292,17 @@ namespace tangle::nav {
 		}
 
 		return name(header_);
+	}
+
+	std::string_view content_type_value::mime_type() const noexcept {
+		return std::string_view{mime}.substr(0, slash_pos);
+	}
+
+	std::string_view content_type_value::mime_subtype() const noexcept {
+		return std::string_view{mime}.substr(slash_pos + 1);
+	}
+
+	content_type_value headers::get_content_type() const {
+		return impl::get_content_type(*this);
 	}
 }  // namespace tangle::nav

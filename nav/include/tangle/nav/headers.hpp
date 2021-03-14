@@ -186,6 +186,17 @@ namespace std {
 }  // namespace std
 
 namespace tangle::nav {
+	using header_params = std::unordered_map<std::string, std::string>;
+
+	struct content_type_value {
+		std::string mime;
+		header_params parameteres;
+		size_t slash_pos{};
+
+		std::string_view mime_type() const noexcept;
+		std::string_view mime_subtype() const noexcept;
+	};
+
 	class headers {
 		std::unordered_map<header_key, std::vector<std::string>> headers_;
 
@@ -232,6 +243,8 @@ namespace tangle::nav {
 			if (it != end() && !it->second.empty()) return &it->second.front();
 			return nullptr;
 		}
+
+		content_type_value get_content_type() const;
 	};
 
 	namespace http_version {
