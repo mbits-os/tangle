@@ -86,15 +86,15 @@ namespace tangle::browser {
 	    std::unordered_map<std::string_view, attr_pos> const& attrs) {
 		form_attrs_view result{};
 		for (auto const& [name, attr] : attrs) {
-			if (attr_pos::is(name, "id"sv))
+			if (equal_ignore_case(name, "id"sv))
 				result.id = attr.value;
-			else if (attr_pos::is(name, "name"sv))
+			else if (equal_ignore_case(name, "name"sv))
 				result.name = attr.value;
-			else if (attr_pos::is(name, "action"sv))
+			else if (equal_ignore_case(name, "action"sv))
 				result.action = attr.value;
-			else if (attr_pos::is(name, "method"sv))
+			else if (equal_ignore_case(name, "method"sv))
 				result.method = attr.value;
-			else if (attr_pos::is(name, "enctype"sv))
+			else if (equal_ignore_case(name, "enctype"sv))
 				result.enctype = attr.value;
 		}
 		return result;
@@ -104,13 +104,13 @@ namespace tangle::browser {
 	    std::unordered_map<std::string_view, attr_pos> const& attrs) {
 		input_attrs_view result{};
 		for (auto const& [name, attr] : attrs) {
-			if (attr_pos::is(name, "name"sv))
+			if (equal_ignore_case(name, "name"sv))
 				result.name = attr.value;
-			else if (attr_pos::is(name, "type"sv))
+			else if (equal_ignore_case(name, "type"sv))
 				result.type = attr.value;
-			else if (attr_pos::is(name, "value"sv))
+			else if (equal_ignore_case(name, "value"sv))
 				result.value = attr.value;
-			else if (attr_pos::is(name, "checked"sv))
+			else if (equal_ignore_case(name, "checked"sv))
 				result.is_checked = true;
 		}
 		return result;
@@ -172,8 +172,8 @@ namespace tangle::browser {
 				auto [name, type, value, is_checked] = input_attrs(tag.attrs);
 				if (name.empty()) continue;
 
-				auto const is_radio = attr_pos::is(type, "radio"sv);
-				auto const is_checkbox = attr_pos::is(type, "checkbox"sv);
+				auto const is_radio = equal_ignore_case(type, "radio"sv);
+				auto const is_checkbox = equal_ignore_case(type, "checkbox"sv);
 
 				if ((is_radio || is_checkbox) && !is_checked) continue;
 

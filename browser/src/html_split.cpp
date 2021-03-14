@@ -13,16 +13,6 @@ namespace tangle::browser {
 			    std::tolower(static_cast<unsigned char>(c)));
 		}
 
-		inline bool equal_ignore_case(std::string_view compared,
-		                              std::string_view prelowered) noexcept {
-			if (compared.length() != prelowered.length()) return false;
-			auto it = compared.begin();
-			for (auto r_ch : prelowered) {
-				if (r_ch != lower(*it++)) return false;
-			}
-			return true;
-		}
-
 		inline bool is_text_elem(std::string_view name) {
 			auto const length = name.length();
 			if (length > 1) {
@@ -201,9 +191,14 @@ namespace tangle::browser {
 		};
 	}  // namespace
 
-	bool attr_pos::is(std::string_view attr_name,
-	                  std::string_view prelowered) noexcept {
-		return equal_ignore_case(attr_name, prelowered);
+	inline bool equal_ignore_case(std::string_view compared,
+	                              std::string_view prelowered) noexcept {
+		if (compared.length() != prelowered.length()) return false;
+		auto it = compared.begin();
+		for (auto r_ch : prelowered) {
+			if (r_ch != lower(*it++)) return false;
+		}
+		return true;
 	}
 
 	bool elem::name_info::is(std::string_view prelowered) const noexcept {

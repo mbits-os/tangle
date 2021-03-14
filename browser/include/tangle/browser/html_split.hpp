@@ -15,8 +15,6 @@ namespace tangle::browser {
 		size_t start{};
 		size_t stop{};
 		std::string_view value{};
-		static bool is(std::string_view attr_name,
-		               std::string_view prelowered) noexcept;
 	};
 
 	struct elem {
@@ -30,6 +28,8 @@ namespace tangle::browser {
 		std::unordered_map<std::string_view, attr_pos> attrs{};
 	};
 
+	bool equal_ignore_case(std::string_view compared,
+	                       std::string_view prelowered) noexcept;
 	std::vector<elem> html_split(std::string_view text);
 	std::string attr_encode(std::string_view text);
 	std::string attr_decode(std::string_view text);

@@ -34,7 +34,7 @@ namespace tangle::browser {
 		auto find_attr(elem const& tag, std::string_view attr_name) {
 			auto it = tag.attrs.begin();
 			auto end = tag.attrs.end();
-			while (it != end && !attr_pos::is(it->first, attr_name))
+			while (it != end && !equal_ignore_case(it->first, attr_name))
 				++it;
 			return it;
 		}
