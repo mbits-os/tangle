@@ -5,6 +5,7 @@ set(SOURCES
     src/str.cpp
 
     include/tangle/str.hpp
+	include/tangle/base_parser.hpp
 )
 
 WRAP_SOURCELIST(${SOURCES})
