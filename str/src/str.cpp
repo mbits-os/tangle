@@ -77,6 +77,48 @@ namespace tangle {
 		return result;
 	}
 
+	size_t calc_separators(char sep, std::string_view data, size_t max) {
+		auto pos = data.find(sep);
+		decltype(pos) prev = 0;
+
+		size_t result = 1;
+
+		while (max && pos != std::string_view::npos) {
+			prev = pos + 1;
+			pos = data.find(sep, prev);
+			if (max != std::string::npos) --max;
+
+			++result;
+		}
+
+		return result;
+	}
+
+	template <typename String>
+	std::vector<String> split_impl(char sep,
+	                               std::string_view data,
+	                               size_t max) {
+		std::vector<String> result{};
+
+		result.reserve(calc_separators(sep, data, max));
+
+		auto pos = data.find(sep);
+		decltype(pos) prev = 0;
+
+		while (max && pos != std::string_view::npos) {
+			auto const view = data.substr(prev, pos - prev);
+			prev = pos + 1;
+			pos = data.find(sep, prev);
+			if (max != std::string::npos) --max;
+
+			result.push_back(helper<String>::as_str(view));
+		}
+
+		result.push_back(helper<String>::as_str(data.substr(prev)));
+
+		return result;
+	}
+
 	std::vector<std::string_view> split_sv(std::string_view sep,
 	                                       std::string& data,
 	                                       size_t max) {
@@ -90,6 +132,24 @@ namespace tangle {
 	}
 
 	std::vector<std::string> split_s(std::string_view sep,
+	                                 std::string_view data,
+	                                 size_t max) {
+		return split_impl<std::string>(sep, data, max);
+	}
+
+	std::vector<std::string_view> split_sv(char sep,
+	                                       std::string& data,
+	                                       size_t max) {
+		return split_impl<std::string_view>(sep, data, max);
+	}
+
+	std::vector<std::string_view> split_sv(char sep,
+	                                       std::string_view data,
+	                                       size_t max) {
+		return split_impl<std::string_view>(sep, data, max);
+	}
+
+	std::vector<std::string> split_s(char sep,
 	                                 std::string_view data,
 	                                 size_t max) {
 		return split_impl<std::string>(sep, data, max);
@@ -133,6 +193,22 @@ namespace tangle {
 	std::string rstrip_s(std::string_view data) {
 		auto const result = rstrip_sv(data);
 		return {result.data(), result.size()};
+	}
+
+	std::string& tolower_inplace(std::string& s) {
+		for (auto& c : s) {
+			c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+		}
+
+		return s;
+	}
+
+	std::string& toupper_inplace(std::string& s) {
+		for (auto& c : s) {
+			c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+		}
+
+		return s;
 	}
 
 	template <typename String>
