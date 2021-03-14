@@ -437,6 +437,16 @@ textarea: <b>bold</b></textarea></label></p>
 	        "&gt;&gt; &amp;title; &lt;&lt;"sv,
 	    },
 	    {"&DoubleLongLeftRightArrow", "\xe2\x9f\xba", "\xe2\x9f\xba"},
+	    {"&#187; &#x00bB;", "\xc2\xbb \xc2\xbb", "\xc2\xbb \xc2\xbb"},
+	    {"&#187; &#x01G;", "\xc2\xbb \001G;", "\xc2\xbb \001G;"},
+	    {"&#x2728;", "\xE2\x9C\xA8", "\xE2\x9C\xA8"},
+	    {"Sur-high &#xd810;", "Sur-high \xEF\xBF\xBD", "Sur-high \xEF\xBF\xBD"},
+	    {"&#x1F600;", "\xF0\x9F\x98\x80", "\xF0\x9F\x98\x80"},
+	    {
+	        "Above legal UTF32: &#x00110000;",
+	        "Above legal UTF32: \xEF\xBF\xBD",
+	        "Above legal UTF32: \xEF\xBF\xBD",
+	    },
 	};
 
 	INSTANTIATE_TEST_SUITE_P(samples, html_split, ::testing::ValuesIn(data));
