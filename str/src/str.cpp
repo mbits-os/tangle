@@ -195,7 +195,7 @@ namespace tangle {
 		return {result.data(), result.size()};
 	}
 
-	std::string& tolower_inplace(std::string& s) {
+	std::string& tolower_inplace(std::string& s) noexcept {
 		for (auto& c : s) {
 			c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
 		}
@@ -203,7 +203,7 @@ namespace tangle {
 		return s;
 	}
 
-	std::string& toupper_inplace(std::string& s) {
+	std::string& toupper_inplace(std::string& s) noexcept {
 		for (auto& c : s) {
 			c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
 		}

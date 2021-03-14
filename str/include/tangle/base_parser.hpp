@@ -25,39 +25,43 @@ namespace tangle {
 		bool eof() const noexcept { return pos == end; }
 
 		template <typename Pred>
-		void skip(Pred pred) {
+		void skip(Pred pred) noexcept(
+		    noexcept(pred(std::declval<unsigned char>()))) {
 			while (pos < end && pred(static_cast<unsigned char>(*pos)))
 				++pos;
 		}
 
 		template <typename Pred>
-		void skip_until(Pred pred) {
+		void skip_until(Pred pred) noexcept(
+		    noexcept(pred(std::declval<unsigned char>()))) {
 			while (pos < end && !pred(static_cast<unsigned char>(*pos)))
 				++pos;
 		}
 
 		template <char... C>
-		void look_for() {
-			skip_until([](int c) { return ((C == c) || ...); });
+		void look_for() noexcept {
+			skip_until([](int c) noexcept { return ((C == c) || ...); });
 		}
 
 		template <char... C>
-		std::string_view text_until() {
-			return substr<base_parser>(
-			    [](auto& self) { self.template look_for<C...>(); });
+		std::string_view text_until() noexcept {
+			return substr<base_parser>([](auto& self) noexcept {
+				self.template look_for<C...>();
+			});
 		}
 
 		template <typename Final, typename Oper>
-		std::string_view substr(Oper op) {
+		std::string_view substr(Oper op) noexcept(
+		    noexcept(op(std::declval<Final&>()))) {
 			auto start = pos;
 			op(*static_cast<Final*>(this));
 			return {start, static_cast<size_t>(pos - start)};
 		}
 
-		void skip_ws() { skip(is_space); }
+		void skip_ws() noexcept { skip(is_space); }
 
-		bool peek(char c) { return pos < end && *pos == c; }
-		bool get(char c) {
+		bool peek(char c) noexcept { return pos < end && *pos == c; }
+		bool get(char c) noexcept {
 			auto const result = peek(c);
 			if (result) ++pos;
 			return result;

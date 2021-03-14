@@ -37,8 +37,8 @@ namespace tangle {
 	std::string lstrip_s(std::string_view);
 	std::string rstrip_s(std::string_view);
 
-	std::string& tolower_inplace(std::string&);
-	std::string& toupper_inplace(std::string&);
+	std::string& tolower_inplace(std::string&) noexcept;
+	std::string& toupper_inplace(std::string&) noexcept;
 
 	std::string join(std::string_view sep,
 	                 std::vector<std::string_view> const& items);
