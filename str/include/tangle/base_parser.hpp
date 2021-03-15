@@ -25,6 +25,12 @@ namespace tangle {
 		bool eof() const noexcept { return pos == end; }
 
 		template <typename Pred>
+		bool is(Pred pred) const
+		    noexcept(noexcept(pred(std::declval<unsigned char>()))) {
+			return pos < end && pred(static_cast<unsigned char>(*pos));
+		}
+
+		template <typename Pred>
 		void skip(Pred pred) noexcept(
 		    noexcept(pred(std::declval<unsigned char>()))) {
 			while (pos < end && pred(static_cast<unsigned char>(*pos)))
@@ -60,11 +66,17 @@ namespace tangle {
 
 		void skip_ws() noexcept { skip(is_space); }
 
-		bool peek(char c) noexcept { return pos < end && *pos == c; }
+		bool peek(char c) const noexcept { return pos < end && *pos == c; }
 		bool get(char c) noexcept {
 			auto const result = peek(c);
 			if (result) ++pos;
 			return result;
 		}
+
+		size_t index_of(char const* ptr) const noexcept {
+			return static_cast<size_t>(ptr - text.data());
+		}
+
+		size_t index() const noexcept { return index_of(pos); }
 	};
 }  // namespace tangle
