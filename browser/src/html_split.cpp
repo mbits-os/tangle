@@ -1,19 +1,36 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
+#include <tangle/base_parser.hpp>
 #include <tangle/browser/entities.hpp>
 #include <tangle/browser/html_split.hpp>
+#include <tangle/str.hpp>
 #include <cctype>
 #include <string>
 
 namespace tangle::browser {
 	namespace {
+		inline int is_name_start(int c) noexcept {
+			return std::isalpha(c) || c == ':' || c == '_' || c >= 0x80;
+		}
+
+		inline int is_name_char(int c) noexcept {
+			return std::isalnum(c) || c == ':' || c == '_' || c == '.' ||
+			       c == '-' || c >= 0x80;
+		}
+
+		inline size_t usize(ptrdiff_t diff) noexcept {
+			if (diff < 0) return 0;
+			return static_cast<size_t>(diff);
+		}
+
 		inline char lower(char c) noexcept {
 			return static_cast<char>(
 			    std::tolower(static_cast<unsigned char>(c)));
 		}
 
 		inline bool is_text_elem(std::string_view name) {
+			// option, rp, script, style, textarea, title
 			auto const length = name.length();
 			if (length > 1) {
 				switch (lower(name[0])) {
@@ -56,137 +73,272 @@ namespace tangle::browser {
 			return false;
 		}
 
-		struct parser {
-			std::string_view text;
-			size_t index{};
-			size_t const end{text.length()};
+		inline bool is_void_element(std::string_view name) {
+			// area, base, br, col, command, embed, hr, img, input, keygen,
+			// link, meta, param, source, track, wbr
+			auto const length = name.length();
+			if (length > 1) {
+				switch (lower(name[0])) {
+					case 'a':
+						return equal_ignore_case(name.substr(1), "rea"sv);
+					case 'b':
+						if (length == 2 && lower(name[1]) == 'r') return true;
+						return equal_ignore_case(name.substr(1), "ase"sv);
+					case 'c':
+						if (length > 2 && lower(name[1]) == 'o') {
+							if (length == 3 && lower(name[2]) == 'l')
+								return true;
+							return equal_ignore_case(name.substr(2), "mmand"sv);
+						}
+						break;
+					case 'e':
+						return equal_ignore_case(name.substr(1), "mbed"sv);
+					case 'h':
+						return length == 2 && lower(name[1]) == 'r';
+					case 'i':
+						if (length > 2) {
+							switch (lower(name[1])) {
+								case 'm':
+									return length == 3 && lower(name[2]) == 'g';
+								case 'n':
+									return equal_ignore_case(name.substr(2),
+									                         "put"sv);
+								default:
+									break;
+							}
+						}
+						break;
+					case 'k':
+						return equal_ignore_case(name.substr(1), "eygen"sv);
+					case 'l':
+						return equal_ignore_case(name.substr(1), "ink"sv);
+					case 'm':
+						return equal_ignore_case(name.substr(1), "eta"sv);
+					case 'p':
+						return equal_ignore_case(name.substr(1), "aram"sv);
+					case 's':
+						return equal_ignore_case(name.substr(1), "ource"sv);
+					case 't':
+						return equal_ignore_case(name.substr(1), "rack"sv);
+					case 'w':
+						return equal_ignore_case(name.substr(1), "br"sv);
+					default:
+						break;
+				}
+			}
+			return false;
+		}
 
-			bool skip_comment() {
-				if (index == end || text[index] != '<') return false;
-				if (text.substr(index + 1, 3) != "!--") return false;
-				auto pos = text.find("-->", index + 3);
-				index = pos == std::string_view::npos ? end : pos + 3;
+		struct parser : base_parser {
+			std::vector<elem>& output;
+			parser(std::string_view text, std::vector<elem>& output)
+			    : base_parser{text}, output{output} {}
+
+			std::string_view get_name(char skip_first = 0) noexcept {
+				return substr<parser>([skip_first](parser & self) noexcept {
+					if (skip_first && !self.get(skip_first)) return;
+
+					if (!self.is(is_name_start)) {
+						if (skip_first) --self.pos;
+						return;
+					}
+					++self.pos;
+					self.skip(is_name_char);
+				});
+			}
+
+			bool read_comment() {
+				auto start = index() - 1;
+				if (text.substr(start + 1, 3) != "!--"sv) return false;
+
+				auto stop = text.find("-->"sv, start + 4);
+				if (stop == std::string_view::npos)
+					stop = text.size();
+				else
+					stop += 3;
+				pos = text.data() + stop;
+
+				output.emplace_back(elem{{"!--", start, stop, true}});
 				return true;
+			}
+
+			bool ends_with(char potential_end) const noexcept {
+				auto ptr = pos;
+				++ptr;
+				return peek('>') ||
+				       (peek(potential_end) && ptr < end && *ptr == '>');
+			}
+
+			bool read_attributes(
+			    std::unordered_map<std::string_view, attr_pos>& attrs,
+			    char potential_end) {
+				while (!eof() && !peek('>')) {
+					skip_ws();
+					if (peek(potential_end)) {
+						++pos;
+						if (eof() || peek('>')) {
+							--pos;
+							break;
+						}
+						--pos;
+					}
+
+					auto const name_start = index();
+					auto attr_name = get_name();
+					if (attr_name.empty()) return false;
+
+					if (!get('=')) {
+						// value-less attribute
+						auto const here = index();
+						attrs[attr_name] = attr_pos{name_start, here, here};
+						continue;
+					}
+
+					if (peek('\'') || peek('"')) {
+						auto const start = index();
+						auto const open_quot = *pos++;
+						skip_until([open_quot](int c) noexcept {
+							return c == open_quot;
+						});
+						if (!get(open_quot)) return false;
+						auto const stop = index();
+
+						attrs[attr_name] = attr_pos{
+						    name_start,
+						    start,
+						    stop,
+						    text.substr(start + 1, stop - start - 2),
+						};
+
+						continue;
+					}
+
+					auto const start = index();
+					while (pos < end &&
+					       !std::isspace(static_cast<unsigned char>(*pos)) &&
+					       *pos != '>')
+						++pos;
+					auto const stop = index();
+
+					attrs[attr_name] = attr_pos{
+					    name_start,
+					    start,
+					    stop,
+					    text.substr(start, stop - start),
+					};
+				}
+				return true;
+			}
+
+			bool read_pi() {
+				elem result{};
+				result.name.start = index() - 1;
+
+				result.name.value = get_name('?');
+				if (result.name.value.empty()) return false;
+				if (!read_attributes(result.attrs, '?')) return false;
+				if (!get('?')) return false;
+				if (!get('>')) return false;
+
+				result.name.stop = index();
+				output.emplace_back(std::move(result));
+				return true;
+			}
+
+			bool read_open_tag() {
+				elem result{};
+				result.name.start = index() - 1;
+
+				result.name.value = get_name();
+				if (result.name.value.empty()) return false;
+				if (!read_attributes(result.attrs, '/')) return false;
+				if (peek('/')) {
+					result.name.autoclose = true;
+					++pos;
+				}
+				if (!get('>')) return false;
+
+				result.name.stop = index();
+				if (!result.name.autoclose &&
+				    is_void_element(result.name.value))
+					result.name.autoclose = true;
+				output.emplace_back(std::move(result));
+				return true;
+			}
+
+			bool read_close_tag() {
+				auto start = index() - 1;
+				auto name = get_name('/');
+				skip_ws();
+				if (!get('>')) return false;
+				auto stop = index();
+				output.emplace_back(elem{{name, start, stop}});
+				return true;
+			}
+
+			bool read_doctype() {
+				auto start = index() - 1;
+				auto name = get_name('!');
+				look_for<'>'>();
+				if (!get('>')) return false;
+				auto stop = index();
+				output.emplace_back(elem{{name, start, stop}});
+				return true;
+			}
+
+			bool read_tag() {
+				if (!get('<')) return false;
+				if (peek('?')) return read_pi();
+				if (peek('/')) return read_close_tag();
+				if (peek('!')) {
+					auto ptr = pos + 1;
+					if (ptr < end && *ptr == '-') return read_comment();
+					return read_doctype();
+				}
+				return read_open_tag();
 			}
 
 			inline void skip_text(std::string_view elem_name) {
 				std::string elem{};
-				elem.reserve(elem_name.length() + 1);
-				for (auto c : elem_name)
-					elem.push_back(lower(c));
-				elem.push_back('>');
+				elem.assign(elem_name);
+				tolower_inplace(elem);
 
-				auto pos = text.find("</"sv, index);
-				while (pos != std::string_view::npos) {
-					auto const name = text.substr(pos + 2, elem.length());
+				auto start = text.find("</"sv, index());
+				while (start != std::string_view::npos) {
+					auto const name = text.substr(start + 2, elem.size());
 					if (equal_ignore_case(name, elem)) {
-						index = pos;
+						pos = text.data() + start;
 						return;
 					}
-					pos = text.find("</"sv, pos + 2);
+					start = text.find("</"sv, start + 2);
 				}
-				index = end;
+				pos = end;
 			}
 
-			inline void skip_ws() {
-				while (index < end &&
-				       std::isspace(static_cast<unsigned char>(text[index])))
-					++index;
-			}
-
-			inline void skip_name() {
-				while (index < end &&
-				       !std::isspace(static_cast<unsigned char>(text[index])) &&
-				       text[index] != '>')
-					++index;
-			}
-
-			inline void skip_attr() {
-				while (index < end &&
-				       !std::isspace(static_cast<unsigned char>(text[index])) &&
-				       text[index] != '>' && text[index] != '=')
-					++index;
-			}
-
-			elem get_tag() {
-				elem result{};
-				result.name.start = index;
-
-				++index;
-
-				auto name_start = index;
-				skip_name();
-				result.name.value = text.substr(name_start, index - name_start);
-
-				skip_ws();
-
-				while (index < end && text[index] != '>') {
-					name_start = index;
-					skip_attr();
-					auto attr_name =
-					    text.substr(name_start, index - name_start);
-					if (index < end && text[index] == '=') {
-						++index;
-						if (index == end) break;
-
-						attr_pos attr{name_start};
-
-						auto const open_quot = text[index];
-						if (open_quot == '\'' || open_quot == '"') {
-							attr.start = index;
-							++index;
-							while (index < end && text[index] != open_quot)
-								++index;
-							if (index < end) ++index;
-							attr.stop = index;
-							attr.value = text.substr(
-							    attr.start + 1, attr.stop - attr.start - 2);
-						} else {
-							attr.start = index;
-							skip_name();
-							attr.stop = index;
-							attr.value =
-							    text.substr(attr.start, attr.stop - attr.start);
-						}
-
-						result.attrs[attr_name] = attr;
-					} else {
-						if (attr_name == "/"sv && text[index] == '>') {
-							result.name.autoclose = true;
-						} else if (attr_name == "?"sv && text[index] == '>') {
-							// pass
-						} else {
-							result.attrs[attr_name] =
-							    attr_pos{name_start, index, index};
-						}
-					}
-
-					skip_ws();
-				}
-
-				result.name.stop = index < end ? index + 1 : end;
-				return result;
-			}
-
-			std::vector<elem> split() {
-				std::vector<elem> result{};
-				auto was_text = false;
-				while (index < end) {
-					if (text[index] != '<') {
-						++index;
+			bool split() {
+				while (!eof()) {
+					if (*pos != '<') {
+						++pos;
 						continue;
 					}
 
-					if (!was_text) {
-						if (skip_comment()) continue;
-					}
-					result.emplace_back(get_tag());
-					auto const& back = result.back();
-					was_text = is_text_elem(back.name.value);
-					if (was_text) skip_text(back.name.value);
+					if (!read_tag()) return false;
+
+					auto const& back = output.back();
+					if (is_text_elem(back.name.value))
+						skip_text(back.name.value);
 				}
 
-				return result;
+				return true;
+			}
+
+			static std::vector<elem> split(std::string_view text) {
+				std::vector<elem> output{};
+				if (!parser{text, output}.split()) {
+					output.clear();
+				}
+
+				return output;
 			}
 		};
 	}  // namespace
@@ -206,7 +358,7 @@ namespace tangle::browser {
 	}
 
 	std::vector<elem> html_split(std::string_view text) {
-		return parser{text}.split();
+		return parser::split(text);
 	}
 
 	unsigned hex_digit(char c) {
@@ -237,7 +389,7 @@ namespace tangle::browser {
 			case 'f':
 				return static_cast<unsigned>(c - 'a' + 10);
 		}
-		return 0;
+		return 0;  // GCOV_EXCL_LINE -- hex_digit is behind std::isxdigit
 	}
 
 	using uchar = unsigned char;

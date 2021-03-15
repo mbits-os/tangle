@@ -230,7 +230,7 @@ textarea: <b>bold</b></textarea></label></p>
 	            {R"(<p>)", {"p", 136, 139}, {}},
 	            {R"(<label>)", {"label", 139, 146}, {}},
 	            {R"(<input name="custname">)",
-	             {"input", 161, 184},
+	             {"input", 161, 184, true},
 	             {
 	                 {R"(name="custname")", "name", "custname", 168, 173, 183},
 	             }},
@@ -239,7 +239,7 @@ textarea: <b>bold</b></textarea></label></p>
 	            {R"(<p>)", {"p", 198, 201}, {}},
 	            {R"(<label>)", {"label", 201, 208}, {}},
 	            {R"(<input type=tel name="custtel">)",
-	             {"input", 219, 250},
+	             {"input", 219, 250, true},
 	             {
 	                 {R"(name="custtel")", "name", "custtel", 235, 240, 249},
 	                 {R"(type=tel)", "type", "tel", 226, 231, 234},
@@ -249,7 +249,7 @@ textarea: <b>bold</b></textarea></label></p>
 	            {R"(<p>)", {"p", 264, 267}, {}},
 	            {R"(<label>)", {"label", 267, 274}, {}},
 	            {R"(<input type=email name="custemail">)",
-	             {"input", 289, 324},
+	             {"input", 289, 324, true},
 	             {
 	                 {R"(name="custemail")", "name", "custemail", 307, 312,
 	                  323},
@@ -258,12 +258,13 @@ textarea: <b>bold</b></textarea></label></p>
 	            {R"(</label>)", {"/label", 324, 332}, {}},
 	            {R"(</p>)", {"/p", 332, 336}, {}},
 	            {R"(<fieldset>)", {"fieldset", 338, 348}, {}},
+	            {R"(<!-- comments -->)", {"!--", 351, 368, true}, {}},
 	            {R"(<legend>)", {"legend", 371, 379}, {}},
 	            {R"(</legend>)", {"/legend", 391, 400}, {}},
 	            {R"(<p>)", {"p", 403, 406}, {}},
 	            {R"(<label>)", {"label", 406, 413}, {}},
 	            {R"(<input type=radio name=size value="small">)",
-	             {"input", 414, 456},
+	             {"input", 414, 456, true},
 	             {
 	                 {R"(value="small")", "value", "small", 442, 448, 455},
 	                 {R"(name=size)", "name", "size", 432, 437, 441},
@@ -274,7 +275,7 @@ textarea: <b>bold</b></textarea></label></p>
 	            {R"(<p>)", {"p", 478, 481}, {}},
 	            {R"(<label>)", {"label", 481, 488}, {}},
 	            {R"(<input type=radio name=size value="medium">)",
-	             {"input", 489, 532},
+	             {"input", 489, 532, true},
 	             {
 	                 {R"(value="medium")", "value", "medium", 517, 523, 531},
 	                 {R"(name=size)", "name", "size", 507, 512, 516},
@@ -285,11 +286,11 @@ textarea: <b>bold</b></textarea></label></p>
 	            {R"(<p>)", {"p", 555, 558}, {}},
 	            {R"(<label>)", {"label", 558, 565}, {}},
 	            {R"(<input type=radio name=size value="large">)",
-	             {"input", 566, 608},
+	             {"input", 566, 608, true},
 	             {
 	                 {R"(value="large")", "value", "large", 594, 600, 607},
-	                 {R"(name=size)", "name", "size", 584, 589, 593},
-	                 {R"(type=radio)", "type", "radio", 573, 578, 583},
+	                 {R"(name=size)", "name", "iz", 584, 589, 593},
+	                 {R"(type=radio)", "type", "adi", 573, 578, 583},
 	             }},
 	            {R"(</label>)", {"/label", 615, 623}, {}},
 	            {R"(</p>)", {"/p", 623, 627}, {}},
@@ -300,7 +301,7 @@ textarea: <b>bold</b></textarea></label></p>
 	            {R"(<p>)", {"p", 691, 694}, {}},
 	            {R"(<label>)", {"label", 694, 701}, {}},
 	            {R"(<input type=checkbox name="topping" value="topping &raquo; bacon">)",
-	             {"input", 702, 768},
+	             {"input", 702, 768, true},
 	             {
 	                 {R"(value="topping &raquo; bacon")", "value",
 	                  "topping &raquo; bacon", 738, 744, 767},
@@ -312,7 +313,7 @@ textarea: <b>bold</b></textarea></label></p>
 	            {R"(<p>)", {"p", 790, 793}, {}},
 	            {R"(<label>)", {"label", 793, 800}, {}},
 	            {R"(<input type=checkbox name="topping" value="topping &raquo cheese">)",
-	             {"input", 801, 867},
+	             {"input", 801, 867, true},
 	             {
 	                 {R"(value="topping &raquo cheese")", "value",
 	                  "topping &raquo cheese", 837, 843, 866},
@@ -324,7 +325,7 @@ textarea: <b>bold</b></textarea></label></p>
 	            {R"(<p>)", {"p", 896, 899}, {}},
 	            {R"(<label>)", {"label", 899, 906}, {}},
 	            {R"(<input type=checkbox name="topping" value="topping &raquo; onion">)",
-	             {"input", 907, 973},
+	             {"input", 907, 973, true},
 	             {
 	                 {R"(value="topping &raquo; onion")", "value",
 	                  "topping &raquo; onion", 943, 949, 972},
@@ -336,7 +337,7 @@ textarea: <b>bold</b></textarea></label></p>
 	            {R"(<p>)", {"p", 995, 998}, {}},
 	            {R"(<label>)", {"label", 998, 1005}, {}},
 	            {R"(<input type=checkbox name="topping" value="topping &raquo; mushroom">)",
-	             {"input", 1006, 1075},
+	             {"input", 1006, 1075, true},
 	             {
 	                 {R"(value="topping &raquo; mushroom")", "value",
 	                  "topping &raquo; mushroom", 1042, 1048, 1074},
@@ -349,7 +350,7 @@ textarea: <b>bold</b></textarea></label></p>
 	            {R"(<p>)", {"p", 1112, 1115}, {}},
 	            {R"(<label>)", {"label", 1115, 1122}, {}},
 	            {R"(<input type=time min="11:00" max="21:00" step="900" name="delivery">)",
-	             {"input", 1147, 1215},
+	             {"input", 1147, 1215, true},
 	             {
 	                 {R"(step="900")", "step", "900", 1188, 1193, 1198},
 	                 {R"(max="21:00")", "max", "21:00", 1176, 1180, 1187},
@@ -414,6 +415,278 @@ textarea: <b>bold</b></textarea></label></p>
 	            {R"(</table>)", {"/table", 104, 112}, {}},
 	        },
 	    },
+	    {
+	        R"(<html>
+<head>
+<title>Test for infinite comment</title>
+<!-- there is no end to this comment:
+</head>
+<body>
+<p>This is not showing up</p>
+</body>
+</html>)",
+	        {
+	            {R"(<html>)", {"html", 0, 6}, {}},
+	            {R"(<head>)", {"head", 7, 13}, {}},
+	            {R"(<title>)", {"title", 14, 21}, {}},
+	            {R"(</title>)", {"/title", 46, 54}, {}},
+	            {R"(<!-- there is no end to this comment:
+</head>
+<body>
+<p>This is not showing up</p>
+</body>
+</html>)",
+	             {"!--", 55, 153, true},
+	             {}},
+	        },
+	    },
+	    {
+	        R"(<!DOCTYPE html>
+<!SOMETHING-ELSE wibbly-wobbly timey-wimey "stuff">
+<html>
+<head>
+<title>Test for <! which is not a comment</title>
+</head>
+<body>
+<p>This is showing up</p>
+</body>
+</html>)",
+	        {
+	            {R"(<!DOCTYPE html>)", {"!DOCTYPE", 0, 15}, {}},
+	            {
+	                R"(<!SOMETHING-ELSE wibbly-wobbly timey-wimey "stuff">)",
+	                {"!SOMETHING-ELSE", 16, 67},
+	                {},
+	            },
+	            {R"(<html>)", {"html", 68, 74}, {}},
+	            {R"(<head>)", {"head", 75, 81}, {}},
+	            {R"(<title>)", {"title", 82, 89}, {}},
+	            {R"(</title>)", {"/title", 123, 131}, {}},
+	            {R"(</head>)", {"/head", 132, 139}, {}},
+	            {R"(<body>)", {"body", 140, 146}, {}},
+	            {R"(<p>)", {"p", 147, 150}, {}},
+	            {R"(</p>)", {"/p", 168, 172}, {}},
+	            {R"(</body>)", {"/body", 173, 180}, {}},
+	            {R"(</html>)", {"/html", 181, 188}, {}},
+	        },
+	    },
+	    {
+	        R"(<title>Test for void element</title>
+<area href=#>
+<base target=elsewhere>
+<br>
+<col span=3>
+<command type=radio>
+<embed id=object>
+<hr>
+<img src=flower.png>
+<input type=radio>
+<keygen keytype="rsa">
+<link rel=stylesheet href=style.css>
+<meta charset="UTF-8">
+<param name=name value=None>
+<source type=video/mp4>
+<track kind=chapters src=movie.vtt>
+<wbr>)",
+	        {
+	            {R"(<title>)", {"title", 0, 7}, {}},
+	            {R"(</title>)", {"/title", 28, 36}, {}},
+	            {R"(<area href=#>)",
+	             {"area", 37, 50, true},
+	             {
+	                 {R"(href=#)", "href", "#", 43, 48, 49},
+	             }},
+	            {R"(<base target=elsewhere>)",
+	             {"base", 51, 74, true},
+	             {
+	                 {R"(target=elsewhere)", "target", "elsewhere", 57, 64, 73},
+	             }},
+	            {R"(<br>)", {"br", 75, 79, true}, {}},
+	            {R"(<col span=3>)",
+	             {"col", 80, 92, true},
+	             {
+	                 {R"(span=3)", "span", "3", 85, 90, 91},
+	             }},
+	            {R"(<command type=radio>)",
+	             {"command", 93, 113, true},
+	             {
+	                 {R"(type=radio)", "type", "radio", 102, 107, 112},
+	             }},
+	            {R"(<embed id=object>)",
+	             {"embed", 114, 131, true},
+	             {
+	                 {R"(id=object)", "id", "object", 121, 124, 130},
+	             }},
+	            {R"(<hr>)", {"hr", 132, 136, true}, {}},
+	            {R"(<img src=flower.png>)",
+	             {"img", 137, 157, true},
+	             {
+	                 {R"(src=flower.png)", "src", "flower.png", 142, 146, 156},
+	             }},
+	            {R"(<input type=radio>)",
+	             {"input", 158, 176, true},
+	             {
+	                 {R"(type=radio)", "type", "radio", 165, 170, 175},
+	             }},
+	            {R"(<keygen keytype="rsa">)",
+	             {"keygen", 177, 199, true},
+	             {
+	                 {R"(keytype="rsa")", "keytype", "rsa", 185, 193, 198},
+	             }},
+	            {R"(<link rel=stylesheet href=style.css>)",
+	             {"link", 200, 236, true},
+	             {
+	                 {R"(href=style.css)", "href", "style.css", 221, 226, 235},
+	                 {R"(rel=stylesheet)", "rel", "stylesheet", 206, 210, 220},
+	             }},
+	            {R"(<meta charset="UTF-8">)",
+	             {"meta", 237, 259, true},
+	             {
+	                 {R"(charset="UTF-8")", "charset", "UTF-8", 243, 251, 258},
+	             }},
+	            {R"(<param name=name value=None>)",
+	             {"param", 260, 288, true},
+	             {
+	                 {R"(value=None)", "value", "None", 277, 283, 287},
+	                 {R"(name=name)", "name", "name", 267, 272, 276},
+	             }},
+	            {R"(<source type=video/mp4>)",
+	             {"source", 289, 312, true},
+	             {
+	                 {R"(type=video/mp4)", "type", "video/mp4", 297, 302, 311},
+	             }},
+	            {R"(<track kind=chapters src=movie.vtt>)",
+	             {"track", 313, 348, true},
+	             {
+	                 {R"(src=movie.vtt)", "src", "movie.vtt", 334, 338, 347},
+	                 {R"(kind=chapters)", "kind", "chapters", 320, 325, 333},
+	             }},
+	            {R"(<wbr>)", {"wbr", 349, 354, true}, {}},
+
+	        },
+	    },
+	    {
+	        R"(<title>Test for almost-void element</title>
+<areas href=#>
+<baze target=elsewhere>
+<brake>
+<coll span=3>
+<commands type=radio>
+<cat>
+<embedded id=object>
+<hrule>
+<image src=flower.png>
+<input.z type=radio>
+<ident>
+<i>
+<K.gen keytype="rsa">
+<links rel=stylesheet href=style.css>
+<meta-data charset="UTF-8">
+<parameter name=name value=None>
+<sources type=video/mp4>
+<trac kind=chapters src=movie.vtt>
+<w-br>)",
+	        {
+	            {R"(<title>)", {"title", 0, 7}, {}},
+	            {R"(</title>)", {"/title", 35, 43}, {}},
+	            {R"(<areas href=#>)",
+	             {"areas", 44, 58},
+	             {
+	                 {R"(href=#)", "href", "#", 51, 56, 57},
+	             }},
+	            {R"(<baze target=elsewhere>)",
+	             {"baze", 59, 82},
+	             {
+	                 {R"(target=elsewhere)", "target", "elsewhere", 65, 72, 81},
+	             }},
+	            {R"(<brake>)", {"brake", 83, 90}, {}},
+	            {R"(<coll span=3>)",
+	             {"coll", 91, 104},
+	             {
+	                 {R"(span=3)", "span", "3", 97, 102, 103},
+	             }},
+	            {R"(<commands type=radio>)",
+	             {"commands", 105, 126},
+	             {
+	                 {R"(type=radio)", "type", "radio", 115, 120, 125},
+	             }},
+	            {R"(<cat>)", {"cat", 127, 132}, {}},
+	            {R"(<embedded id=object>)",
+	             {"embedded", 133, 153},
+	             {
+	                 {R"(id=object)", "id", "object", 143, 146, 152},
+	             }},
+	            {R"(<hrule>)", {"hrule", 154, 161}, {}},
+	            {R"(<image src=flower.png>)",
+	             {"image", 162, 184},
+	             {
+	                 {R"(src=flower.png)", "src", "flower.png", 169, 173, 183},
+	             }},
+	            {R"(<input.z type=radio>)",
+	             {"input.z", 185, 205},
+	             {
+	                 {R"(type=radio)", "type", "radio", 194, 199, 204},
+	             }},
+	            {R"(<ident>)", {"ident", 206, 213}, {}},
+	            {R"(<i>)", {"i", 214, 217}, {}},
+	            {R"(<K.gen keytype="rsa">)",
+	             {"K.gen", 218, 239},
+	             {
+	                 {R"(keytype="rsa")", "keytype", "rsa", 225, 233, 238},
+	             }},
+	            {R"(<links rel=stylesheet href=style.css>)",
+	             {"links", 240, 277},
+	             {
+	                 {R"(href=style.css)", "href", "style.css", 262, 267, 276},
+	                 {R"(rel=stylesheet)", "rel", "stylesheet", 247, 251, 261},
+	             }},
+	            {R"(<meta-data charset="UTF-8">)",
+	             {"meta-data", 278, 305},
+	             {
+	                 {R"(charset="UTF-8")", "charset", "UTF-8", 289, 297, 304},
+	             }},
+	            {R"(<parameter name=name value=None>)",
+	             {"parameter", 306, 338},
+	             {
+	                 {R"(value=None)", "value", "None", 327, 333, 337},
+	                 {R"(name=name)", "name", "name", 317, 322, 326},
+	             }},
+	            {R"(<sources type=video/mp4>)",
+	             {"sources", 339, 363},
+	             {
+	                 {R"(type=video/mp4)", "type", "video/mp4", 348, 353, 362},
+	             }},
+	            {R"(<trac kind=chapters src=movie.vtt>)",
+	             {"trac", 364, 398},
+	             {
+	                 {R"(src=movie.vtt)", "src", "movie.vtt", 384, 388, 397},
+	                 {R"(kind=chapters)", "kind", "chapters", 370, 375, 383},
+	             }},
+	            {R"(<w-br>)", {"w-br", 399, 405}, {}},
+	        },
+	    },
+	    {
+	        R"(<?xml-stylesheet type="text/xsl" href="style.xsl"?>)",
+	        {
+	            {R"(<?xml-stylesheet type="text/xsl" href="style.xsl"?>)",
+	             {"?xml-stylesheet", 0, 51},
+	             {
+	                 {R"(href="style.xsl")", "href", "style.xsl", 33, 38, 49},
+	                 {R"(type="text/xsl")", "type", "text/xsl", 17, 22, 32},
+	             }},
+	        },
+	    },
+	    {"<!DOCTYPE html><!SOMETHING-ELSE wibbly-wobbly timey-wimey stuff", {}},
+	    {
+	        R"(<?xml-stylesheet type="text/xsl" href="style.xsl">)",
+	        {},
+	    },
+	    {
+	        R"(<?0-xml-stylesheet type="text/xsl" href="style.xsl"?>)",
+	        {},
+	    },
+	    {"<br /", {}},
+	    {"<br / >", {}},
 	};
 
 	static constexpr attr_text_test_data attributes[] = {
