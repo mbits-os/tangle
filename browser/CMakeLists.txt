@@ -2,11 +2,13 @@ cmake_minimum_required(VERSION 3.4)
 project(browser VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
+    src/action_parser.hpp
     src/entities.cpp
     src/fetch.cpp
     src/forms.cpp
     src/html_split.cpp
     src/offline_media.cpp
+    src/selector_action.cpp
     src/selector_parser.hpp
     src/selector.cpp
 
@@ -15,6 +17,7 @@ set(SOURCES
     include/tangle/browser/forms.hpp
     include/tangle/browser/html_split.hpp
     include/tangle/browser/offline_media.hpp
+    include/tangle/browser/selector_action.hpp
     include/tangle/browser/selector.hpp
 )
 
