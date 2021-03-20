@@ -7,12 +7,15 @@ set(SOURCES
     src/forms.cpp
     src/html_split.cpp
     src/offline_media.cpp
+    src/selector_parser.hpp
+    src/selector.cpp
 
     include/tangle/browser/entities.hpp
     include/tangle/browser/fetch.hpp
     include/tangle/browser/forms.hpp
     include/tangle/browser/html_split.hpp
     include/tangle/browser/offline_media.hpp
+    include/tangle/browser/selector.hpp
 )
 
 WRAP_SOURCELIST(${SOURCES})
