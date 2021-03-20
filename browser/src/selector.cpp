@@ -1,3 +1,6 @@
+// Copyright (c) 2021 midnightBITS
+// This code is licensed under MIT license (see LICENSE for details)
+
 #include <tangle/base_parser.hpp>
 #include <tangle/browser/selector.hpp>
 #include <tangle/str.hpp>

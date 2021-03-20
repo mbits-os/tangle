@@ -1,3 +1,6 @@
+// Copyright (c) 2021 midnightBITS
+// This code is licensed under MIT license (see LICENSE for details)
+
 #include <iostream>
 
 #include <tangle/browser/selector_action.hpp>
@@ -30,6 +33,9 @@ namespace tangle::browser {
 	};
 
 	std::ostream& operator<<(std::ostream& out, selector_action const& action) {
+		if (action.name.empty() && action.args.empty())
+			return out << "<invalid-action>";
+
 		out << '!' << action.name;
 		if (!action.args.empty()) {
 			out << "[";
