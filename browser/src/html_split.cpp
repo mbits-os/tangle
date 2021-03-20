@@ -172,7 +172,7 @@ namespace tangle::browser {
 			bool read_attributes(
 			    std::unordered_map<std::string_view, attr_pos>& attrs,
 			    char potential_end) {
-				while (!eof() && !peek('>')) {
+				while (!eof()) {
 					skip_ws();
 					if (peek(potential_end)) {
 						++pos;
@@ -182,10 +182,17 @@ namespace tangle::browser {
 						}
 						--pos;
 					}
+					if (peek('>')) break;
 
 					auto const name_start = index();
 					auto attr_name = get_name();
 					if (attr_name.empty()) return false;
+
+					auto save = pos;
+					skip_ws();
+					if (!peek('=')) {
+						pos = save;
+					}
 
 					if (!get('=')) {
 						// value-less attribute
@@ -193,6 +200,8 @@ namespace tangle::browser {
 						attrs[attr_name] = attr_pos{name_start, here, here};
 						continue;
 					}
+
+					skip_ws();
 
 					if (peek('\'') || peek('"')) {
 						auto const start = index();

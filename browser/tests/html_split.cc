@@ -666,6 +666,69 @@ textarea: <b>bold</b></textarea></label></p>
 	        },
 	    },
 	    {
+	        R"(<tag attr="value" >)",
+	        {
+	            {
+	                R"(<tag attr="value" >)",
+	                {"tag", 0, 19},
+	                {
+	                    {R"(attr="value")", "attr", "value", 5, 10, 17},
+	                },
+	            },
+	        },
+	    },
+	    {
+	        R"(<tag attr=value >)",
+	        {
+	            {
+	                R"(<tag attr=value >)",
+	                {"tag", 0, 17},
+	                {
+	                    {R"(attr=value)", "attr", "value", 5, 10, 15},
+	                },
+	            },
+	        },
+	    },
+	    {
+	        R"(<tag lazyily= written >)",
+	        {
+	            {
+	                R"(<tag lazyily= written >)",
+	                {"tag", 0, 23},
+	                {
+	                    {R"(lazyily= written)", "lazyily", "written", 5, 14,
+	                     21},
+	                },
+	            },
+	        },
+	    },
+	    {
+	        R"(<tag lazyily =written >)",
+	        {
+	            {
+	                R"(<tag lazyily =written >)",
+	                {"tag", 0, 23},
+	                {
+	                    {R"(lazyily =written)", "lazyily", "written", 5, 14,
+	                     21},
+	                },
+	            },
+	        },
+	    },
+	    {
+	        R"(<tag lazyily = "written">)",
+	        {
+	            {
+	                R"(<tag lazyily = "written">)",
+	                {"tag", 0, 25},
+	                {
+	                    {R"(lazyily = "written")", "lazyily", "written", 5, 15,
+	                     24},
+	                },
+	            },
+	        },
+	    },
+	    {
 	        R"(<?xml-stylesheet type="text/xsl" href="style.xsl"?>)",
 	        {
 	            {R"(<?xml-stylesheet type="text/xsl" href="style.xsl"?>)",
