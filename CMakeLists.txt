@@ -139,6 +139,8 @@ if (TANGLE_TESTING)
   endif()
 endif()
 
+add_subdirectory(tools/lookup)
+
 ##################################################################
 ##  DOCUMENTATION
 ##################################################################
@@ -169,7 +171,6 @@ endforeach()
 foreach(MODULE ${EXTRAS})
 	add_subdirectory( ${MODULE} )
 endforeach()
-
 
 ##################################################################
 ##  PACKER
