@@ -3,6 +3,7 @@
 
 #include <tangle/base_parser.hpp>
 #include <tangle/browser/entities.hpp>
+#include <tangle/browser/html_dtd.hpp>
 #include <tangle/browser/html_split.hpp>
 #include <tangle/str.hpp>
 #include <cctype>
@@ -29,104 +30,9 @@ namespace tangle::browser {
 			    std::tolower(static_cast<unsigned char>(c)));
 		}
 
-		inline bool is_text_elem(std::string_view name) {
-			// option, rp, script, style, textarea, title
-			auto const length = name.length();
-			if (length > 1) {
-				switch (lower(name[0])) {
-					case 'o':
-						return equal_ignore_case(name.substr(1), "ption"sv);
-					case 'r':
-						return length == 2 && lower(name[1]) == 'p';
-					case 's':
-						if (length > 2) {
-							switch (lower(name[1])) {
-								case 'c':
-									return equal_ignore_case(name.substr(2),
-									                         "ript"sv);
-								case 't':
-									return equal_ignore_case(name.substr(2),
-									                         "yle"sv);
-								default:
-									break;
-							}
-						}
-						break;
-					case 't':
-						if (length > 2) {
-							switch (lower(name[1])) {
-								case 'e':
-									return equal_ignore_case(name.substr(2),
-									                         "xtarea"sv);
-								case 'i':
-									return equal_ignore_case(name.substr(2),
-									                         "tle"sv);
-								default:
-									break;
-							}
-						}
-						break;
-					default:
-						break;
-				}
-			}
-			return false;
-		}
-
-		inline bool is_void_element(std::string_view name) {
-			// area, base, br, col, command, embed, hr, img, input, keygen,
-			// link, meta, param, source, track, wbr
-			auto const length = name.length();
-			if (length > 1) {
-				switch (lower(name[0])) {
-					case 'a':
-						return equal_ignore_case(name.substr(1), "rea"sv);
-					case 'b':
-						if (length == 2 && lower(name[1]) == 'r') return true;
-						return equal_ignore_case(name.substr(1), "ase"sv);
-					case 'c':
-						if (length > 2 && lower(name[1]) == 'o') {
-							if (length == 3 && lower(name[2]) == 'l')
-								return true;
-							return equal_ignore_case(name.substr(2), "mmand"sv);
-						}
-						break;
-					case 'e':
-						return equal_ignore_case(name.substr(1), "mbed"sv);
-					case 'h':
-						return length == 2 && lower(name[1]) == 'r';
-					case 'i':
-						if (length > 2) {
-							switch (lower(name[1])) {
-								case 'm':
-									return length == 3 && lower(name[2]) == 'g';
-								case 'n':
-									return equal_ignore_case(name.substr(2),
-									                         "put"sv);
-								default:
-									break;
-							}
-						}
-						break;
-					case 'k':
-						return equal_ignore_case(name.substr(1), "eygen"sv);
-					case 'l':
-						return equal_ignore_case(name.substr(1), "ink"sv);
-					case 'm':
-						return equal_ignore_case(name.substr(1), "eta"sv);
-					case 'p':
-						return equal_ignore_case(name.substr(1), "aram"sv);
-					case 's':
-						return equal_ignore_case(name.substr(1), "ource"sv);
-					case 't':
-						return equal_ignore_case(name.substr(1), "rack"sv);
-					case 'w':
-						return equal_ignore_case(name.substr(1), "br"sv);
-					default:
-						break;
-				}
-			}
-			return false;
+		template <elem_flag Flag>
+		inline bool is_elem(std::string_view name) {
+			return (get_info(name).flags & Flag) == Flag;
 		}
 
 		struct parser : base_parser {
@@ -269,7 +175,7 @@ namespace tangle::browser {
 
 				result.name.stop = index();
 				if (!result.name.autoclose &&
-				    is_void_element(result.name.value))
+				    is_elem<elem_flag::empty>(result.name.value))
 					result.name.autoclose = true;
 				output.emplace_back(std::move(result));
 				return true;
@@ -334,7 +240,7 @@ namespace tangle::browser {
 					if (!read_tag()) return false;
 
 					auto const& back = output.back();
-					if (is_text_elem(back.name.value))
+					if (is_elem<elem_flag::text_only>(back.name.value))
 						skip_text(back.name.value);
 				}
 

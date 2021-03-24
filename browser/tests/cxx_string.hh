@@ -10,12 +10,16 @@
 namespace tangle::browser::testing {
 	struct cxx_string {
 		std::string_view val;
+		std::string_view::size_type len{std::string_view::npos};
 
 		friend std::ostream& operator<<(std::ostream& out,
 		                                cxx_string const& data) {
 			if (data.val.empty()) return out << "{}";
 			out << '"';
+			std::string_view::size_type count{};
 			for (auto c : data.val) {
+				if (count == data.len) return out << "...";
+				++count;
 				auto const uc = static_cast<unsigned char>(c);
 				switch (c) {
 					case '\\':

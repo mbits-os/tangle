@@ -11,6 +11,7 @@ set(SOURCES
     src/selector_action.cpp
     src/selector_parser.hpp
     src/selector.cpp
+    src/html_dtd.cpp
 
     include/tangle/browser/entities.hpp
     include/tangle/browser/fetch.hpp
@@ -19,6 +20,8 @@ set(SOURCES
     include/tangle/browser/offline_media.hpp
     include/tangle/browser/selector_action.hpp
     include/tangle/browser/selector.hpp
+    include/tangle/browser/html_dtd.hpp
+    include/tangle/browser/html_dtd_flags.hpp
 )
 
 WRAP_SOURCELIST(${SOURCES})

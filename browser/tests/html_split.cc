@@ -476,7 +476,6 @@ textarea: <b>bold</b></textarea></label></p>
 <base target=elsewhere>
 <br>
 <col span=3>
-<command type=radio>
 <embed id=object>
 <hr>
 <img src=flower.png>
@@ -507,62 +506,56 @@ textarea: <b>bold</b></textarea></label></p>
 	             {
 	                 {R"(span=3)", "span", "3", 85, 90, 91},
 	             }},
-	            {R"(<command type=radio>)",
-	             {"command", 93, 113, true},
-	             {
-	                 {R"(type=radio)", "type", "radio", 102, 107, 112},
-	             }},
 	            {R"(<embed id=object>)",
-	             {"embed", 114, 131, true},
+	             {"embed", 93, 110, true},
 	             {
-	                 {R"(id=object)", "id", "object", 121, 124, 130},
+	                 {R"(id=object)", "id", "object", 100, 103, 109},
 	             }},
-	            {R"(<hr>)", {"hr", 132, 136, true}, {}},
+	            {R"(<hr>)", {"hr", 111, 115, true}, {}},
 	            {R"(<img src=flower.png>)",
-	             {"img", 137, 157, true},
+	             {"img", 116, 136, true},
 	             {
-	                 {R"(src=flower.png)", "src", "flower.png", 142, 146, 156},
+	                 {R"(src=flower.png)", "src", "flower.png", 121, 125, 135},
 	             }},
 	            {R"(<input type=radio>)",
-	             {"input", 158, 176, true},
+	             {"input", 137, 155, true},
 	             {
-	                 {R"(type=radio)", "type", "radio", 165, 170, 175},
+	                 {R"(type=radio)", "type", "radio", 144, 149, 154},
 	             }},
 	            {R"(<keygen keytype="rsa">)",
-	             {"keygen", 177, 199, true},
+	             {"keygen", 156, 178, true},
 	             {
-	                 {R"(keytype="rsa")", "keytype", "rsa", 185, 193, 198},
+	                 {R"(keytype="rsa")", "keytype", "rsa", 164, 172, 177},
 	             }},
 	            {R"(<link rel=stylesheet href=style.css>)",
-	             {"link", 200, 236, true},
+	             {"link", 179, 215, true},
 	             {
-	                 {R"(href=style.css)", "href", "style.css", 221, 226, 235},
-	                 {R"(rel=stylesheet)", "rel", "stylesheet", 206, 210, 220},
+	                 {R"(href=style.css)", "href", "style.css", 200, 205, 214},
+	                 {R"(rel=stylesheet)", "rel", "stylesheet", 185, 189, 199},
 	             }},
 	            {R"(<meta charset="UTF-8">)",
-	             {"meta", 237, 259, true},
+	             {"meta", 216, 238, true},
 	             {
-	                 {R"(charset="UTF-8")", "charset", "UTF-8", 243, 251, 258},
+	                 {R"(charset="UTF-8")", "charset", "UTF-8", 222, 230, 237},
 	             }},
 	            {R"(<param name=name value=None>)",
-	             {"param", 260, 288, true},
+	             {"param", 239, 267, true},
 	             {
-	                 {R"(value=None)", "value", "None", 277, 283, 287},
-	                 {R"(name=name)", "name", "name", 267, 272, 276},
+	                 {R"(value=None)", "value", "None", 256, 262, 266},
+	                 {R"(name=name)", "name", "name", 246, 251, 255},
 	             }},
 	            {R"(<source type=video/mp4>)",
-	             {"source", 289, 312, true},
+	             {"source", 268, 291, true},
 	             {
-	                 {R"(type=video/mp4)", "type", "video/mp4", 297, 302, 311},
+	                 {R"(type=video/mp4)", "type", "video/mp4", 276, 281, 290},
 	             }},
 	            {R"(<track kind=chapters src=movie.vtt>)",
-	             {"track", 313, 348, true},
+	             {"track", 292, 327, true},
 	             {
-	                 {R"(src=movie.vtt)", "src", "movie.vtt", 334, 338, 347},
-	                 {R"(kind=chapters)", "kind", "chapters", 320, 325, 333},
+	                 {R"(src=movie.vtt)", "src", "movie.vtt", 313, 317, 326},
+	                 {R"(kind=chapters)", "kind", "chapters", 299, 304, 312},
 	             }},
-	            {R"(<wbr>)", {"wbr", 349, 354, true}, {}},
-
+	            {R"(<wbr>)", {"wbr", 328, 333, true}, {}},
 	        },
 	    },
 	    {

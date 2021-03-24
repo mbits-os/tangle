@@ -104,10 +104,15 @@ if (TANGLE_TESTING)
     list(APPEND TANGLE_COVERALLS_DIRS ${MODULE}/include ${MODULE}/src)
   endforeach()
 
-  # The file introduces almost 7000 lines, which more than quadruples
-  # number of total lines; this clouds the reports a little. To double
-  # check the coverage, comment next line.
-  set(TANGLE_COVERALLS_IGNORE_FILES browser/src/entities.cpp)
+  set(TANGLE_COVERALLS_IGNORE_FILES
+    # The file introduces almost 7000 lines, which more than quadruples
+    # number of total lines; this clouds the reports a little. To double
+    # check the coverage, comment next line.
+    browser/src/entities.cpp
+
+    # Another auto-generated file, this one adds 360 lines total.
+    browser/src/html_dtd.cpp
+  )
 
   include(tools/coveralls/Coveralls.cmake)
 endif()
