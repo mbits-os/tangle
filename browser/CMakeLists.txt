@@ -3,6 +3,7 @@ project(browser VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
     src/action_parser.hpp
+    src/cursor.cpp
     src/entities.cpp
     src/fetch.cpp
     src/forms.cpp
@@ -13,6 +14,7 @@ set(SOURCES
     src/selector.cpp
     src/html_dtd.cpp
 
+    include/tangle/browser/cursor.hpp
     include/tangle/browser/entities.hpp
     include/tangle/browser/fetch.hpp
     include/tangle/browser/forms.hpp
