@@ -1,13 +1,13 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/browser/selector.hpp>
+#include <tangle/browser/walk/selector.hpp>
 #include <sstream>
 #include <gtest/gtest.h>
 
 using namespace std::literals;
 
-namespace tangle::browser::testing {
+namespace tangle::browser::walk::testing {
 	struct selector_parse_test {
 		std::string_view selector{};
 		std::string_view expected{};
@@ -326,4 +326,4 @@ namespace tangle::browser::testing {
 	INSTANTIATE_TEST_SUITE_P(elements,
 	                         selector_matching,
 	                         ::testing::ValuesIn(elements));
-}  // namespace tangle::browser::testing
+}  // namespace tangle::browser::walk::testing

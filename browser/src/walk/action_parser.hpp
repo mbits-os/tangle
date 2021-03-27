@@ -5,7 +5,7 @@
 
 #include <tangle/base_parser.hpp>
 
-namespace tangle::browser {
+namespace tangle::browser::walk {
 	template <typename Final, typename Base = base_parser>
 	struct base_action_parser : Base {
 		base_action_parser(std::string_view text) : Base{text} {}
@@ -66,4 +66,4 @@ namespace tangle::browser {
 			return self->set_action(std::move(name), std::move(arguments));
 		}
 	};
-}  // namespace tangle::browser
+}  // namespace tangle::browser::walk

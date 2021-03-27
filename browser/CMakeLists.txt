@@ -2,28 +2,31 @@ cmake_minimum_required(VERSION 3.4)
 project(browser VERSION 0.1.0 LANGUAGES CXX )
 
 set(SOURCES
-    src/action_parser.hpp
-    src/cursor.cpp
     src/entities.cpp
     src/fetch.cpp
     src/forms.cpp
+    src/html_dtd.cpp
     src/html_split.cpp
     src/offline_media.cpp
-    src/selector_action.cpp
-    src/selector_parser.hpp
-    src/selector.cpp
-    src/html_dtd.cpp
+    src/walk/action_parser.hpp
+    src/walk/cursor.cpp
+    src/walk/pages.cpp
+    src/walk/selector_action.cpp
+    src/walk/selector_parser.hpp
+    src/walk/selector.cpp
 
-    include/tangle/browser/cursor.hpp
     include/tangle/browser/entities.hpp
     include/tangle/browser/fetch.hpp
     include/tangle/browser/forms.hpp
+    include/tangle/browser/html_dtd_flags.hpp
+    include/tangle/browser/html_dtd.hpp
     include/tangle/browser/html_split.hpp
     include/tangle/browser/offline_media.hpp
-    include/tangle/browser/selector_action.hpp
-    include/tangle/browser/selector.hpp
-    include/tangle/browser/html_dtd.hpp
-    include/tangle/browser/html_dtd_flags.hpp
+    include/tangle/browser/walk/cursor.hpp
+    include/tangle/browser/walk/pages.hpp
+    include/tangle/browser/walk/selector_action.hpp
+    include/tangle/browser/walk/selector.hpp
+    include/tangle/browser/walk/span.hpp
 )
 
 WRAP_SOURCELIST(${SOURCES})

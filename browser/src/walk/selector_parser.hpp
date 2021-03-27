@@ -2,10 +2,10 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <tangle/base_parser.hpp>
-#include <tangle/browser/selector.hpp>
+#include <tangle/browser/walk/selector.hpp>
 #include <tangle/str.hpp>
 
-namespace tangle::browser {
+namespace tangle::browser::walk {
 	template <typename Final, typename Base = base_parser>
 	struct base_selector_parser : Base {
 		base_selector_parser(std::string_view text) : Base{text} {}
@@ -151,4 +151,4 @@ namespace tangle::browser {
 			return true;
 		}
 	};
-}  // namespace tangle::browser
+}  // namespace tangle::browser::walk

@@ -1,14 +1,14 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/browser/cursor.hpp>
 #include <tangle/browser/html_dtd.hpp>
+#include <tangle/browser/walk/cursor.hpp>
 #include <tangle/str.hpp>
 #include "../tests/cxx_string.hh"
 #include <iostream>
 #include <stack>
 
-namespace tangle::browser {
+namespace tangle::browser::walk {
 	namespace {
 		struct name_status {
 			std::string end_name;
@@ -356,4 +356,4 @@ namespace tangle::browser {
 
 		return {{it, end}, section, new_offset};
 	}
-}  // namespace tangle::browser
+}  // namespace tangle::browser::walk

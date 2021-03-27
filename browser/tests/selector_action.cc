@@ -1,13 +1,13 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/browser/selector_action.hpp>
+#include <tangle/browser/walk/selector_action.hpp>
 #include <sstream>
 #include <gtest/gtest.h>
 
 using namespace std::literals;
 
-namespace tangle::browser::testing {
+namespace tangle::browser::walk::testing {
 	struct action_parse_test {
 		std::string_view action{};
 		selector_action expected{};
@@ -112,4 +112,4 @@ namespace tangle::browser::testing {
 	INSTANTIATE_TEST_SUITE_P(actions,
 	                         action_parse,
 	                         ::testing::ValuesIn(actions));
-}  // namespace tangle::browser::testing
+}  // namespace tangle::browser::walk::testing

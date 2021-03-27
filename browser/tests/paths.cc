@@ -1,80 +1,168 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/browser/walk/cursor.hpp>
-#include <tangle/browser/walk/selector.hpp>
-#include "cxx_string.hh"
+#include "paths.hh"
 #include <sstream>
-#include <stack>
 #include <gtest/gtest.h>
 
 using namespace std::literals;
 
 namespace tangle::browser::walk::testing {
-	struct cursor_test_data {
-		struct header {
-			std::string_view html;
-			std::vector<std::string_view> path;
-			std::string (*modifier)(cursor& scope);
-		} hdr;
-		std::vector<std::string_view> expected;
+	struct paths_test_data {
+		std::string_view input;
+		std::vector<matcher> parsed;
+		std::string_view singleline;
+		std::string_view multiline;
 
 		friend std::ostream& operator<<(std::ostream& out,
-		                                cursor_test_data const& test) {
-			if (test.hdr.path.empty()) return out << "[empty]";
-			auto first = true;
-			for (auto& selector : test.hdr.path) {
-				if (first)
-					first = false;
-				else
-					out << " -> ";
-				out << selector;
-			}
-			return out;
+		                                paths_test_data const& test) {
+			return out << cxx_string{test.input, 160};
 		}
+	};
 
-		void query(cursor& scope,
-		           size_t depth,
-		           std::vector<std::string>& output) const {
-			if (depth == hdr.path.size()) {
-				output.push_back(hdr.modifier(scope));
-				// std::cout << ">>> apply " << cxx_string{output.back(), 120}
-				//           << "\n\n";
-				return;
-			}
+	struct paths_test : ::testing::TestWithParam<paths_test_data> {
+	protected:
+		void assert_eq(std::vector<matcher> const& expected,
+		               std::vector<matcher> const& actual,
+		               std::string const& prefix) {
+			ASSERT_EQ(expected.size(), actual.size())
+			    << "Path: " << prefix << "\nActual: " << paths_print{actual};
+			auto it = expected.begin();
+			for (auto& actual_sub : actual) {
+				auto& expected_sub = *it++;
+				ASSERT_EQ(expected_sub.index(), actual_sub.index())
+				    << "Path: " << prefix
+				    << "\nActual: " << paths_print{actual};
 
-			auto sel = selector::parse(hdr.path[depth]);
+				auto* actual_step_p = std::get_if<step>(&actual_sub);
+				auto* actual_action = std::get_if<selector_action>(&actual_sub);
 
-			if (!scope.eof()) ++scope;
+				if (actual_step_p) {
+					auto& expected_step = std::get<step>(expected_sub);
+					std::ostringstream exp_stream;
+					exp_stream << expected_step.current;
+					std::ostringstream actual_stream;
+					actual_stream << actual_step_p->current;
+					ASSERT_EQ(exp_stream.str(), actual_stream.str())
+					    << "Path: " << prefix
+					    << "\nActual: " << paths_print{actual};
 
-			while (!scope.eof()) {
-				auto& element = *scope;
-
-				if (!sel.matches(element)) {
-					++scope;
+					assert_eq(expected_step.submatchers,
+					          actual_step_p->submatchers,
+					          prefix + "/" + actual_stream.str());
+					if (this->HasFatalFailure()) return;
 					continue;
 				}
 
-				// std::cout << ">>> sel " << sel << "\n";
-				auto sub = scope.forCurrentElement();
-				query(sub, depth + 1, output);
+				auto& expected_action = std::get<selector_action>(expected_sub);
+				std::ostringstream exp_stream;
+				exp_stream << expected_action;
+				std::ostringstream actual_stream;
+				actual_stream << *actual_action;
+				ASSERT_EQ(exp_stream.str(), actual_stream.str())
+				    << "Path: " << prefix
+				    << "\nActual: " << paths_print{actual};
 			}
 		}
 	};
 
-	class cursor_test : public ::testing::TestWithParam<cursor_test_data> {};
-
-	TEST(cursor_test, empty) {
-		cursor cur{};
-		ASSERT_TRUE(cur.eof());
+	TEST_P(paths_test, parse) {
+		auto& param = GetParam();
+		auto actual = paths::parse_paths(param.input);
+		assert_eq(param.parsed, actual.tracks, "test:");
 	}
 
-	TEST_P(cursor_test, navigate) {
+	TEST_P(paths_test, print) {
 		auto& param = GetParam();
+		std::ostringstream oss;
+		oss << paths_print{param.parsed};
+		ASSERT_EQ(param.singleline.data(), oss.str());
+	}
 
-		root_cursor env{param.hdr.html};
-		std::vector<std::string> actual;
-		param.query(env.root(), 0, actual);
+	TEST_P(paths_test, print_multi) {
+		auto& param = GetParam();
+		std::ostringstream oss;
+		oss << paths_print{param.parsed, true};
+		ASSERT_EQ(param.multiline.data(), oss.str());
+	}
+
+	inline matcher sel(std::string_view value) {
+		return {selector::parse(value), {}};
+	}
+
+	inline matcher sel(std::string_view value,
+	                   std::initializer_list<matcher> const& subs) {
+		return {selector::parse(value), subs};
+	}
+
+	inline matcher action(std::string value) {
+		return {selector_action::parse(value)};
+	}
+
+	static paths_test_data const data[] = {
+	    {{}, {}, "{}"sv, "{}"sv},
+	    {
+	        "{ !action[] }"sv,
+	        {action("!action"s)},
+	        "{ !action }"sv,
+	        "{ !action }"sv,
+	    },
+	    {
+	        "{ .class { div { !action[arg] } } }"sv,
+	        {
+	            sel(".class", {sel("div", {action("!action[arg]")})}),
+	        },
+	        "{ .class { div { !action[arg] } } }"sv,
+	        "{ .class { div { !action[arg] } } }"sv,
+	    },
+	    {
+	        "{"
+	        "    .class{"
+	        "        div{!action[arg]#id{h1{!another-action}}}"
+	        "        [lang=fr]{!text}"
+	        "    }"
+	        "    .other.one{!action}"
+	        "}"sv,
+	        {
+	            sel(".class",
+	                {
+	                    sel("div",
+	                        {
+	                            action("!action[arg]"),
+	                            sel("#id",
+	                                {sel("h1", {action("!another-action")})}),
+	                        }),
+	                    sel("[lang=fr]", {action("!text")}),
+	                }),
+	            sel(".other.one", {{action("!action")}}),
+	        },
+	        "{ .class { div { !action[arg] #id { h1 { !another-action } } } [lang=fr] { !text } } .other.one { !action } }"sv,
+	        R"({
+    .class {
+        div {
+            !action[arg]
+            #id { h1 { !another-action } }
+        }
+        [lang=fr] { !text }
+    }
+    .other.one { !action }
+})"sv,
+	    },
+	};
+
+	INSTANTIATE_TEST_SUITE_P(items, paths_test, ::testing::ValuesIn(data));
+
+	struct paths_visit_test : ::testing::TestWithParam<visit_data> {};
+
+	TEST_P(paths_visit_test, walk) {
+		auto& param = GetParam();
+		root_cursor cur{param.hdr.markup};
+		auto defs = paths::parse_paths(param.hdr.definition);
+
+		std::vector<std::string> actual{};
+		auto callbacks = setup(&actual);
+		ASSERT_EQ(param.hdr.result_during_walk,
+		          defs.visit(cur.root(), callbacks));
 
 		ASSERT_EQ(param.expected.size(), actual.size());
 
@@ -85,6 +173,40 @@ namespace tangle::browser::walk::testing {
 			auto& act = *it++;
 			ASSERT_EQ(xpctd, act);
 		}
+	}
+
+	TEST_P(paths_visit_test, debug) {
+		auto& param = GetParam();
+		root_cursor cur{param.hdr.markup};
+		auto defs = paths::parse_paths(param.hdr.definition);
+
+		std::vector<std::string> _{};
+		auto callbacks = setup(&_);
+
+		std::ostringstream actual;
+		ASSERT_TRUE(defs.visit(cur.root(), callbacks, nullptr, &actual));
+
+		std::string debug_output{};
+		debug_output.assign(param.debug_output);
+		ASSERT_EQ(debug_output, actual.str());
+	}
+
+	TEST_P(paths_visit_test, exception) {
+		auto& param = GetParam();
+		root_cursor cur{param.hdr.markup};
+
+		auto defs = paths::parse_paths(param.hdr.definition);
+		ASSERT_THROW(defs.visit(cur.root(), {}), std::runtime_error);
+	}
+
+	TEST_P(paths_visit_test, return_false) {
+		auto& param = GetParam();
+		root_cursor cur{param.hdr.markup};
+
+		auto defs = paths::parse_paths(param.hdr.definition);
+
+		always_false purecall;
+		ASSERT_FALSE(defs.visit(cur.root(), {}, &purecall));
 	}
 
 	static constexpr auto html = R"html(<html>
@@ -188,48 +310,26 @@ Normal text, <b>bold <i>and italic <u>and underline</b>, just italic</u>, just u
 </body>
 </html>)html"sv;
 
-	std::string innerText(cursor& scope) { return scope.innerText(); }
-
-	std::string innerHTML(cursor& scope) {
-		std::string out{};
-		out.assign(scope.innerHTML().text);
-		return out;
-	}
-
-	std::string outerHTML(cursor& scope) {
-		std::string out{};
-		out.assign(scope.text);
-		return out;
-	}
-
-	std::string imgSrc(cursor& scope) { return scope.attr("img"sv, "src"sv); }
-	std::string aHref(cursor& scope) { return scope.attr("a"sv, "href"sv); }
-
-	std::string hrefText(cursor& scope) {
-		auto ht = scope.aHrefText();
-		return ht.href + "|"s + ht.text;
-	}
-
-	std::string textAfterMark(cursor& scope) {
-		auto sel = selector::parse("#mark");
-		while (!scope.eof()) {
-			if (!sel.matches(*scope)) {
-				++scope;
-				continue;
-			}
-
-			[[maybe_unused]] auto _ = scope.forCurrentElement();
-			auto real = scope.copyFromHere();
-			return real.innerText();
-		}
-		return {};
-	}
-
-	static cursor_test_data const lookup[] = {
-	    {{html, {"head", "title"}, innerText}, {"Title of the page"}},
-	    {{html, {"title"}, innerText}, {"Title of the page"}},
+	static visit_data const lookup[] = {
 	    {
-	        {html, {".content"}, innerHTML},
+	        {html, "{head{title{!innerText}}}"},
+	        {"Title of the page"},
+	        "!!! head\n"
+	        "??? head\n"
+	        ">>> head -> head\n"
+	        "    !!! title\n"
+	        "    ??? title\n"
+	        "    >>> title -> title\n",
+	    },
+	    {
+	        {html, "{title{!innerText}}"},
+	        {"Title of the page"},
+	        "!!! title\n"
+	        "??? title\n"
+	        ">>> title -> title\n",
+	    },
+	    {
+	        {html, "{.content{!innerHTML}}"},
 	        {
 	            {},
 
@@ -272,9 +372,14 @@ Normal text, <b>bold <i>and italic <u>and underline</b>, just italic</u>, just u
 	            "Text between.\n    <div>\n        Third\n        "
 	            "<div><p>Fourth</p></div>\n    </div>\n",
 	        },
+	        "!!! .content\n"
+	        ">>> .content -> div.content\n"
+	        ">>> .content -> div.content\n"
+	        ">>> .content -> div.content\n"
+	        ">>> .content -> div.content.for-mark\n",
 	    },
 	    {
-	        {html, {".content", "p"}, innerText},
+	        {html, "{.content{p{!innerText}}}"},
 	        {
 	            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
 	            "Nulla ultricies nunc rhoncus gravida blandit. In non erat "
@@ -313,18 +418,58 @@ Normal text, <b>bold <i>and italic <u>and underline</b>, just italic</u>, just u
 
 	            "Fourth",
 	        },
+	        "!!! .content\n"
+	        ">>> .content -> div.content\n"
+	        "    !!! p\n"
+	        ">>> .content -> div.content\n"
+	        "    !!! p\n"
+	        "    ??? p\n"
+	        "    >>> p -> p\n"
+	        "    ??? p\n"
+	        "    >>> p -> p\n"
+	        ">>> .content -> div.content\n"
+	        "    !!! p\n"
+	        "    ??? p\n"
+	        "    >>> p -> p\n"
+	        ">>> .content -> div.content.for-mark\n"
+	        "    !!! p\n"
+	        "    ??? p\n"
+	        "    >>> p -> p\n",
 	    },
 	    {
-	        {html, {"img"}, imgSrc},
+	        {html, "{img{!imgSrc}}"},
 	        {"image1.png", "image2.png", "image3.png", "image4.png"},
+	        "!!! img\n"
+	        "??? img src=\"image1.png\"\n"
+	        ">>> img -> img\n"
+	        "??? img src=\"image2.png\" id=\"poster\"\n"
+	        ">>> img -> img#poster\n"
+	        "??? img src=\"image3.png\"\n"
+	        ">>> img -> img\n"
+	        "??? img src=\"image4.png\"\n"
+	        ">>> img -> img\n",
 	    },
 	    {
-	        {html, {"img"}, innerHTML},
+	        {html, "{img{!innerHTML}}"},
 	        {{}, {}, {}, {}},
+	        "!!! img\n"
+	        "??? img src=\"image1.png\"\n"
+	        ">>> img -> img\n"
+	        "??? img src=\"image2.png\" id=\"poster\"\n"
+	        ">>> img -> img#poster\n"
+	        "??? img src=\"image3.png\"\n"
+	        ">>> img -> img\n"
+	        "??? img src=\"image4.png\"\n"
+	        ">>> img -> img\n",
 	    },
-	    {{html, {"#poster"}, imgSrc}, {{"image2.png"}}},
 	    {
-	        {html, {".menu", ".link"}, hrefText},
+	        {html, "{#poster{!imgSrc}}"},
+	        {{"image2.png"}},
+	        "!!! #poster\n"
+	        ">>> #poster -> img#poster\n",
+	    },
+	    {
+	        {html, "{.menu{.link{!hrefText}}}"},
 	        {
 	            "#|First",
 	            "example.com|Second",
@@ -337,9 +482,24 @@ Normal text, <b>bold <i>and italic <u>and underline</b>, just italic</u>, just u
 	            "|",
 	            "|",
 	        },
+	        "!!! .menu\n"
+	        ">>> .menu -> ul.menu\n"
+	        "    !!! .link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        ">>> .menu -> ul.menu\n"
+	        "    !!! .link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n",
 	    },
 	    {
-	        {html, {".menu", ".link"}, aHref},
+	        {html, "{.menu{.link{!aHref}}}"},
 	        {
 	            "#",
 	            "example.com",
@@ -352,55 +512,49 @@ Normal text, <b>bold <i>and italic <u>and underline</b>, just italic</u>, just u
 	            {},
 	            {},
 	        },
+	        "!!! .menu\n"
+	        ">>> .menu -> ul.menu\n"
+	        "    !!! .link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        ">>> .menu -> ul.menu\n"
+	        "    !!! .link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n"
+	        "    >>> .link -> li.link\n",
 	    },
-	    {{html, {".for-mark"}, textAfterMark}, {"Text between. Third Fourth"}},
 	    {
-	        {html, {"#endless-span", "span"}, innerHTML},
+	        {html, "{.for-mark{!textAfterMark}}"},
+	        {"Text between. Third Fourth"},
+	        "!!! .for-mark\n"
+	        ">>> .for-mark -> div.content.for-mark\n",
+	    },
+	    {
+	        {html, "{#endless-span{span{!innerHTML}}}"},
 	        {"span, which has <b>no</b> end tag\n"},
+	        "!!! #endless-span\n"
+	        ">>> #endless-span -> p#endless-span\n"
+	        "    !!! span\n"
+	        "    ??? span\n"
+	        "    >>> span -> span\n",
 	    },
 	    {
-	        {html, {"#endless-span", "span"}, outerHTML},
+	        {html, "{#endless-span{span{!outerHTML}}}"},
 	        {"<span>span, which has <b>no</b> end tag\n"},
-	    },
-	    {
-	        {
-	            R"html(<html>
-<head>
-    <title>Title of the page</title>
-</head>
-<body>
-<header><div>First <p>(with a paragraph)</p> and some more text</header>
-<div>Second</div>
-<footer>
-<div>Third
-</footer>
-<div>Fourth)html",
-	            {"div"},
-	            innerHTML,
-	        },
-	        {
-	            "First <p>(with a paragraph)</p> and some more text",
-	            "Second",
-	            "Third\n",
-	            "Fourth",
-	        },
-	    },
-	    {
-	        {html, {"#mixed-phrasing"}, innerText},
-	        {"Normal text, bold and italic and underline, just italic, just "
-	         "underline"},
-	    },
-	    {
-	        {html, {"#mixed-phrasing-ii"}, innerText},
-	        {"Normal text, bold and italic and underline, just italic, just "
-	         "underline"},
-	    },
-	    {
-	        {html, {"#mixed-phrasing-iii"}, innerText},
-	        {"Normal text, bold and italic and underline, just italic, just "
-	         "underline"},
+	        "!!! #endless-span\n"
+	        ">>> #endless-span -> p#endless-span\n"
+	        "    !!! span\n"
+	        "    ??? span\n"
+	        "    >>> span -> span\n",
 	    },
 	};
 
-	INSTANTIATE_TEST_SUITE_P(lookup, cursor_test, ::testing::ValuesIn(lookup));
+	INSTANTIATE_TEST_SUITE_P(lookup,
+	                         paths_visit_test,
+	                         ::testing::ValuesIn(lookup));
 }  // namespace tangle::browser::walk::testing

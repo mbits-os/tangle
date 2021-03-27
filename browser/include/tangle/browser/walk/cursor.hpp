@@ -6,9 +6,9 @@
 #include <string>
 
 #include <tangle/browser/html_split.hpp>
-#include <tangle/browser/span.hpp>
+#include <tangle/browser/walk/span.hpp>
 
-namespace tangle::browser {
+namespace tangle::browser::walk {
 	struct href_text {
 		std::string href{};
 		std::string text{};
@@ -56,4 +56,4 @@ namespace tangle::browser {
 
 		cursor root_{elements_, text_};
 	};
-}  // namespace tangle::browser
+}  // namespace tangle::browser::walk

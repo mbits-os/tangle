@@ -2,13 +2,13 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <tangle/base_parser.hpp>
-#include <tangle/browser/selector.hpp>
+#include <tangle/browser/walk/selector.hpp>
 #include <tangle/str.hpp>
 #include <algorithm>
 
 #include "selector_parser.hpp"
 
-namespace tangle::browser {
+namespace tangle::browser::walk {
 	namespace {
 		struct selector_parser : base_selector_parser<selector_parser> {
 			selector& dst;
@@ -338,4 +338,4 @@ namespace tangle::browser {
 
 		return matched;
 	}
-}  // namespace tangle::browser
+}  // namespace tangle::browser::walk

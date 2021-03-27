@@ -3,12 +3,12 @@
 
 #include <iostream>
 
-#include <tangle/browser/selector_action.hpp>
+#include <tangle/browser/walk/selector_action.hpp>
 #include <tangle/str.hpp>
 
 #include "action_parser.hpp"
 
-namespace tangle::browser {
+namespace tangle::browser::walk {
 	struct action_parser : base_action_parser<action_parser> {
 		selector_action& dst;
 
@@ -57,4 +57,6 @@ namespace tangle::browser {
 		if (!action_parser{result, text}.parse()) result = {};
 		return result;
 	}
-}  // namespace tangle::browser
+
+	action_callback::~action_callback() = default;
+}  // namespace tangle::browser::walk

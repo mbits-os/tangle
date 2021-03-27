@@ -9,7 +9,7 @@
 
 #include <tangle/browser/html_split.hpp>
 
-namespace tangle::browser {
+namespace tangle::browser::walk {
 
 	enum class attr_match {
 		unused,
@@ -54,4 +54,4 @@ namespace tangle::browser {
 		size_t match_attr(std::string_view attr_name,
 		                  std::string_view attr_value) const noexcept;
 	};
-}  // namespace tangle::browser
+}  // namespace tangle::browser::walk

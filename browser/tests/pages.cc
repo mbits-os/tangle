@@ -1,80 +1,76 @@
 // Copyright (c) 2021 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <tangle/browser/walk/cursor.hpp>
-#include <tangle/browser/walk/selector.hpp>
-#include "cxx_string.hh"
+#include "paths.hh"
 #include <sstream>
-#include <stack>
 #include <gtest/gtest.h>
 
 using namespace std::literals;
 
 namespace tangle::browser::walk::testing {
-	struct cursor_test_data {
-		struct header {
-			std::string_view html;
-			std::vector<std::string_view> path;
-			std::string (*modifier)(cursor& scope);
-		} hdr;
-		std::vector<std::string_view> expected;
+	struct pages_parse_test_data {
+		std::string_view input;
+		std::unordered_map<std::string, std::string> expected;
 
 		friend std::ostream& operator<<(std::ostream& out,
-		                                cursor_test_data const& test) {
-			if (test.hdr.path.empty()) return out << "[empty]";
-			auto first = true;
-			for (auto& selector : test.hdr.path) {
-				if (first)
-					first = false;
-				else
-					out << " -> ";
-				out << selector;
-			}
-			return out;
-		}
-
-		void query(cursor& scope,
-		           size_t depth,
-		           std::vector<std::string>& output) const {
-			if (depth == hdr.path.size()) {
-				output.push_back(hdr.modifier(scope));
-				// std::cout << ">>> apply " << cxx_string{output.back(), 120}
-				//           << "\n\n";
-				return;
-			}
-
-			auto sel = selector::parse(hdr.path[depth]);
-
-			if (!scope.eof()) ++scope;
-
-			while (!scope.eof()) {
-				auto& element = *scope;
-
-				if (!sel.matches(element)) {
-					++scope;
-					continue;
-				}
-
-				// std::cout << ">>> sel " << sel << "\n";
-				auto sub = scope.forCurrentElement();
-				query(sub, depth + 1, output);
-			}
+		                                pages_parse_test_data const& test) {
+			return out << cxx_string{test.input, 160};
 		}
 	};
 
-	class cursor_test : public ::testing::TestWithParam<cursor_test_data> {};
+	struct pages_parse_test : ::testing::TestWithParam<pages_parse_test_data> {
+	};
 
-	TEST(cursor_test, empty) {
-		cursor cur{};
-		ASSERT_TRUE(cur.eof());
+	TEST_P(pages_parse_test, parse) {
+		auto& param = GetParam();
+		auto actual = pages::parse_definition(param.input);
+
+		ASSERT_EQ(param.expected.size(), actual.defs.size());
+
+		for (auto& [key, paths] : actual.defs) {
+			auto it = param.expected.find(key);
+			ASSERT_NE(it, param.expected.end()) << "Key: " << key;
+			auto& exp = it->second;
+
+			std::ostringstream out;
+			out << paths_print{paths.tracks};
+			ASSERT_EQ(exp, out.str());
+		}
 	}
 
-	TEST_P(cursor_test, navigate) {
-		auto& param = GetParam();
+	static pages_parse_test_data const parse[] = {
+	    {{}, {}},
+	    {"{ anything }", {}},
+	    {"anything token", {}},
+	    {"anything }", {}},
+	    {
+	        "anything {}",
+	        {{"anything", "{}"}},
+	    },
+	    {
+	        "page::1 { div { #id { !text } } } page::2 {}",
+	        {
+	            {"page::1", "{ div { #id { !text } } }"},
+	            {"page::2", "{}"},
+	        },
+	    },
+	};
 
-		root_cursor env{param.hdr.html};
-		std::vector<std::string> actual;
-		param.query(env.root(), 0, actual);
+	INSTANTIATE_TEST_SUITE_P(items,
+	                         pages_parse_test,
+	                         ::testing::ValuesIn(parse));
+
+	struct pages_visit_test : ::testing::TestWithParam<visit_data> {};
+
+	TEST_P(pages_visit_test, walk) {
+		auto& param = GetParam();
+		root_cursor cur{param.hdr.markup};
+		auto defs = pages::parse_definition(param.hdr.definition);
+
+		std::vector<std::string> actual{};
+		auto callbacks = setup(&actual);
+		ASSERT_EQ(param.hdr.result_during_walk,
+		          defs.visit(cur.root(), param.hdr.page_id, callbacks));
 
 		ASSERT_EQ(param.expected.size(), actual.size());
 
@@ -188,48 +184,26 @@ Normal text, <b>bold <i>and italic <u>and underline</b>, just italic</u>, just u
 </body>
 </html>)html"sv;
 
-	std::string innerText(cursor& scope) { return scope.innerText(); }
+	static constexpr auto page_paths = R"(
+head-title {head{title{!innerText}}}
+title-only {title{!innerText}}
+content-markup {.content{!innerHTML}}
+content-p-text {.content{p{!innerText}}}
+img-src {img{!imgSrc}}
+img-innerHTML {img{!innerHTML}}
+poster {#poster{!imgSrc}}
+menu-text {.menu{.link{!hrefText}}}
+menu-links {.menu{.link{!aHref}}}
+after-mark {.for-mark{!textAfterMark}}
+endless-inner {#endless-span{span{!innerHTML}}}
+endless-outer {#endless-span{span{!outerHTML}}}
+)"sv;
 
-	std::string innerHTML(cursor& scope) {
-		std::string out{};
-		out.assign(scope.innerHTML().text);
-		return out;
-	}
-
-	std::string outerHTML(cursor& scope) {
-		std::string out{};
-		out.assign(scope.text);
-		return out;
-	}
-
-	std::string imgSrc(cursor& scope) { return scope.attr("img"sv, "src"sv); }
-	std::string aHref(cursor& scope) { return scope.attr("a"sv, "href"sv); }
-
-	std::string hrefText(cursor& scope) {
-		auto ht = scope.aHrefText();
-		return ht.href + "|"s + ht.text;
-	}
-
-	std::string textAfterMark(cursor& scope) {
-		auto sel = selector::parse("#mark");
-		while (!scope.eof()) {
-			if (!sel.matches(*scope)) {
-				++scope;
-				continue;
-			}
-
-			[[maybe_unused]] auto _ = scope.forCurrentElement();
-			auto real = scope.copyFromHere();
-			return real.innerText();
-		}
-		return {};
-	}
-
-	static cursor_test_data const lookup[] = {
-	    {{html, {"head", "title"}, innerText}, {"Title of the page"}},
-	    {{html, {"title"}, innerText}, {"Title of the page"}},
+	static visit_data const lookup[] = {
+	    {{html, page_paths, "head-title"}, {"Title of the page"}},
+	    {{html, page_paths, "title-only"}, {"Title of the page"}},
 	    {
-	        {html, {".content"}, innerHTML},
+	        {html, page_paths, "content-markup"},
 	        {
 	            {},
 
@@ -274,7 +248,7 @@ Normal text, <b>bold <i>and italic <u>and underline</b>, just italic</u>, just u
 	        },
 	    },
 	    {
-	        {html, {".content", "p"}, innerText},
+	        {html, page_paths, "content-p-text"},
 	        {
 	            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
 	            "Nulla ultricies nunc rhoncus gravida blandit. In non erat "
@@ -315,16 +289,19 @@ Normal text, <b>bold <i>and italic <u>and underline</b>, just italic</u>, just u
 	        },
 	    },
 	    {
-	        {html, {"img"}, imgSrc},
+	        {html, page_paths, "img-src"},
 	        {"image1.png", "image2.png", "image3.png", "image4.png"},
 	    },
 	    {
-	        {html, {"img"}, innerHTML},
+	        {html, page_paths, "img-innerHTML"},
 	        {{}, {}, {}, {}},
 	    },
-	    {{html, {"#poster"}, imgSrc}, {{"image2.png"}}},
 	    {
-	        {html, {".menu", ".link"}, hrefText},
+	        {html, page_paths, "poster"},
+	        {{"image2.png"}},
+	    },
+	    {
+	        {html, page_paths, "menu-text"},
 	        {
 	            "#|First",
 	            "example.com|Second",
@@ -339,7 +316,7 @@ Normal text, <b>bold <i>and italic <u>and underline</b>, just italic</u>, just u
 	        },
 	    },
 	    {
-	        {html, {".menu", ".link"}, aHref},
+	        {html, page_paths, "menu-links"},
 	        {
 	            "#",
 	            "example.com",
@@ -353,54 +330,21 @@ Normal text, <b>bold <i>and italic <u>and underline</b>, just italic</u>, just u
 	            {},
 	        },
 	    },
-	    {{html, {".for-mark"}, textAfterMark}, {"Text between. Third Fourth"}},
 	    {
-	        {html, {"#endless-span", "span"}, innerHTML},
+	        {html, page_paths, "after-mark"},
+	        {"Text between. Third Fourth"},
+	    },
+	    {
+	        {html, page_paths, "endless-inner"},
 	        {"span, which has <b>no</b> end tag\n"},
 	    },
 	    {
-	        {html, {"#endless-span", "span"}, outerHTML},
+	        {html, page_paths, "endless-outer"},
 	        {"<span>span, which has <b>no</b> end tag\n"},
-	    },
-	    {
-	        {
-	            R"html(<html>
-<head>
-    <title>Title of the page</title>
-</head>
-<body>
-<header><div>First <p>(with a paragraph)</p> and some more text</header>
-<div>Second</div>
-<footer>
-<div>Third
-</footer>
-<div>Fourth)html",
-	            {"div"},
-	            innerHTML,
-	        },
-	        {
-	            "First <p>(with a paragraph)</p> and some more text",
-	            "Second",
-	            "Third\n",
-	            "Fourth",
-	        },
-	    },
-	    {
-	        {html, {"#mixed-phrasing"}, innerText},
-	        {"Normal text, bold and italic and underline, just italic, just "
-	         "underline"},
-	    },
-	    {
-	        {html, {"#mixed-phrasing-ii"}, innerText},
-	        {"Normal text, bold and italic and underline, just italic, just "
-	         "underline"},
-	    },
-	    {
-	        {html, {"#mixed-phrasing-iii"}, innerText},
-	        {"Normal text, bold and italic and underline, just italic, just "
-	         "underline"},
 	    },
 	};
 
-	INSTANTIATE_TEST_SUITE_P(lookup, cursor_test, ::testing::ValuesIn(lookup));
+	INSTANTIATE_TEST_SUITE_P(lookup,
+	                         pages_visit_test,
+	                         ::testing::ValuesIn(lookup));
 }  // namespace tangle::browser::walk::testing

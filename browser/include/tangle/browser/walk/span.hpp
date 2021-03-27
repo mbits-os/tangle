@@ -3,18 +3,19 @@
 
 #pragma once
 
-#if 0  // __cplusplus > 201703L
+#if __cplusplus > 201703L
 
 #include <span>
 
-namespace tangle::browser {
+namespace tangle::browser::walk {
 	template <typename Item>
 	using span = std::span<Item>;
 }
 
 #else  // __cplusplus > 201703L
 
-namespace tangle::browser {
+namespace tangle::browser::walk {
+	// Pieces of std::span used by this project
 	template <typename Item>
 	struct span {
 		using pointer = Item*;
@@ -64,6 +65,6 @@ namespace tangle::browser {
 		pointer data_{};
 		size_t size_{};
 	};
-}  // namespace tangle::browser
+}  // namespace tangle::browser::walk
 
 #endif  // __cplusplus > 201703L
