@@ -1,3 +1,6 @@
+// Copyright (c) 2021 midnightBITS
+// This code is licensed under MIT license (see LICENSE for details)
+
 #pragma once
 
 #include <map>
@@ -65,4 +68,19 @@ namespace tangle::browser::walk {
 		           std::ostream* debug = nullptr) const;
 	};
 
+	template <typename Final>
+	struct parsed_pages {
+		static pages const& get_pages() {
+			static auto const defs = [] {
+				auto text = Final::pages_text();
+				return walk::pages::parse_definition(text);
+			}();
+			return (defs);
+		}
+
+		static std::string_view pages_text() {
+			using namespace std::literals;
+			return "{}"sv;
+		}
+	};
 }  // namespace tangle::browser::walk
