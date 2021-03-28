@@ -143,6 +143,8 @@ namespace tangle::browser::walk {
 				bool matching = false;
 				if (name.front() == '/')
 					matching = remove_top(stack, name);
+				else if (name.front() == '!')
+					continue;
 				else
 					add_child(stack, name, element.name.autoclose);
 

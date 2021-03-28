@@ -154,6 +154,7 @@ accumsan lectus. Etiam non magna non ante interdum tempor.</div>
 
 <ul class="menu">
 <li class="link"><a href="#">First</a></li>
+<!-- comment to see, if it would be skipped, when looking for /ul -->
 <li class="link"><a href=" example.com ">Second</a></li>
 <li class="link"><a href="sub.html  ">Third</a></li>
 <li class="link"><a href="app.example.com">Fourth</a></li>

@@ -200,6 +200,7 @@ endless-outer {#endless-span{span{!outerHTML}}}
 )"sv;
 
 	static visit_data const lookup[] = {
+	    {{html, page_paths, "no-such", false}, {}},
 	    {{html, page_paths, "head-title"}, {"Title of the page"}},
 	    {{html, page_paths, "title-only"}, {"Title of the page"}},
 	    {
