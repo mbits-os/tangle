@@ -89,6 +89,7 @@ namespace tangle::browser::walk::testing {
 	    {"[class~=value]"sv, ".value"sv},
 	    {"[class|=value]"sv, "[class|=value]"sv},
 	    {"[attr~=value]"sv, "[attr~=value]"sv},
+	    {"[ns:attr~=value]"sv, "[ns:attr~=value]"sv},
 	    {"[attr|=value]"sv, "[attr|=value]"sv},
 	    {"[attr^=value]"sv, "[attr^=value]"sv},
 	    {"[attr$=value]"sv, "[attr$=value]"sv},
@@ -219,6 +220,10 @@ namespace tangle::browser::walk::testing {
 	    {"[attr=value]", "<elem attr=value />", should::match},
 	    {"[attr=value]", "<elem id=value />", should::fail},
 	    {"[attr=value]", "<elem attr=value2 />", should::fail},
+
+	    {"[xml:lang=fr]", "<elem xml:lang=fr />", should::match},
+	    {"[xml:lang=fr]", "<elem xml:lang=en />", should::fail},
+	    {"[xml:lang=fr]", "<elem lang=fr />", should::fail},
 
 	    {"[attr]", "<elem attr=value />", should::match},
 	    {"[attr]", "<elem id=value />", should::fail},

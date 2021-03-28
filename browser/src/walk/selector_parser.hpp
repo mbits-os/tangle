@@ -11,7 +11,8 @@ namespace tangle::browser::walk {
 		base_selector_parser(std::string_view text) : Base{text} {}
 
 		static int is_token_char(int c) noexcept {
-			return std::isalnum(c) || c == '_' || c == '-' || (c >= 0x80);
+			return std::isalnum(c) || c == '_' || c == '-' || c == ':' ||
+			       (c >= 0x80);
 		}
 
 		void skip_ident_token() { this->skip(Final::is_token_char); }
