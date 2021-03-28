@@ -22,8 +22,13 @@ template <typename Pred>
 int write(fs::path const& filename, Pred pred) {
 	std::ofstream of{filename};
 	if (!of.is_open()) {
-		std::fprintf(stderr, "html-dtd: error: cannot open %s\n",
-		             filename.generic_u8string().c_str());
+		auto u8 = filename.generic_u8string();
+#ifdef __cpp_lib_char8_t
+		auto u8ptr = reinterpret_cast<char const*>(u8.c_str());
+#else
+		auto u8ptr = u8.c_str();
+#endif
+		std::fprintf(stderr, "html-dtd: error: cannot open %s\n", u8ptr);
 		return 1;
 	}
 
