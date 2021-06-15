@@ -6,6 +6,7 @@
 #include <cmath>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <stack>
 
 namespace json {
@@ -329,13 +330,14 @@ namespace json {
 					case has_value:
 						if (!val.index()) return {};
 						{
-							auto it = result.find(current_key_);
-							if (it != result.end() &&
-							    it->first == current_key_) {
-								it->second = std::move(val);
+							auto it_inner = result.find(current_key_);
+							if (it_inner != result.end() &&
+							    it_inner->first == current_key_) {
+								it_inner->second = std::move(val);
 							} else {
-								result.insert(it, {std::move(current_key_),
-								                   std::move(val)});
+								result.insert(
+								    it_inner,
+								    {std::move(current_key_), std::move(val)});
 							}
 						}
 						skip_ws(it, end);

@@ -1,6 +1,8 @@
 // Copyright (c) 2020 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "file.hh"
 #include "json.hh"
 #include "lookup.hh"
