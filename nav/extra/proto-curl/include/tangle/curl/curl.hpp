@@ -42,6 +42,7 @@ namespace tangle::curl {
 
 		void followLocation();
 		void dontFollowLocation();
+		void setAcceptEncoding(char const* value);
 		void setMaxRedirs(long redirs);
 		void setConnectTimeout(long timeout);
 		void setUrl(const std::string& url);

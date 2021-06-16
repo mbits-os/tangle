@@ -33,6 +33,10 @@ namespace tangle::curl {
 		curl_easy_setopt(m_curl, CURLOPT_MAXREDIRS, -1L);
 	}
 
+	void Curl::setAcceptEncoding(char const* value) {
+		curl_easy_setopt(m_curl, CURLOPT_ACCEPT_ENCODING, value);
+	}
+
 	void Curl::setMaxRedirs(long redirs) {
 		curl_easy_setopt(m_curl, CURLOPT_MAXREDIRS, redirs);
 	}
@@ -242,6 +246,8 @@ namespace tangle::curl {
 	static StringList convert(nav::headers const& headers) {
 		StringList result{};
 		for (auto const& [key, values] : headers) {
+			if (key == nav::header::Accept_Encoding) continue;
+
 			auto raw_name = key.name();
 			if (!raw_name) continue;
 
@@ -295,6 +301,13 @@ namespace tangle::curl {
 			        req.headers().find_front(nav::header::User_Agent);
 			    !custom_user_agent && !nav.user_agent().empty()) {
 				headers.append(("User-Agent:" + nav.user_agent()).c_str());
+			}
+
+			{
+				auto accept_encoding =
+				    req.headers().find_front(nav::header::Accept_Encoding);
+				curl.setAcceptEncoding(
+				    accept_encoding ? accept_encoding->c_str() : nullptr);
 			}
 
 			if (headers) curl.setHeaders(headers.get());
