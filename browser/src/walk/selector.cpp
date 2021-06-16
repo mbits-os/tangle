@@ -293,8 +293,8 @@ namespace tangle::browser::walk {
 	size_t selector::match_attr(std::string_view attr_name,
 	                            std::string_view attr_value) const noexcept {
 		size_t matched = 0;
-		for (auto const& [name, value, function] : attr_list) {
-			if (!equals(attr_name, name)) continue;
+		for (auto const& [next_name, value, function] : attr_list) {
+			if (!equals(attr_name, next_name)) continue;
 			++matched;
 
 			switch (function) {

@@ -41,7 +41,7 @@ namespace tangle::browser {
 			    : base_parser{text}, output{output} {}
 
 			std::string_view get_name(char skip_first = 0) noexcept {
-				return substr<parser>([skip_first](parser & self) noexcept {
+				return substr<parser>([skip_first](parser& self) noexcept {
 					if (skip_first && !self.get(skip_first)) return;
 
 					if (!self.is(is_name_start)) {
@@ -258,8 +258,8 @@ namespace tangle::browser {
 		};
 	}  // namespace
 
-	inline bool equal_ignore_case(std::string_view compared,
-	                              std::string_view prelowered) noexcept {
+	bool equal_ignore_case(std::string_view compared,
+	                       std::string_view prelowered) noexcept {
 		if (compared.length() != prelowered.length()) return false;
 		auto it = compared.begin();
 		for (auto r_ch : prelowered) {
