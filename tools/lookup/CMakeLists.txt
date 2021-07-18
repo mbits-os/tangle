@@ -21,3 +21,6 @@ target_link_libraries(html-dtd dtd)
 
 add_executable(html-entities apps/html-entities.cc)
 target_link_libraries(html-entities lookup)
+
+set_target_properties(lookup dtd html-dtd html-entities PROPERTIES
+	FOLDER tangle/tools)
