@@ -153,41 +153,21 @@ namespace tangle::browser {
 		};
 
 		fs::path utf8_path(std::string_view const& utf8) {
-#ifdef WIN32
-			int size = MultiByteToWideChar(CP_UTF8, 0, utf8.data(),
-			                               utf8.length(), nullptr, 0);
-			if (size < 1) return fs::path{utf8};
-
-			auto buffer =
-			    std::make_unique<wchar_t[]>(static_cast<size_t>(size) + 1);
-			int result = MultiByteToWideChar(CP_UTF8, 0, utf8.data(),
-			                                 utf8.length(), buffer.get(), size);
-			if (result < 1) return fs::path{utf8};
-			buffer[size] = 0;
-			return fs::path{buffer.get()};
+#ifdef __cpp_lib_char8_t
+			std::u8string_view u8view{
+			    reinterpret_cast<char8_t const*>(utf8.data()), utf8.size()};
+			return fs::path{u8view};
 #else
-			return fs::path{utf8};
+			return fs::u8path(utf8);
 #endif
 		}
 
 		std::string utf8_path(fs::path const& path) {
-#ifdef WIN32
-			auto wide = path.native();
-			int size =
-			    WideCharToMultiByte(CP_UTF8, 0, wide.data(), wide.length(),
-			                        nullptr, 0, nullptr, nullptr);
-			if (size < 1) return path.string();
-
-			auto buffer =
-			    std::make_unique<char[]>(static_cast<size_t>(size) + 1);
-			int result =
-			    WideCharToMultiByte(CP_UTF8, 0, wide.data(), wide.length(),
-			                        buffer.get(), size, nullptr, nullptr);
-			if (result < 1) return path.string();
-			buffer[size] = 0;
-			return buffer.get();
+			auto u8str = path.u8string();
+#ifdef __cpp_lib_char8_t
+			return {reinterpret_cast<char const*>(u8str.data()), u8str.size()};
 #else
-			return path.string();
+			return u8str;
 #endif
 		}
 

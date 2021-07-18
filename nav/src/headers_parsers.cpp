@@ -201,11 +201,11 @@ namespace tangle::nav {
 					// 6.2 If temporaryMimeType is failure or its essence is
 					// "*/*", then continue.
 					if (!parse_content_type(header, current, current_charset)) {
-						field_iter it{header};
-						it.look_for<','>();
-						it.get(',');
+						field_iter field_it{header};
+						field_it.look_for<','>();
+						field_it.get(',');
 
-						header = header.substr(usize(it.pos - header.data()));
+						header = header.substr(usize(field_it.pos - header.data()));
 						continue;
 					}
 
