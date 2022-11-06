@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.4)
 project(tangle VERSION 0.1.0 LANGUAGES CXX)
 
+if (EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
+endif()
 
 if (NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)

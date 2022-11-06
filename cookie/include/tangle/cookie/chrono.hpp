@@ -108,7 +108,7 @@ namespace tangle::cookie::chrono {
 		time.
 		*/
 		static time_point max_epoch() {
-			return time_point{time_point::duration::max()};
+			return time_point{(time_point::duration::max)()};
 		}
 
 		/**
