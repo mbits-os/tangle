@@ -22,25 +22,11 @@ set(SOURCES
 
 WRAP_SOURCELIST(${SOURCES})
 
-add_library(nav STATIC ${SOURCES})
-set_target_properties(nav PROPERTIES
-	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER tangle)
-target_include_directories(nav PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_tangle_library(nav ${SOURCES})
 target_link_libraries(nav PUBLIC uri cookie msg str)
-target_compile_options(nav PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
 if (MSVC)
 	target_sources(nav PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../natvis/header.natvis)
-endif()
-
-if (TANGLE_INSTALL)
-install(TARGETS nav
-	ARCHIVE DESTINATION lib
-	LIBRARY DESTINATION lib
-	RUNTIME DESTINATION bin)
-install(DIRECTORY include/tangle/ DESTINATION include/tangle)
 endif()
 
 ##################################################################

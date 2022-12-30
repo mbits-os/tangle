@@ -33,13 +33,7 @@ set(SOURCES
 
 WRAP_SOURCELIST(${SOURCES})
 
-add_library(browser STATIC ${SOURCES})
-set_target_properties(browser PROPERTIES
-	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER tangle)
-target_include_directories(browser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_compile_options(browser PRIVATE ${ADDITIONAL_WALL_FLAGS})
+add_tangle_library(browser ${SOURCES})
 target_link_libraries(browser str nav)
 
 ##################################################################

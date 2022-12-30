@@ -13,24 +13,10 @@ set(SOURCES
 
 WRAP_SOURCELIST(${SOURCES})
 
-add_library(msg STATIC ${SOURCES})
-set_target_properties(msg PROPERTIES
-	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER tangle)
-target_include_directories(msg PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_compile_options(msg PRIVATE ${ADDITIONAL_WALL_FLAGS})
+add_tangle_library(msg ${SOURCES})
 
 if (MSVC)
 	target_sources(msg PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../natvis/msg.natvis)
-endif()
-
-if (TANGLE_INSTALL)
-install(TARGETS msg
-	ARCHIVE DESTINATION lib
-	LIBRARY DESTINATION lib
-	RUNTIME DESTINATION bin)
-install(DIRECTORY include/tangle/ DESTINATION include/tangle)
 endif()
 
 ##################################################################

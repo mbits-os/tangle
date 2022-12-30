@@ -9,23 +9,8 @@ set(SOURCES
 
 WRAP_SOURCELIST(${SOURCES})
 
-add_library(proto-curl STATIC ${SOURCES})
-set_target_properties(proto-curl PROPERTIES
-    VERSION ${PROJECT_VERSION}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-    FOLDER tangle/extras
-)
-target_include_directories(proto-curl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_tangle_library(proto-curl ${SOURCES})
 target_link_libraries(proto-curl PUBLIC nav CURL::libcurl)
-target_compile_options(proto-curl PRIVATE ${ADDITIONAL_WALL_FLAGS})
-
-if (TANGLE_INSTALL)
-install(TARGETS proto-curl
-	ARCHIVE DESTINATION lib
-	LIBRARY DESTINATION lib
-	RUNTIME DESTINATION bin)
-install(DIRECTORY include/tangle/ DESTINATION include/tangle)
-endif()
 
 ##################################################################
 ##  TESTING

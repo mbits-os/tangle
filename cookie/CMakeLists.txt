@@ -18,21 +18,7 @@ set(SOURCES
 
 WRAP_SOURCELIST(${SOURCES})
 
-add_library(cookie STATIC ${SOURCES})
-set_target_properties(cookie PROPERTIES
-	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER tangle)
-target_include_directories(cookie PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_compile_options(cookie PRIVATE ${ADDITIONAL_WALL_FLAGS})
-
-if (TANGLE_INSTALL)
-install(TARGETS cookie
-	ARCHIVE DESTINATION lib
-	LIBRARY DESTINATION lib
-	RUNTIME DESTINATION bin)
-install(DIRECTORY include/tangle/ DESTINATION include/tangle)
-endif()
+add_tangle_library(cookie ${SOURCES})
 
 ##################################################################
 ##  DOCUMENTATION

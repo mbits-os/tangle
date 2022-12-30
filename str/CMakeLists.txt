@@ -10,13 +10,7 @@ set(SOURCES
 
 WRAP_SOURCELIST(${SOURCES})
 
-add_library(str STATIC ${SOURCES})
-set_target_properties(str PROPERTIES
-	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR}
-	FOLDER tangle)
-target_include_directories(str PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_compile_options(str PRIVATE ${ADDITIONAL_WALL_FLAGS})
+add_tangle_library(str ${SOURCES})
 
 ##################################################################
 ##  TESTING

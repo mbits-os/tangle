@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(tangle VERSION 0.1.0 LANGUAGES CXX)
 
-if (EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-endif()
-
 if (NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,10 +9,11 @@ else()
   message(STATUS "Building for C++${CMAKE_CXX_STANDARD} (set externally)")
 endif()
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(tangle_library)
+
 if (NOT TARGET CURL::libcurl)
-find_package(ZLIB REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
-find_package(OpenSSL REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
-find_package(CURL REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
+find_package(CURL REQUIRED CONFIG)
 endif()
 
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
@@ -178,6 +174,10 @@ endforeach()
 foreach(MODULE ${EXTRAS})
 	add_subdirectory( ${MODULE} )
 endforeach()
+
+if (TANGLE_INSTALL)
+  install(EXPORT tangle NAMESPACE "tangle::" DESTINATION lib/cmake)
+endif()
 
 ##################################################################
 ##  PACKER
