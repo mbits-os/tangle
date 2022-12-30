@@ -44,6 +44,6 @@ add_executable(proto-curl-test ${TEST_SRCS})
 set_target_properties(proto-curl-test tiny-process-library PROPERTIES FOLDER tangle/extras/tests)
 target_link_libraries(proto-curl-test proto-curl GTest::gmock_main tiny-process-library)
 
-add_test(NAME curl COMMAND proto-curl-test)
+# add_test(NAME curl COMMAND proto-curl-test)
 
 endif()
