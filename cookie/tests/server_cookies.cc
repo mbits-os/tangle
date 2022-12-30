@@ -11,15 +11,19 @@ namespace {
 		std::string_view header;
 		item cookie;
 	};
+
+	std::ostream& operator<<(std::ostream& o, const cookie_info& nfo) {
+		return o << '`' << nfo.header << '`';
+	}
 }  // namespace
 
-std::ostream& operator<<(std::ostream& o, const cookie_info& nfo) {
-	return o << '`' << nfo.header << '`';
-}
-
-std::ostream& operator<<(std::ostream& o, const time_point& pt) {
-	return o << pt.time_since_epoch().count();
-}
+namespace std::chrono {
+	static std::ostream& operator<<(
+	    std::ostream& o,
+	    const time_point<tangle::cookie::chrono::clock>& pt) {
+		return o << pt.time_since_epoch().count();
+	}
+}  // namespace std::chrono
 
 namespace {
 	class server_cookies : public ::testing::TestWithParam<cookie_info> {};

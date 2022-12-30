@@ -21,17 +21,17 @@ namespace tangle::testing {
 		std::string_view url;
 		std::string_view expected;
 	};
+
+	std::ostream& operator<<(std::ostream& o,
+	                         const UriCannonicalHrefTest& param) {
+		return o << "\"" << param.base << "\" + \"" << param.href << "\"";
+	}
+
+	std::ostream& operator<<(std::ostream& o,
+	                         const UriCannonicalHexTest& param) {
+		return o << "\"" << param.url << "\" -> \"" << param.expected << "\"";
+	}
 }  // namespace tangle::testing
-
-std::ostream& operator<<(std::ostream& o,
-                         const tangle::testing::UriCannonicalHrefTest& param) {
-	return o << "\"" << param.base << "\" + \"" << param.href << "\"";
-}
-
-std::ostream& operator<<(std::ostream& o,
-                         const tangle::testing::UriCannonicalHexTest& param) {
-	return o << "\"" << param.url << "\" -> \"" << param.expected << "\"";
-}
 
 namespace tangle::testing {
 	class UriCannonicalHref : public TestWithParam<UriCannonicalHrefTest> {};

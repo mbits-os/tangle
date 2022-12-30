@@ -7,17 +7,19 @@
 #include <type_traits>
 #include <gtest/gtest.h>
 
-static std::ostream& operator<<(std::ostream& o, tangle::msg::parsing p) {
-	switch (p) {
-		case tangle::msg::parsing::reading:
-			return o << "parsing::reading";
-		case tangle::msg::parsing::separator:
-			return o << "parsing::separator";
-		case tangle::msg::parsing::error:
-			return o << "parsing::error";
-	}
-	return o << "<" << (int)p << ">";
-};
+namespace tangle::msg {
+	static std::ostream& operator<<(std::ostream& o, parsing p) {
+		switch (p) {
+			case parsing::reading:
+				return o << "parsing::reading";
+			case parsing::separator:
+				return o << "parsing::separator";
+			case parsing::error:
+				return o << "parsing::error";
+		}
+		return o << "<" << (int)p << ">";
+	};
+}  // namespace tangle::msg
 
 namespace tangle::msg::testing {
 	struct http_request_info {

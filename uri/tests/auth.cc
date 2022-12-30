@@ -23,41 +23,39 @@ namespace tangle::testing {
 	inline std::string to_string(std::string_view sv) {
 		return {sv.data(), sv.length()};
 	}
-}  // namespace tangle::testing
 
-std::ostream& operator<<(std::ostream& o,
-                         const tangle::testing::uri_auth_info& param) {
-	o << "\"" << param.auth << "\" -> ";
-	if (!param.expected.user.empty()) {
-		o << "[" << param.expected.user << "]";
-		if (!param.expected.pass.empty())
-			o << ":[" << param.expected.pass << "]";
-		o << "@";
+	std::ostream& operator<<(std::ostream& o, const uri_auth_info& param) {
+		o << "\"" << param.auth << "\" -> ";
+		if (!param.expected.user.empty()) {
+			o << "[" << param.expected.user << "]";
+			if (!param.expected.pass.empty())
+				o << ":[" << param.expected.pass << "]";
+			o << "@";
+		}
+		o << "[" << param.expected.host << "]";
+		if (!param.expected.port.empty())
+			o << ":[" << param.expected.port << "]";
+
+		o << " (";
+		switch (param.how_merged) {
+			case tangle::uri::ui_safe:
+				o << "UI-safe";
+				break;
+			case tangle::uri::with_pass:
+				o << "unsafe / with pass";
+				break;
+			case tangle::uri::no_userinfo:
+				o << "host-only / no userinfo";
+				break;
+			default:
+				o << '<' << (int)param.how_merged << '>';
+				break;
+		}
+		o << ")";
+
+		return o;
 	}
-	o << "[" << param.expected.host << "]";
-	if (!param.expected.port.empty()) o << ":[" << param.expected.port << "]";
 
-	o << " (";
-	switch (param.how_merged) {
-		case tangle::uri::ui_safe:
-			o << "UI-safe";
-			break;
-		case tangle::uri::with_pass:
-			o << "unsafe / with pass";
-			break;
-		case tangle::uri::no_userinfo:
-			o << "host-only / no userinfo";
-			break;
-		default:
-			o << '<' << (int)param.how_merged << '>';
-			break;
-	}
-	o << ")";
-
-	return o;
-}
-
-namespace tangle::testing {
 	class uri_auth : public TestWithParam<uri_auth_info> {};
 
 	TEST_P(uri_auth, breakup) {

@@ -24,29 +24,27 @@ namespace tangle::testing {
 	inline std::string to_string(std::string_view sv) {
 		return {sv.data(), sv.length()};
 	}
-}  // namespace tangle::testing
 
-std::ostream& operator<<(std::ostream& o,
-                         const tangle::testing::uri_parts_info& param) {
-	o << "\"" << param.uri << "\" -> [" << param.expected.scheme << "]:";
-	if (!param.expected.authority.empty())
-		o << "//[" << param.expected.authority << "]";
-	o << "[" << param.expected.path << "]";
+	std::ostream& operator<<(std::ostream& o,
+	                         const tangle::testing::uri_parts_info& param) {
+		o << "\"" << param.uri << "\" -> [" << param.expected.scheme << "]:";
+		if (!param.expected.authority.empty())
+			o << "//[" << param.expected.authority << "]";
+		o << "[" << param.expected.path << "]";
 
-	if (param.expected.query.empty())
-		o << "?<empty>";
-	else
-		o << "?[" << param.expected.query.substr(1) << "]";
+		if (param.expected.query.empty())
+			o << "?<empty>";
+		else
+			o << "?[" << param.expected.query.substr(1) << "]";
 
-	if (param.expected.fragment.empty())
-		o << "#<empty>";
-	else
-		o << "#[" << param.expected.fragment.substr(1) << "]";
+		if (param.expected.fragment.empty())
+			o << "#<empty>";
+		else
+			o << "#[" << param.expected.fragment.substr(1) << "]";
 
-	return o;
-}
+		return o;
+	}
 
-namespace tangle::testing {
 	class uri_parts : public TestWithParam<uri_parts_info> {};
 
 	TEST_P(uri_parts, breakup) {
