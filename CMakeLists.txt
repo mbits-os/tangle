@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.15)
 project(tangle VERSION 0.1.0 LANGUAGES CXX)
 
 if (EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
