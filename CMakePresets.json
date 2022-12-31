@@ -10,7 +10,6 @@
             "name": "release",
             "displayName": "Release",
             "description": "Release build",
-            "hidden": true,
             "cacheVariables": {
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
                 "CMAKE_BUILD_TYPE": "Release"
