@@ -3,6 +3,7 @@
 
 #include <tangle/uri.hpp>
 #include <gtest/gtest.h>
+#include <algorithm>
 
 using namespace std::literals;
 

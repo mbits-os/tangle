@@ -12,10 +12,7 @@ set(SOURCES
 WRAP_SOURCELIST(${SOURCES})
 
 add_tangle_library(uri ${SOURCES})
-
-if (MSVC)
-	target_sources(uri PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../natvis/uri.natvis)
-endif()
+add_natvis(uri uri)
 
 ##################################################################
 ##  DOCUMENTATION

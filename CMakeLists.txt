@@ -129,6 +129,16 @@ macro(WRAP_SOURCELIST)
 	endforeach ()
 endmacro()
 
+set(TANGLE_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+function(add_natvis PROJECT FILENAME)
+  if (MSVC)
+    target_sources(${PROJECT} PUBLIC
+        $<BUILD_INTERFACE:${TANGLE_ROOT}/natvis/${FILENAME}.natvis>
+        $<INSTALL_INTERFACE:include/tangle/natvis/${FILENAME}.natvis>
+    )
+  endif()
+endfunction()
+
 if (MSVC)
 add_definitions(/EHsc)
 endif()
@@ -177,6 +187,9 @@ endforeach()
 
 if (TANGLE_INSTALL)
   install(EXPORT tangle NAMESPACE "tangle::" DESTINATION lib/cmake)
+  if (MSVC)
+    install(DIRECTORY natvis/ DESTINATION include/tangle/natvis)
+  endif()
 endif()
 
 ##################################################################

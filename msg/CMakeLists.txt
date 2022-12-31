@@ -14,10 +14,8 @@ set(SOURCES
 WRAP_SOURCELIST(${SOURCES})
 
 add_tangle_library(msg ${SOURCES})
+add_natvis(msg msg)
 
-if (MSVC)
-	target_sources(msg PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../natvis/msg.natvis)
-endif()
 
 ##################################################################
 ##  TESTING

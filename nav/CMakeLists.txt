@@ -24,10 +24,7 @@ WRAP_SOURCELIST(${SOURCES})
 
 add_tangle_library(nav ${SOURCES})
 target_link_libraries(nav PUBLIC uri cookie msg str)
-
-if (MSVC)
-	target_sources(nav PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../natvis/header.natvis)
-endif()
+add_natvis(nav header)
 
 ##################################################################
 ##  DOCUMENTATION
