@@ -20,6 +20,17 @@
             "binaryDir": "${sourceDir}/build/release"
         },
         {
+            "name": "release-single",
+            "displayName": "Release [Single]",
+            "description": "Release build of single library",
+            "inherits": [
+                "release"
+            ],
+            "cacheVariables": {
+                "TANGLE_SINGLE_LIB": true
+            }
+        },
+        {
             "name": "release-ninja",
             "displayName": "Ninja",
             "description": "Release build using Ninja generator",
@@ -38,21 +49,9 @@
             ]
         },
         {
-            "name": "release-single",
-            "displayName": "Release/Single",
-            "description": "Release build of single library",
-            "inherits": [
-                "release"
-            ],
-            "cacheVariables": {
-                "TANGLE_SINGLE_LIB": true
-            },
-            "binaryDir": "${sourceDir}/build/release-single"
-        },
-        {
             "name": "release-single-ninja",
-            "displayName": "Ninja/Single",
-            "description": "Release/Single build using Ninja generator",
+            "displayName": "Ninja [Single]",
+            "description": "Release [Single] build using Ninja generator",
             "generator": "Ninja",
             "inherits": [
                 "release-single"
@@ -60,8 +59,8 @@
         },
         {
             "name": "release-single-vs22",
-            "displayName": "Visual Studio 2022/Single",
-            "description": "Release/Single build using Visual Studio 2022 generator",
+            "displayName": "Visual Studio 2022 [Single]",
+            "description": "Release [Single] build using Visual Studio 2022 generator",
             "generator": "Visual Studio 17 2022",
             "inherits": [
                 "release-single"
@@ -72,11 +71,6 @@
         {
             "name": "release",
             "configurePreset": "release",
-            "configuration": "Release"
-        },
-        {
-            "name": "release-single",
-            "configurePreset": "release-single",
             "configuration": "Release"
         }
     ],

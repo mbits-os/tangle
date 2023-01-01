@@ -8,13 +8,6 @@ if (TANGLE_SINGLE_LIB)
         FOLDER tangle)
     target_include_directories(tangle PUBLIC $<INSTALL_INTERFACE:include>)
     target_compile_options(tangle PRIVATE ${ADDITIONAL_WALL_FLAGS})
-    if (TANGLE_INSTALL)
-        install(TARGETS tangle
-            EXPORT tangle
-            ARCHIVE DESTINATION lib
-            LIBRARY DESTINATION lib
-            RUNTIME DESTINATION bin)
-    endif()
 
     function(add_tangle_library NAME)
         set(_SRCS)

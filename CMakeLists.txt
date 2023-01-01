@@ -177,11 +177,12 @@ foreach(MODULE ${EXTRAS})
 endforeach()
 
 if (TANGLE_INSTALL)
-  install(EXPORT tangle NAMESPACE "tangle::" DESTINATION lib/cmake)
-  if (MSVC)
-    install(DIRECTORY natvis/ DESTINATION include/tangle/natvis)
-  endif()
   if (TARGET tangle)
+    install(TARGETS tangle
+      EXPORT tangle
+      ARCHIVE DESTINATION lib
+      LIBRARY DESTINATION lib
+      RUNTIME DESTINATION bin)
     get_target_property(TANGLE_INCLUDE_DIRS tangle INTERFACE_INCLUDE_DIRECTORIES)
     foreach(DIR ${TANGLE_INCLUDE_DIRS})
       if (DIR MATCHES "^[$]<BUILD_INTERFACE:(.*)>$")
@@ -189,6 +190,11 @@ if (TANGLE_INSTALL)
         install(DIRECTORY ${DIR} DESTINATION include)
       endif()
     endforeach()
+  endif()
+
+  install(EXPORT tangle NAMESPACE "tangle::" DESTINATION lib/cmake)
+  if (MSVC)
+    install(DIRECTORY natvis/ DESTINATION include/tangle/natvis)
   endif()
 endif()
 
