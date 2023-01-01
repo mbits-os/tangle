@@ -23,7 +23,7 @@ set(SOURCES
 WRAP_SOURCELIST(${SOURCES})
 
 add_tangle_library(nav ${SOURCES})
-target_link_libraries(nav PUBLIC uri cookie msg str)
+tangle_link_libraries(nav uri cookie msg str)
 add_natvis(nav header)
 
 ##################################################################
@@ -52,7 +52,7 @@ file(GLOB TEST_SRCS tests/*.cc)
 
 add_executable(nav-test ${TEST_SRCS})
 set_target_properties(nav-test PROPERTIES FOLDER tangle/tests)
-target_link_libraries(nav-test nav GTest::gmock_main)
+target_link_libraries(nav-test nav_target GTest::gmock_main)
 
 add_test(NAME nav COMMAND nav-test)
 

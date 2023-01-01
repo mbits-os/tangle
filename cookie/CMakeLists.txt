@@ -50,7 +50,7 @@ list(APPEND TEST_SRCS tests/testing_io.hpp)
 
 add_executable(cookie-test ${TEST_SRCS})
 set_target_properties(cookie-test PROPERTIES FOLDER tangle/tests)
-target_link_libraries(cookie-test cookie GTest::gtest_main)
+target_link_libraries(cookie-test cookie_target GTest::gtest_main)
 
 add_test(NAME cookies COMMAND cookie-test)
 

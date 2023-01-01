@@ -10,7 +10,12 @@ set(SOURCES
 WRAP_SOURCELIST(${SOURCES})
 
 add_tangle_library(proto-curl ${SOURCES})
-target_link_libraries(proto-curl PUBLIC nav CURL::libcurl)
+tangle_link_libraries(proto-curl nav)
+if (TARGET tangle)
+	target_link_libraries(tangle PUBLIC CURL::libcurl)
+else()
+	target_link_libraries(proto-curl PUBLIC CURL::libcurl)
+endif()
 
 ##################################################################
 ##  TESTING
@@ -27,7 +32,7 @@ file(GLOB TEST_SRCS tests/*.cc)
 
 add_executable(proto-curl-test ${TEST_SRCS})
 set_target_properties(proto-curl-test tiny-process-library PROPERTIES FOLDER tangle/extras/tests)
-target_link_libraries(proto-curl-test proto-curl GTest::gmock_main tiny-process-library)
+target_link_libraries(proto-curl-test proto-curl_target GTest::gmock_main tiny-process-library)
 
 # add_test(NAME curl COMMAND proto-curl-test)
 

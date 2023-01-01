@@ -25,7 +25,7 @@ file(GLOB TEST_SRCS tests/*.cc)
 add_executable(str-test ${TEST_SRCS})
 target_compile_options(str-test PRIVATE ${ADDITIONAL_WALL_FLAGS})
 set_target_properties(str-test PROPERTIES FOLDER tangle/tests)
-target_link_libraries(str-test str GTest::gtest_main)
+target_link_libraries(str-test str_target GTest::gtest_main)
 
 add_test(NAME str COMMAND str-test)
 

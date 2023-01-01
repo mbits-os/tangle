@@ -29,7 +29,7 @@ file(GLOB TEST_SRCS tests/*.cc)
 
 add_executable(msg-test ${TEST_SRCS})
 set_target_properties(msg-test PROPERTIES FOLDER tangle/tests)
-target_link_libraries(msg-test msg GTest::gtest_main)
+target_link_libraries(msg-test msg_target GTest::gtest_main)
 
 add_test(NAME msg COMMAND msg-test)
 

@@ -41,7 +41,7 @@ file(GLOB TEST_SRCS tests/*.cc)
 
 add_executable(uri-test ${TEST_SRCS})
 set_target_properties(uri-test PROPERTIES FOLDER tangle/tests)
-target_link_libraries(uri-test uri GTest::gtest_main)
+target_link_libraries(uri-test uri_target GTest::gtest_main)
 
 add_test(NAME uri COMMAND uri-test)
 

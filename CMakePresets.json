@@ -2,7 +2,7 @@
     "version": 3,
     "cmakeMinimumRequired": {
         "major": 3,
-        "minor": 15,
+        "minor": 21,
         "patch": 0
     },
     "configurePresets": [
@@ -12,7 +12,9 @@
             "description": "Release build",
             "cacheVariables": {
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_POLICY_DEFAULT_CMP0079": "NEW",
+                "CMAKE_BUILD_TYPE": "Release",
+                "TANGLE_SINGLE_LIB": false
             },
             "toolchainFile": "${sourceDir}/build/conan/conan_toolchain.cmake",
             "binaryDir": "${sourceDir}/build/release"
@@ -34,12 +36,47 @@
             "inherits": [
                 "release"
             ]
+        },
+        {
+            "name": "release-single",
+            "displayName": "Release/Single",
+            "description": "Release build of single library",
+            "inherits": [
+                "release"
+            ],
+            "cacheVariables": {
+                "TANGLE_SINGLE_LIB": true
+            },
+            "binaryDir": "${sourceDir}/build/release-single"
+        },
+        {
+            "name": "release-single-ninja",
+            "displayName": "Ninja/Single",
+            "description": "Release/Single build using Ninja generator",
+            "generator": "Ninja",
+            "inherits": [
+                "release-single"
+            ]
+        },
+        {
+            "name": "release-single-vs22",
+            "displayName": "Visual Studio 2022/Single",
+            "description": "Release/Single build using Visual Studio 2022 generator",
+            "generator": "Visual Studio 17 2022",
+            "inherits": [
+                "release-single"
+            ]
         }
     ],
     "buildPresets": [
         {
             "name": "release",
             "configurePreset": "release",
+            "configuration": "Release"
+        },
+        {
+            "name": "release-single",
+            "configurePreset": "release-single",
             "configuration": "Release"
         }
     ],

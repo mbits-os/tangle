@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(tangle VERSION 0.2.0 LANGUAGES CXX)
+project(tangle VERSION 0.2.1 LANGUAGES CXX)
 
 if (NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
@@ -9,6 +9,7 @@ else()
   message(STATUS "Building for C++${CMAKE_CXX_STANDARD} (set externally)")
 endif()
 
+set(TANGLE_SINGLE_LIB OFF CACHE BOOL "Create only one library")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(tangle_library)
 
@@ -129,16 +130,6 @@ macro(WRAP_SOURCELIST)
 	endforeach ()
 endmacro()
 
-set(TANGLE_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
-function(add_natvis PROJECT FILENAME)
-  if (MSVC)
-    target_sources(${PROJECT} PUBLIC
-        $<BUILD_INTERFACE:${TANGLE_ROOT}/natvis/${FILENAME}.natvis>
-        $<INSTALL_INTERFACE:include/tangle/natvis/${FILENAME}.natvis>
-    )
-  endif()
-endfunction()
-
 if (MSVC)
 add_definitions(/EHsc)
 endif()
@@ -189,6 +180,15 @@ if (TANGLE_INSTALL)
   install(EXPORT tangle NAMESPACE "tangle::" DESTINATION lib/cmake)
   if (MSVC)
     install(DIRECTORY natvis/ DESTINATION include/tangle/natvis)
+  endif()
+  if (TARGET tangle)
+    get_target_property(TANGLE_INCLUDE_DIRS tangle INTERFACE_INCLUDE_DIRECTORIES)
+    foreach(DIR ${TANGLE_INCLUDE_DIRS})
+      if (DIR MATCHES "^[$]<BUILD_INTERFACE:(.*)>$")
+        string(REGEX REPLACE "^[$]<BUILD_INTERFACE:(.*)>$" "\\1/" DIR ${DIR})
+        install(DIRECTORY ${DIR} DESTINATION include)
+      endif()
+    endforeach()
   endif()
 endif()
 

@@ -34,7 +34,7 @@ set(SOURCES
 WRAP_SOURCELIST(${SOURCES})
 
 add_tangle_library(browser ${SOURCES})
-target_link_libraries(browser str nav)
+tangle_link_libraries(browser str nav)
 
 ##################################################################
 ##  TESTING
@@ -50,12 +50,12 @@ file(GLOB WALK_TEST_SRCS tests/walk/*.cc)
 add_executable(browser-test ${TEST_SRCS})
 target_compile_options(browser-test PRIVATE ${ADDITIONAL_WALL_FLAGS})
 set_target_properties(browser-test PROPERTIES FOLDER tangle/tests)
-target_link_libraries(browser-test browser GTest::gtest_main)
+target_link_libraries(browser-test browser_target GTest::gtest_main)
 
 add_executable(browser-walk-test ${WALK_TEST_SRCS})
 target_compile_options(browser-walk-test PRIVATE ${ADDITIONAL_WALL_FLAGS})
 set_target_properties(browser-walk-test PROPERTIES FOLDER tangle/tests)
-target_link_libraries(browser-walk-test browser GTest::gtest_main)
+target_link_libraries(browser-walk-test browser_target GTest::gtest_main)
 
 add_test(NAME browser COMMAND browser-test)
 add_test(NAME browser-walk COMMAND browser-walk-test)
