@@ -1,5 +1,5 @@
 [requires]
-libcurl/7.86.0
+libcurl/7.87.0
 gtest/cci.20210126
 
 [generators]
