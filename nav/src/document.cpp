@@ -12,9 +12,9 @@ namespace tangle::nav {
 	document::document(document&&) = default;
 	document& document::operator=(document&&) = default;
 
-	document document::open(uri const& loc) {
+	document document::open(uri const& loc, uri::server_quirks quirks) {
 		if (!m_impl) return {};
-		return m_impl->open(loc);
+		return m_impl->open(loc, quirks);
 	}
 
 	document document::open(request const& req) {
@@ -80,8 +80,8 @@ namespace tangle::nav {
 
 	doc_backend::~doc_backend() = default;
 
-	document doc_backend::open(uri const& loc) {
+	document doc_backend::open(uri const& loc, uri::server_quirks quirks) {
 		if (!exists()) return {};
-		return open(request{loc}.referrer(location()));
+		return open(request{loc, quirks}.referrer(location()));
 	}
 }  // namespace tangle::nav

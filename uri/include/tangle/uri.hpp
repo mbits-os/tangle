@@ -102,6 +102,11 @@ namespace tangle {
 			               at all. */
 		};
 
+		enum server_quirks {
+			no_quirks,
+			no_plus_in_path,
+		};
+
 		/**
 		Helper class for reading and setting
 		authority component.
@@ -420,7 +425,8 @@ namespace tangle {
 		*/
 		static uri canonical(const uri& identifier,
 		                     const uri& base,
-		                     auth_flag flag = ui_safe);
+		                     auth_flag flag = ui_safe,
+		                     server_quirks quirks = no_quirks);
 
 		/**
 		Normalizes the input.
@@ -442,7 +448,9 @@ namespace tangle {
 		            string
 		\returns normalized uri
 		*/
-		static uri normal(uri identifier, auth_flag flag = ui_safe);
+		static uri normal(uri identifier,
+		                  auth_flag flag = ui_safe,
+		                  server_quirks quirks = no_quirks);
 
 		friend std::ostream& operator<<(std::ostream& out, uri const& address) {
 			return out << address.string();

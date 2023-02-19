@@ -43,8 +43,8 @@ namespace tangle::nav {
 
 	uri request::address() const {
 		auto referrer = m_headers.find_front(header::Referer);
-		if (referrer) return normalized(m_address, uri{*referrer});
-		return normalized(m_address);
+		if (referrer) return normalized(m_address, uri{*referrer}, m_quirks);
+		return normalized(m_address, m_quirks);
 	}
 
 	uri request::referrer() const {

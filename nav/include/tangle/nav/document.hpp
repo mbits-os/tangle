@@ -23,7 +23,8 @@ namespace tangle::nav {
 		document(document&&);
 		document& operator=(document&&);
 
-		document open(uri const& loc);
+		document open(uri const& loc,
+		              uri::server_quirks quirks = uri::no_quirks);
 		document open(request const& req);
 		uri const& location() const noexcept;
 		std::string const& text() const noexcept;
@@ -50,7 +51,7 @@ namespace tangle::nav {
 
 	struct doc_backend {
 		virtual ~doc_backend();
-		virtual document open(uri const& loc);
+		virtual document open(uri const& loc, uri::server_quirks quirks);
 		virtual document open(request const& req) = 0;
 		virtual uri const& location() const noexcept = 0;
 		virtual std::string const& text() const noexcept = 0;

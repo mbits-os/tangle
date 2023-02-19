@@ -11,19 +11,26 @@ namespace tangle::browser {
 	public:
 		offline_media(fetch_interface& browser);
 		virtual ~offline_media();
-		std::string analyze(std::string_view, uri const& base_url);
+		std::string analyze(std::string_view,
+		                    uri const& base_url,
+		                    uri::server_quirks = uri::no_quirks);
 
 	protected:
 		virtual std::optional<uri> normalize(std::string_view,
-		                                     uri const& base_url) const;
-		virtual std::string download(uri const&);
+		                                     uri const& base_url,
+		                                     uri::server_quirks) const;
+		virtual std::string download(uri const&, uri::server_quirks);
 		virtual std::string store(std::string const& filename,
 		                          std::string const& ext,
 		                          std::string_view bytes) = 0;
 
 	private:
-		std::string_view downloaded(std::string_view, uri const& base_url);
-		std::string_view cached(std::string_view, uri const& base_url) const;
+		std::string_view downloaded(std::string_view,
+		                            uri const& base_url,
+		                            uri::server_quirks);
+		std::string_view cached(std::string_view,
+		                        uri const& base_url,
+		                        uri::server_quirks) const;
 
 		fetch_interface& browser_;
 		std::unordered_map<std::string, std::string> srcs_;
@@ -57,7 +64,8 @@ namespace tangle::browser {
 	class intranet_offline_media_helper {
 	public:
 		static std::optional<uri> filter_by_server(std::string_view,
-		                                           uri const& base_url);
+		                                           uri const& base_url,
+		                                           uri::server_quirks);
 	};
 
 	template <typename BaseClass>
@@ -66,9 +74,10 @@ namespace tangle::browser {
 		using BaseClass::BaseClass;
 
 		std::optional<uri> normalize(std::string_view href,
-		                             uri const& base_url) const override {
-			return intranet_offline_media_helper::filter_by_server(href,
-			                                                       base_url);
+		                             uri const& base_url,
+		                             uri::server_quirks quirks) const override {
+			return intranet_offline_media_helper::filter_by_server(
+			    href, base_url, quirks);
 		}
 	};
 

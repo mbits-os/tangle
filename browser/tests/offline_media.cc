@@ -84,9 +84,10 @@ namespace tangle::browser::testing {
 		    : BaseClass{browser}, dirname_{dirname} {}
 
 	private:
-		std::string download(uri const& address) override {
+		std::string download(uri const& address,
+		                     uri::server_quirks quirks) override {
 			std::cerr << "dl > " << address << '\n';
-			return BaseClass::download(address);
+			return BaseClass::download(address, quirks);
 		}
 
 		std::string store(std::string const& filename,

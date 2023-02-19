@@ -37,11 +37,28 @@ namespace tangle::nav {
 		explicit request(nav::method mth, nav::headers&& hdrs = {})
 		    : m_method(mth), m_headers(std::move(hdrs)) {}
 
-		explicit request(const uri& address, nav::headers&& hdrs = {})
-		    : m_address(normalized(address)), m_headers(std::move(hdrs)) {}
+		explicit request(const uri& address,
+		                 uri::server_quirks quirks = uri::no_quirks,
+		                 nav::headers&& hdrs = {})
+		    : m_address(normalized(address, quirks))
+		    , m_quirks{quirks}
+		    , m_headers(std::move(hdrs)) {}
 
-		request(nav::method mth, const uri& address, nav::headers&& hdrs = {})
-		    : m_address(normalized(address))
+		request(nav::method mth,
+		        const uri& address,
+		        uri::server_quirks quirks = uri::no_quirks,
+		        nav::headers&& hdrs = {})
+		    : m_address(normalized(address, quirks))
+		    , m_method(mth)
+		    , m_quirks{quirks}
+		    , m_headers(std::move(hdrs)) {}
+
+		request(const uri& address, nav::headers&& hdrs)
+		    : m_address(normalized(address, uri::no_quirks))
+		    , m_headers(std::move(hdrs)) {}
+
+		request(nav::method mth, const uri& address, nav::headers&& hdrs)
+		    : m_address(normalized(address, uri::no_quirks))
 		    , m_method(mth)
 		    , m_headers(std::move(hdrs)) {}
 
@@ -49,8 +66,10 @@ namespace tangle::nav {
 			m_method = value;
 			return *this;
 		}
-		request& address(const uri& value) {
+		request& address(const uri& value,
+		                 uri::server_quirks quirks = uri::no_quirks) {
 			m_address = value;
+			m_quirks = quirks;
 			return *this;
 		}
 		request& add(header_key const& header, std::string const& value) {
@@ -112,14 +131,18 @@ namespace tangle::nav {
 		std::shared_ptr<request_trace> trace() const { return m_trace; }
 
 	private:
-		static uri normalized(uri const& input, uri const& doc) {
-			return uri::canonical(input, uri::make_base(doc), uri::with_pass);
+		static uri normalized(uri const& input,
+		                      uri const& doc,
+		                      uri::server_quirks quirks) {
+			return uri::canonical(input, uri::make_base(doc), uri::with_pass,
+			                      quirks);
 		}
-		static uri normalized(uri const& input) {
-			return uri::normal(input, uri::with_pass);
+		static uri normalized(uri const& input, uri::server_quirks quirks) {
+			return uri::normal(input, uri::with_pass, quirks);
 		}
 		uri m_address{};
 		nav::method m_method = nav::method::get;
+		uri::server_quirks m_quirks = uri::no_quirks;
 		int m_max_redir = 50;
 		std::string m_content{};
 		std::string m_form_fields{};

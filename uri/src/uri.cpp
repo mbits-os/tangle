@@ -539,24 +539,27 @@ namespace tangle {
 		return tmp;
 	}
 
-	uri uri::canonical(const uri& identifier, const uri& base, auth_flag flag) {
+	uri uri::canonical(const uri& identifier,
+	                   const uri& base,
+	                   auth_flag flag,
+	                   server_quirks quirks) {
 		if (identifier.has_authority()) {
 			if (identifier.has_scheme() && !identifier.is_scheme_relative())
-				return normal(identifier, flag);
+				return normal(identifier, flag, quirks);
 
-			if (!base.has_scheme()) return normal(identifier, flag);
+			if (!base.has_scheme()) return normal(identifier, flag, quirks);
 			// base-scheme://ident-auth/ident-path?ident-query#ident-frag
 			auto temp = identifier;
 			temp.scheme(base.scheme());
-			return normal(std::move(temp), flag);
+			return normal(std::move(temp), flag, quirks);
 		}
 
 		if (identifier.has_scheme()) {
-			if (!base.has_authority()) return normal(identifier, flag);
+			if (!base.has_authority()) return normal(identifier, flag, quirks);
 
 			if (!base.has_scheme() || tolower(to_string(identifier.scheme())) !=
 			                              tolower(to_string(base.scheme())))
-				return normal(identifier, flag);
+				return normal(identifier, flag, quirks);
 		}
 
 		// base-scheme://base-auth/base-path?ident-query#ident-frag
@@ -566,16 +569,16 @@ namespace tangle {
 
 		auto path = identifier.path();
 		if (!path.empty() && path[0] == '/')
-			return temp.path(path), normal(std::move(temp), flag);
+			return temp.path(path), normal(std::move(temp), flag, quirks);
 
 		auto bpath = base.path();
 		if (!bpath.empty())
 			return temp.path(to_string(base.path()) + "/" + to_string(path)),
-			       normal(std::move(temp), flag);
-		return temp.path(path), normal(std::move(temp), flag);
+			       normal(std::move(temp), flag, quirks);
+		return temp.path(path), normal(std::move(temp), flag, quirks);
 	}
 
-	uri uri::normal(uri tmp, auth_flag flag) {
+	uri uri::normal(uri tmp, auth_flag flag, server_quirks quirks) {
 		if (tmp.m_scheme != npos) {
 			auto scheme = tolower(to_string(tmp.scheme()));
 			tmp.scheme(scheme);
@@ -625,8 +628,11 @@ namespace tangle {
 			std::vector<std::string> recoded;
 			recoded.reserve(path.size());
 			for (auto& part : path)
-				recoded.push_back(
-				    urlencode(urldecode(part, codec::path), codec::path));
+				recoded.push_back(urlencode(
+				    urldecode(part, codec::path),
+				              (quirks & no_plus_in_path) == no_plus_in_path
+				                  ? codec::common
+				                  : codec::path));
 
 			bool absolute_path =
 			    (recoded.size() > 1) && recoded.front().empty();

@@ -33,7 +33,9 @@ namespace tangle::browser {
 		         std::string const& decoded_value);
 		void set(std::string const& decoded_name,
 		         std::string const& decoded_value);
-		nav::request make_request(uri const& page_url) const;
+		nav::request make_request(
+		    uri const& page_url,
+		    uri::server_quirks quirks = uri::no_quirks) const;
 
 	private:
 		std::unordered_map<std::string, size_t> indexes_;

@@ -20,6 +20,7 @@ namespace tangle::testing {
 	struct UriCannonicalHexTest {
 		std::string_view url;
 		std::string_view expected;
+		uri::server_quirks quirks = uri::no_quirks;
 	};
 
 	std::ostream& operator<<(std::ostream& o,
@@ -46,7 +47,7 @@ namespace tangle::testing {
 
 	TEST_P(UriCannonicalHex, URLDecode) {
 		auto const& param = GetParam();
-		auto result = uri::canonical(param.url, {});
+		auto result = uri::canonical(param.url, {}, uri::ui_safe, param.quirks);
 		uri copy{};
 		copy = result;
 		ASSERT_EQ(param.expected, result);
@@ -175,6 +176,8 @@ namespace tangle::testing {
 		{ "http://example.com/A/B/../../../C/../",             "http://example.com/" },
 		{ "http://example.com/A/B/../../.%2e/C/..",            "http://example.com/" },
 		{ "http://example.com/%7Euser",                        "http://example.com/~user" },
+		{ "http://example.com/one+other",                      "http://example.com/one+other" },
+		{ "http://example.com/one+other",                      "http://example.com/one%2Bother", uri::no_plus_in_path },
 		{ "http://example.com/%%30%30",                        "http://example.com/%2500" }
 	};
 

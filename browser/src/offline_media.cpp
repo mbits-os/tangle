@@ -208,7 +208,8 @@ namespace tangle::browser {
 	offline_media::~offline_media() = default;
 
 	std::string offline_media::analyze(std::string_view text,
-	                                   uri const& base_url) {
+	                                   uri const& base_url,
+	                                   uri::server_quirks quirks) {
 		auto tags = browser::html_split(text);
 
 		std::vector<attr_replacement> replacements{};
@@ -218,7 +219,7 @@ namespace tangle::browser {
 			auto it = find_attr(tag, "src"sv);
 			if (it == tag.attrs.end()) continue;
 
-			auto repl = downloaded(it->second.value, base_url);
+			auto repl = downloaded(it->second.value, base_url, quirks);
 			if (!repl.empty()) {
 				replacements.push_back({it->second.start,
 				                        it->second.stop,
@@ -231,7 +232,7 @@ namespace tangle::browser {
 			auto it = find_attr(tag, "href"sv);
 			if (it == tag.attrs.end()) continue;
 
-			auto repl = cached(it->second.value, base_url);
+			auto repl = cached(it->second.value, base_url, quirks);
 			if (!repl.empty()) {
 				replacements.push_back({it->second.start,
 				                        it->second.stop,
@@ -243,19 +244,23 @@ namespace tangle::browser {
 		return patch(text, replacements);
 	}
 
-	std::optional<uri> offline_media::normalize(std::string_view href,
-	                                            uri const& base_url) const {
-		return uri::canonical(attr_decode(href), uri::make_base(base_url));
+	std::optional<uri> offline_media::normalize(
+	    std::string_view href,
+	    uri const& base_url,
+	    uri::server_quirks quirks) const {
+		return uri::canonical(attr_decode(href), uri::make_base(base_url),
+		                      uri::auth_flag::with_pass, quirks);
 	}
 
 	std::string_view offline_media::downloaded(std::string_view href,
-	                                           uri const& base_url) {
-		auto address = normalize(href, base_url);
+	                                           uri const& base_url,
+	                                           uri::server_quirks quirks) {
+		auto address = normalize(href, base_url, quirks);
 		if (!address) return {};
 
 		auto it = srcs_.find(address->string());
 		if (it == srcs_.end()) {
-			auto path = download(*address);
+			auto path = download(*address, quirks);
 			if (path.empty()) return {};
 			auto [iterator, success] =
 			    srcs_.insert({address->string(), std::move(path)});
@@ -268,16 +273,18 @@ namespace tangle::browser {
 	}
 
 	std::string_view offline_media::cached(std::string_view href,
-	                                       uri const& base_url) const {
-		auto address = normalize(href, base_url);
+	                                       uri const& base_url,
+	                                       uri::server_quirks quirks) const {
+		auto address = normalize(href, base_url, quirks);
 		if (!address) return {};
 		auto it = srcs_.find(address->string());
 		if (it == srcs_.end()) return {};
 		return it->second;
 	}
 
-	std::string offline_media::download(uri const& address) {
-		auto req = nav::request{address};
+	std::string offline_media::download(uri const& address,
+	                                    uri::server_quirks quirks) {
+		auto req = nav::request{address, quirks};
 		req.set(nav::header::Accept,
 		        "text/html,application/xhtml+xml,application/"
 		        "xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
@@ -363,8 +370,10 @@ namespace tangle::browser {
 
 	std::optional<uri> intranet_offline_media_helper::filter_by_server(
 	    std::string_view href,
-	    uri const& base_url) {
-		auto resource = uri::canonical(attr_decode(href), base_url);
+	    uri const& base_url,
+	    uri::server_quirks quirks) {
+		auto resource =
+		    uri::canonical(attr_decode(href), base_url, uri::with_pass, quirks);
 
 		auto url_auth = base_url.parsed_authority();
 		auto res_auth = resource.parsed_authority();

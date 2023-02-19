@@ -59,7 +59,8 @@ namespace tangle::browser {
 		fields.push_back({decoded_name, {decoded_value}});
 	}
 
-	nav::request form::make_request(uri const& page_url) const {
+	nav::request form::make_request(uri const& page_url,
+	                                uri::server_quirks quirks) const {
 		uri::params params{};
 		for (auto const& field : fields) {
 			for (auto const& value : field.values) {
@@ -75,7 +76,7 @@ namespace tangle::browser {
 
 		if (nav_method == nav::method::get) action_url.query(params.string());
 
-		nav::request result{nav_method, action_url};
+		nav::request result{nav_method, action_url, quirks};
 		result.referrer(page_url).max_redir(0);
 		if (nav_method == nav::method::post)
 			result.form_fields(params.string(uri::form_urlencoded));
